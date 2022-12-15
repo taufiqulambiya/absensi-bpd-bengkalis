@@ -1,0 +1,226 @@
+@extends('layouts.app')
+@section('title', 'Cuti Pegawai')
+
+@section('content')
+<div class="container body">
+    <div class="main_container">
+        <!-- sidebar -->
+        @include('layouts.sidebar')
+        @include('layouts.topbar')
+        <!-- page content -->
+        <div class="right_col" role="main">
+            <div class="">
+                <div class="page-title">
+                    <div class="title_left">
+                        <h3>Halaman @yield('title')</h3>
+                    </div>
+                </div>
+
+                <div class="clearfix"></div>
+
+                <div class="row">
+                    <div class="col-md-12 col-sm-12  ">
+                        <div class="x_panel">
+                            <div class="x_title">
+                                <h2>Konten @yield('title')</h2>
+                                <div class="clearfix"></div>
+                            </div>
+                            <div class="row">
+                                <div class="col-6">
+                                    <x-cuti.jatah-cuti-card />
+                                </div>
+
+                                @if ($has_cuti)
+                                <div class="col-md-6">
+                                    <x-cuti.detail-card />
+                                </div>
+                                @endif
+
+                                <div class="col-12">
+                                    <div class="card">
+                                        <div class="card-header">
+                                            <ul class="nav nav-tabs nav-stacked mb-3">
+                                                <li class="nav-item">
+                                                    <a class="nav-link active" id="all-tab" data-toggle="tab"
+                                                        href="#all" role="tab" aria-controls="all"
+                                                        aria-selected="true">Pending</a>
+                                                </li>
+                                                <li class="nav-item">
+                                                    <a class="nav-link" id="terlewat-tab" data-toggle="tab"
+                                                        href="#terlewat" role="tab" aria-controls="terlewat"
+                                                        aria-selected="true">Terlewat</a>
+                                                </li>
+                                                <li class="nav-item">
+                                                    <a class="nav-link" id="selesai-tab" data-toggle="tab"
+                                                        href="#selesai" role="tab" aria-controls="selesai"
+                                                        aria-selected="true">Selesai</a>
+                                                </li>
+                                            </ul>
+                                        </div>
+
+                                        <div class="card-body">
+                                            <div class="tab-content py-3">
+                                                <div class="tab-pane fade show active table-responsive" id="all">
+                                                    <x-cuti.list-pending />
+                                                </div>
+                                                <div class="tab-pane fade table-responsive" id="terlewat">
+                                                    <x-cuti.list-missed />
+                                                </div>
+                                                <div class="tab-pane fade table-responsive" id="selesai">
+                                                    <x-cuti.list-done />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        {{-- modals --}}
+        <x-modal.tracking />
+
+        <div class="modal" id="modal-form" tabindex="-1" role="dialog">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Tambah pengajuan</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+
+                    <div class="modal-body">
+                        @csrf
+                        @if (count($not_allowed) > 0)
+                        <div class="not-allowed mb-3">
+                            <span class="d-block text-danger">Harap pilih selain dari tanggal berikut:</span>
+                            <div class="d-flex flex-wrap chips" style="gap: 4px">
+                                @foreach ($not_allowed as $item)
+                                <span class="chip bg-secondary text-white">{{$item}}</span>
+                                @endforeach
+                            </div>
+                        </div>
+                        @endif
+                        <div class="form-group">
+                            <label for="jenis">Jenis Cuti</label>
+                            <select class="form-control" name="jenis" id="jcf-selector">
+                                <option value="1" data-value="{{ $jatah_cuti_tahunan }}">Cuti Tahunan</option>
+                                <option value="2" data-value="{{ $jatah_cuti_besar }}">Cuti Besar</option>
+                                <option value="3" data-value="{{ $jatah_cuti_melahirkan }}">Cuti Melahirkan
+                                </option>
+                                <option value="4" data-value="{{ $jatah_cuti_penting }}">Cuti Karena Alasan
+                                    Penting</option>
+                                <option value="5" data-value="{{ $jatah_cuti_ctln }}">Cuti Diluar
+                                    Tanggungan Negara</option>
+                            </select>
+                            <span class="d-block font-weight-bold">Jatah tersisa : <span id="jcf-value">{{
+                                    $jatah_cuti_tahunan }}</span></span>
+                        </div>
+                        <div class="p-2 form-group">
+                            <label for="ctmdp">Pilih Tanggal</label>
+                            <div class="row justify-content-center">
+                                <div class="col-md-6 col-sm-12">
+                                    <div id="ctmdp"></div>
+                                </div>
+                            </div>
+                        </div>
+                        {{-- <div class="form-group">
+                            <label for="tanggal">Tanggal</label>
+                            <input type="date" class="form-control" id="tanggal-selector" aria-describedby="tanggal"
+                                min="{{ date('Y-m-d', strtotime('+1day')) }}"
+                                max="{{ date('Y-m-d', strtotime('12/31')) }}" placeholder="">
+                            <div class="d-flex flex-wrap chips mt-3" id="tanggal-list" style="gap: 4px">
+                            </div>
+                        </div> --}}
+                        <div class="form-group">
+                            <label for="keterangan">Keterangan</label>
+                            <input type="text" name="keterangan" class="form-control" id="keterangan" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="bukti">Bukti</label>
+                            <input type="file" class="form-control-file" id="bukti" name="bukti" required>
+                            <span class="text-info" id="bukti-helper"></span>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
+                        <button type="submit" class="btn btn-primary" id="submit-cuti">Ajukan</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <x-modal.delete id="modal-delete" title="Batalkan pengajuan?" desc="Tindakan ini akan membatalkan pengajuan. Lanjutkan
+        membatalkan?" />
+
+        <!-- footer content -->
+        <footer>
+            <div class="pull-right">
+                Sistem Informasi Absensi Kab. Bengkalis &copy 2022
+            </div>
+            <div class="clearfix"></div>
+        </footer>
+        <!-- /footer content -->
+    </div>
+</div>
+
+
+
+<script>
+    const notAllowedDates = JSON.parse(`<?= json_encode($not_allowed) ?>`);
+    const idUser = `{{ $user->id }}`;
+    let jatahCuti = `{{ $jatah_cuti_tahunan }}`;
+</script>
+<script src="{{ asset('js/cuti.js') }}"></script>
+<script>
+    function removeTanggal(idx) {
+        cuti.removeTanggal(idx);
+    }
+    
+    $('#tanggal-selector').change(function() {
+        const val = $(this).val();
+        cuti.selectTanggal(val);
+        $(this).val('');
+    });
+
+    $('.btn-edit').each(function() {
+        $(this).click(function() {
+            const item = $(this).data('item');
+            cuti.fillForm(item);
+        })
+    })
+
+    $('#modal-form').on('hide.bs.modal', function(){
+        cuti.clearForm();
+    })
+
+    $('#tanggal-clear').click(function(){
+        cuti.clearTanggal();
+    })
+
+    $('#submit-cuti').click(function(){
+        cuti.submit();
+    })
+
+    $('.selected-tanggal').each(function() {
+        $(this).click(function(){
+            console.log($(this).data('idx'))
+        })
+    });
+
+    $('#jcf-selector').change(function() {
+        const name = $(this).val();
+        const value = $(this).find('option:selected').data('value');
+        cuti.updateJatahCuti(value);
+        $('#jcf-value').text(value);
+    });
+
+    cuti.renderTanggalInput();
+</script>
+@endsection
