@@ -1,6 +1,8 @@
 /node_modules
 /public/build
 /public/hot
+/public/
+/config/
 /public/storage
 /storage/*.key
 /vendor
@@ -17,5 +19,4 @@ yarn-error.log
 
 /**/*.zip
 /**/*.sql
-/public/
-/config/
+/**/*.DS_Store

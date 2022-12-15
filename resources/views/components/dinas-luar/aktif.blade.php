@@ -14,8 +14,10 @@
                 <div class="col-md-8"><span>: {{$data->mulai}}</span></div>
                 <div class="col-md-4"><span>Tanggal Selesai</span></div>
                 <div class="col-md-8"><span>: {{$data->selesai}}</span></div>
-                <div class="col-md-4"><span>Tujuan</span></div>
-                <div class="col-md-8"><span>: {{$data->tujuan}}</span></div>
+                <div class="col-md-4"><span>Maksud Pejalanan Dinas</span></div>
+                <div class="col-md-8"><span>: {{$data->maksud}}</span></div>
+                <div class="col-md-4"><span>Lokasi Dinas</span></div>
+                <div class="col-md-8"><span>: {{$data->lokasi}}</span></div>
                 <div class="col-md-4"><span>Surat Jalan</span></div>
                 <div class="col-md-8"><span>:
                         @if ($data->file)
