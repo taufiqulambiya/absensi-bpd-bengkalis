@@ -40,7 +40,7 @@
                                                 <tr>
                                                     <th>#</th>
                                                     <th>Nama</th>
-                                                    <th>Kepala Bidang</th>
+                                                    {{-- <th>Kepala Bidang</th> --}}
                                                     <th>Jumlah Staff</th>
                                                     <th>Tanggal Dibuat</th>
                                                     <th>Terakhir Diperbarui</th>
@@ -52,14 +52,16 @@
                                                 <tr>
                                                     <th scope="row">{{$loop->iteration}}</th>
                                                     <td>{{ $item->nama }}</td>
-                                                    <td>{{ $item->kabids->nama }}</td>
+                                                    {{-- <td>{{ $item->kabids->nama ?? '-' }}</td> --}}
                                                     <td>{{ $item->users->count() }}</td>
                                                     <td>{{ $item->created_at }}</td>
                                                     <td>{{ $item->updated_at }}</td>
                                                     <td>
-                                                        <button type="button" class="btn btn-info btn-edit" data-toggle="modal" data-target="#modal-form" data-item="{{ $item }}" title="Perbarui">
+                                                        <button type="button" class="btn btn-info btn-edit"
+                                                            data-toggle="modal" data-target="#modal-form"
+                                                            data-item="{{ $item }}" title="Perbarui">
                                                             <i class="fa fa-pencil" aria-hidden="true"></i></button>
-                                                        <button type="button" class="btn btn-danger" title="Hapus"><i
+                                                        <button type="button" class="btn btn-danger btn-delete" data-id="{{ $item->id }}" title="Hapus"><i
                                                                 class="fa fa-times" aria-hidden="true"></i></button>
                                                     </td>
                                                 </tr>
@@ -89,26 +91,17 @@
                     <div class="modal-body">
                         <form action="" id="form" method="POST" autocomplete="off">
                             @csrf
-                            <div class="form-group">
-                              <label for="nama">Nama</label>
-                              <input type="text"
-                                class="form-control" name="nama" id="nama" aria-describedby="namaId" placeholder="Nama..." required>
-                              <small id="namaId" class="form-text text-muted">Masukkan nama bidang</small>
-                            </div>
-
-                            <div class="form-group">
-                              <label for="kabid">Kepala Bidang</label>
-                              <select class="form-control" name="kabid" id="kabid">
-                                @foreach ($kabid_allowed as $item)
-                                    <option value="{{ $item->id }}">{{ $item->nama }}</option>
-                                @endforeach
-                              </select>
+                            <div class="form-group mb-3">
+                                <label for="nama">Nama</label>
+                                <input type="text" class="form-control" name="nama" id="nama" aria-describedby="namaId"
+                                    placeholder="Nama..." required>
+                                <small id="namaId" class="form-text text-muted">Masukkan nama bidang</small>
                             </div>
                         </form>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
-                        <button type="submit" class="btn btn-primary">Simpan</button>
+                        <button type="submit" class="btn btn-primary" form="form">Simpan</button>
                     </div>
                 </div>
             </div>
@@ -128,6 +121,8 @@
 <script>
     const bidangs = JSON.parse(`<?= json_encode($data) ?>`);
     const notAllowed = bidangs.map(v => v.nama.toLowerCase());
+    const all_users = JSON.parse(`<?= json_encode($all_users) ?>`);
+
 
     $(document).ready(function () {
         $('#nama').keyup(function () {
@@ -149,7 +144,12 @@
                 const inputNames = $('form').serializeArray().map(v => v.name).filter(v => v !== '_token');
                 inputNames.forEach(v => {
                     if (v === 'kabid') {
-                        $(`#${v}`).prepend(`<option value="${item[v]}">ss</option>`);    
+                        const selectedKabid = all_users.find(k => k.id === item[v]);
+                        const kabidId = item[v] || null;
+                        if (kabidId) {
+                            const kabidName = selectedKabid ? selectedKabid.nama : 'Pilih';
+                            $(`#${v}`).prepend(`<option value="${kabidId}" id="kabid-prepend">${kabidName}</option>`);    
+                        }
                     }
                     $(`#${v}`).val(item[v]);
                 });
@@ -159,12 +159,38 @@
             });
         });
 
+        $('.btn-delete').each(function (_, element) {
+            // element == this
+            $(element).click(function () { 
+                const id = $(this).data('id');
+                dangerConfirmator({}, () => {
+                    const URI = `${baseURL}/panel/master/bidang/${id}`;
+                    const payload = {
+                        _token: $('input[name=_token]').val(),
+                        _method: 'DELETE',
+                    }
+                    $.post(URI, payload)
+                        .then(res => {
+                            if (res?.success) {
+                                showSuccessAlert(res?.success, () => {
+                                    window.location.reload();
+                                });
+                            }
+                            if (res?.error) {
+                                showErrorAlert(res?.error);
+                            }
+                        })
+                })
+            });
+        });
+
         $('#modal-form').on('hide.bs.modal', function () {
             $('form').attr('action', `${baseURL}/panel/master/bidang`);
+            $('#kabid-prepend').remove();
             $('input[name=_method]').remove();
             $('.modal-title').text('Tambah Bidang');
             $('form').trigger('reset');
         });
-    });
+    }); 
 </script>
 @endsection

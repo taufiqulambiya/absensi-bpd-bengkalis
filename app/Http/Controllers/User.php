@@ -2,14 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\MasterBidang;
 use App\Models\User as ModelsUser;
 use Error;
 use Exception;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Validator;
 
 class User extends BaseController
 {
@@ -23,12 +20,12 @@ class User extends BaseController
             return view('panel.pegawai.users.profil', compact('data'));
         }
         if ($level == 'kabid') {
-            $data['data'] = ModelsUser::with('bidang')
-                ->where('jabatan', $user->jabatan)
+            $data['data'] = ModelsUser::with('bidangs')
+                ->where('bidang', $user->bidang)
                 ->get();
             return view('panel.kabid.users.users', $data);
         }
-        $data['data'] = ModelsUser::with('bidang')->get();
+        $data['data'] = ModelsUser::with('bidangs')->get();
         return view('panel.admin.users.users', $data);
     }
 
@@ -53,7 +50,7 @@ class User extends BaseController
             }])->get()->filter(function ($q) {
                 return $q->bidang;
             });
-            if($found_atasan->count() > 0) {
+            if ($found_atasan->count() > 0) {
                 throw new Error('Jabatan Atasan hanya dapat dipegang oleh satu Pengguna');
             }
 
@@ -72,32 +69,27 @@ class User extends BaseController
         }
         $request->validate([
             'nama' => 'required',
-            'nip' => 'required|min:18|unique:users,nip,'.$id,
+            'nip' => 'required|min:18|unique:users,nip,' . $id,
             'tgl_lahir' => 'date|required',
             'no_telp' => 'required',
             'gambar' => 'mimes:jpg,jpeg,png',
         ], [], ['nip' => 'NIP']);
-        try {
+        // try {
             $item = ModelsUser::findOrFail($id);
 
-            $found_atasan = ModelsUser::with(['bidang' => function ($q) {
+            $found_atasan = ModelsUser::with(['bidangs' => function ($q) {
                 return $q->where('nama', 'Atasan');
             }])->get()->filter(function ($q) {
-                return $q->bidang;
+                return $q->bidangs;
             });
-            if($found_atasan->count() > 0 and $found_atasan->first()->id != $id) {
+            if ($found_atasan->count() > 0 and $found_atasan->first()->id != $id) {
                 $first_atasan = $found_atasan->first();
-                if ($request->jabatan == $first_atasan->jabatan) {
+                if ($request->bidang == $first_atasan->bidang) {
                     throw new Error('Jabatan Atasan hanya dapat dipegang oleh satu Pengguna');
                 }
-                if ($request->level == 'atasan') {
-                    throw new Error('Jabatan Atasan hanya dapat dipegang oleh satu Pengguna');
-                }
-            }
-
-            $found_jabatan = MasterBidang::where('nama', 'Atasan');
-            if ($request->level == 'atasan' and $request->jabatan != $found_jabatan->first()->id) {
-                throw new Error('Level Pimpinan harus memakai jabatan yang sesuai (Atasan)');
+                // if ($request->level == 'atasan') {
+                //     throw new Error('Jabatan Atasan hanya dapat dipegang oleh satu Pengguna');
+                // }
             }
 
             $found_admin = ModelsUser::where('level', 'admin');
@@ -120,10 +112,10 @@ class User extends BaseController
                 return response()->json('ok');
             }
             return redirect()->back()->with('success', 'Data berhasil diperbarui.');
-        } catch (\Throwable $th) {
-            // dd($th);
-            return redirect()->back()->with('error', $th->getMessage());
-        }
+        // } catch (\Throwable $th) {
+        //     // dd($th);
+        //     return redirect()->back()->with('error', $th->getMessage());
+        // }
     }
 
     private function _update_password($request, $id)
@@ -156,7 +148,7 @@ class User extends BaseController
         if ($sess_user->id != $id) {
             return 'Access denied';
         }
-        $user = ModelsUser::with('bidang')->findOrFail($id);
+        $user = ModelsUser::with('bidangs')->findOrFail($id);
         if ($user->level == 'pegawai') {
             return view('panel.pegawai.users.profile', compact('user'));
         }
@@ -193,18 +185,15 @@ class User extends BaseController
     public function update_password(Request $request, $id)
     {
         $user = ModelsUser::findOrFail($id);
-        $rules = [
+        $request->validate([
             'password2' => 'required|min:5|same:password',
             'password' => 'required|min:5',
             'old-password' => 'required|min:5',
-        ];
-        $validator = Validator::make($request->post(), $rules);
-        $validator->setAttributeNames([
+        ], [], [
             'old-password' => 'Password lama',
             'password' => 'Password baru',
             'password2' => 'Konfirmasi password',
         ]);
-        $validator->validate();
 
         $is_valid = password_verify($request->post('old-password'), $user->password);
         if ($is_valid) {
@@ -229,6 +218,20 @@ class User extends BaseController
         return response()->json($password);
     }
 
+    public function toggle_kabid_level()
+    {
+        $current_sess = session('user');
+        $user = ModelsUser::find($current_sess->id);
+        if ($user->level != 'kabid') {
+            return 'Access denied';
+        }
+        if ($current_sess->level == 'kabid') {
+            session('user')->level = 'pegawai';
+        } else {
+            session('user')->level = 'kabid';
+        }
+        return redirect()->route('dashboard');
+    }
     public function toggle_admin_level()
     {
         $current_sess = session('user');

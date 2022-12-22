@@ -25,9 +25,12 @@ class ListDonePegawai extends Component
     public function render()
     {
         $user = session('user');
-        $data = Cuti::where('id_user', $user->id)
-            ->where('status', '==', 'accepted_admin')
-            ->orWhere('status', '==', 'rejected')
+        $data = Cuti::where([
+            ['id_user', $user->id],
+            [function ($x) {
+                return $x->where('status', '==', 'accepted_admin')->orWhere('status', '==', 'rejected');
+            }]
+        ])
             ->get()
             ->filter(function ($x) {
                 $tanggal = explode(',', $x->tanggal);

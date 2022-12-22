@@ -55,9 +55,14 @@ class ListDonePegawai extends Component
     public function render()
     {
         $user = session('user');
-        $data = Izin::with('user')->where('id_user', $user->id)
-            ->where('status', 'accepted_admin')
-            ->orWhere('status', 'rejected')
+        $data = Izin::with('user')
+            ->where([
+                ['id_user', $user->id],
+                [function ($x) {
+                    return $x->where('status', 'accepted_admin')
+                        ->orWhere('status', 'rejected');
+                }]
+            ])
             ->orderBy('created_at', 'desc')
             ->get()
             ->each(function ($x) {

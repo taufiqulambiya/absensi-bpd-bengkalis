@@ -72,11 +72,11 @@ class Absensi extends BaseController
                     $current_day_index = date('w') - 1;
                     $current_day = $days[$current_day_index];
 
-                    return array_search($current_day, $days_used);
+                    return gettype(array_search($current_day, $days_used)) == 'integer';
                 });
             $jam_kerja = null;
             if ($shift->count() > 0) {
-                $jam_kerja =$shift->first();
+                $jam_kerja = $shift->first();
             }
             $absensi = ModelsAbsensi::with('shift')
                 ->where('id_user', $user->id)

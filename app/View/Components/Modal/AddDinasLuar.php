@@ -28,7 +28,7 @@ class AddDinasLuar extends Component
      */
     public function render()
     {
-        $users = User::with('bidang')->where('level', '!=', 'atasan')->get()->each(function ($x) {
+        $users = User::with('bidangs')->where('level', '!=', 'atasan')->get()->each(function ($x) {
             $tgl_izin = [];
             $izin = Izin::where('id_user', $x->id)
                 ->where('status', 'accepted_pimpinan')->get();

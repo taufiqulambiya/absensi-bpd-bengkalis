@@ -46,11 +46,11 @@ class Report extends Controller
         $return = [];
         switch ($request->filter) {
             case 'pegawai':
-                $pegawai = User::with('bidang')->where('id', $request->post('pegawai'))->get()->each(function ($x) {
+                $pegawai = User::with('bidangs')->where('id', $request->post('pegawai'))->get()->each(function ($x) {
                     $x->jabatan = $x->bidang->nama;
                 });
                 if ($request->post('pegawai') == '') {
-                    $pegawai = User::with('bidang')->where('level', 'pegawai')->get()->each(function ($x) {
+                    $pegawai = User::with('bidangs')->where('level', 'pegawai')->get()->each(function ($x) {
                         $x->jabatan = $x->bidang->nama ?? '-';
                     });
                 }

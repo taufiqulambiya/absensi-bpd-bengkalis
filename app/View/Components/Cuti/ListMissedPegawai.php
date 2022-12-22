@@ -25,9 +25,13 @@ class ListMissedPegawai extends Component
     public function render()
     {
         $user = session('user');
-        $data = Cuti::where('id_user', $user->id)
-            ->where('status', '==', 'pending')
-            ->orWhere('status', '==', 'accepted_kabid')
+        $data = Cuti::where([
+            ['id_user', $user->id],
+            [function ($x) {
+                return $x->where('status', '==', 'pending')
+                    ->orWhere('status', '==', 'accepted_kabid');
+            }]
+        ])
             ->get()
             ->filter(function ($x) {
                 $tanggal = explode(',', $x->tanggal);

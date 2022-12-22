@@ -8,7 +8,6 @@ use App\Models\Settings;
 use App\Models\User;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
-use DragonCode\Support\Helpers\Arr;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -74,7 +73,7 @@ class Cuti extends BaseController
 
     public function index()
     {
-        $user = User::find(session('user')->id);
+        $user = session('user');
         $setting = Settings::first();
         $level = $user->level;
 
@@ -110,9 +109,12 @@ class Cuti extends BaseController
 
             $data = [
                 'level' => $level,
-                'cuti_aktif' => ModelsCuti::where('id_user', $user->id)
-                    ->where('status', '!=', 'accepted_pimpinan')
-                    ->orWhere('status', '!=', 'rejected')
+                'cuti_aktif' => ModelsCuti::where([
+                    ['id_user', $user->id],
+                    [function ($x) {
+                        return $x->where('status', '!=', 'accepted_pimpinan')->orWhere('status', '!=', 'rejected');
+                    }]
+                ])
                     ->get()
                     ->each(function ($x) {
                         $x->tanggal = explode(',', $x->tanggal);
@@ -125,9 +127,14 @@ class Cuti extends BaseController
                 'jatah_cuti_penting' => $setting->jatah_cuti_penting - $all_cuti->sum('total_penting'),
                 'jatah_cuti_ctln' => $setting->jatah_cuti_ctln - $all_cuti->sum('total_ctln'),
                 'has_cuti' => $has_cuti,
-                'cuti_selesai' => ModelsCuti::where('id_user', $user->id)
-                    ->where('status', 'accepted_pimpinan')
-                    ->orWhere('status', 'rejected')
+                'cuti_selesai' => ModelsCuti::where(
+                    [
+                        ['id_user', $user->id],
+                        [function ($x) {
+                            return $x->where('status', 'accepted_pimpinan')->orWhere('status', 'rejected');
+                        }]
+                    ]
+                )
                     ->get()
                     ->each(function ($x) {
                         $x->tanggal = array_map(function ($y) {
@@ -211,6 +218,15 @@ class Cuti extends BaseController
             ]
         ];
         $post['tracking'] = json_encode($tracking);
+
+        $id_user = session('user')->id;
+        $user = User::find($id_user);
+        if ($user and $user->level == 'kabid') {
+            $post['status'] = 'accepted_kabid';
+        }
+        if ($user and $user->level == 'admin') {
+            $post['status'] = 'accepted_admin';
+        }
         $success = ModelsCuti::create($post);
 
         if ($success) {

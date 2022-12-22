@@ -19,7 +19,11 @@ class User extends Model
 
     public function bidang()
     {
-        return $this->hasOne(MasterBidang::class, 'id', 'jabatan');
+        return $this->hasOne(MasterBidang::class, 'id', 'bidang');
+    }
+    public function bidangs()
+    {
+        return $this->hasOne(MasterBidang::class, 'id', 'bidang');
     }
 
     public function cuti()

@@ -19,7 +19,8 @@ class JatahCutiCard extends Component
         //
     }
 
-    private function totalMapper($x) {
+    private function totalMapper($x)
+    {
         $tanggal = explode(',', $x->tanggal);
         $x->total_tahunan = 0;
         $x->total_besar = 0;
@@ -63,10 +64,12 @@ class JatahCutiCard extends Component
         $data->has_cuti = false;
 
         if ($level == 'pegawai') {
-            $count_queue = Cuti::where('id_user', $user->id)
-                ->where([[function($q) {
+            $count_queue = Cuti::where([
+                ['id_user', $user->id],
+                [function ($q) {
                     return $q->where('status', '!=', 'accepted_pimpinan')->orWhere('status', '!=', 'rejected');
-                }]])
+                }]
+            ])
                 ->get()->count();
             $is_waiting = $count_queue > 0;
             $all_cuti = Cuti::where(['id_user' => $user->id, 'status' => 'accepted_pimpinan'])->get()

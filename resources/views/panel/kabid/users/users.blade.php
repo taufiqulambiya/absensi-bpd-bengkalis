@@ -44,6 +44,7 @@
                                                     <th>NIP</th>
                                                     <th>Golongan</th>
                                                     <th>Jabatan</th>
+                                                    <th>Bidang</th>
                                                     <th>Tanggal Lahir</th>
                                                     <th>Alamat</th>
                                                     <th>Level</th>
@@ -57,7 +58,8 @@
                                                     <td>{{ $item->nama }}</td>
                                                     <td>{{ $item->nip }}</td>
                                                     <td>{{ $item->golongan }}</td>
-                                                    <td>{{ $item->bidang->nama ?? '-' }}</td>
+                                                    <td>{{ $item->jabatan ?? '-' }}</td>
+                                                    <td>{{ $item->bidangs->nama ?? '-' }}</td>
                                                     <td>{{ date_format(date_create($item->tgl_lahir), 'd/m/Y') }}</td>
                                                     <td>{{ $item->alamat }}</td>
                                                     <td>{{ strtoupper($item->level) }}</td>

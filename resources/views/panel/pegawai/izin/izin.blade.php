@@ -8,7 +8,6 @@
         @include('layouts.sidebar')
         @include('layouts.topbar')
 
-
         <!-- page content -->
         <div class="right_col" role="main">
             <div class="">

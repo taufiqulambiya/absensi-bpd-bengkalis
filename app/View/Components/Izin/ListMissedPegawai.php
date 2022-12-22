@@ -55,10 +55,15 @@ class ListMissedPegawai extends Component
     public function render()
     {
         $user = session('user');
-        $data = Izin::with('user')->where('id_user', $user->id)
-            ->where('status', 'pending')
-            ->orWhere('status', 'accepted_kabid')
-            ->where('tgl_mulai', '<=', date('Y-m-d'))
+        $data = Izin::with('user')
+            ->where([
+                ['id_user', $user->id],
+                ['tgl_mulai', '<=', date('Y-m-d')],
+                [function ($x) {
+                    return $x->where('status', 'pending')
+                        ->orWhere('status', 'accepted_kabid');
+                }]
+            ])
             ->orderBy('created_at', 'desc')
             ->get()
             ->each(function ($x) {

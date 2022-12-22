@@ -29,18 +29,23 @@ class ListDone extends Component
         $user = session('user');
         $role = $user->level;
 
-        $data = Izin::with('user')->where('id_user', $user->id)->where(function ($x) {
-            return $x->where('status', 'accepted_pimpinan')->orWhere('status', 'rejected');
-        })->orderBy('created_at', 'desc')->get()->each(function ($x) {
-            $x->durasi = Carbon::parse($x->tgl_mulai)->diffInDays($x->tgl_selesai) . ' Hari';
-            $x->status = mapStatus($x->status);
-            $x->bukti_url = $x->bukti ? Storage::url('public/uploads/' . $x->bukti) : '#';
-            if ($x->status == 'pending') {
-                $tgl_selesai = Carbon::parse($x->tgl_selesai);
-                $current_date = Carbon::parse(date('Y-m-d'));
-                $x->terlewat = $current_date->isAfter($tgl_selesai);
-            }
-        });
+        $data = Izin::with('user')
+            ->where([
+                ['id_user', $user->id],
+                [function ($x) {
+                    return $x->where('status', 'accepted_pimpinan')->orWhere('status', 'rejected');
+                }]
+            ])
+            ->orderBy('created_at', 'desc')->get()->each(function ($x) {
+                $x->durasi = Carbon::parse($x->tgl_mulai)->diffInDays($x->tgl_selesai) . ' Hari';
+                $x->status = mapStatus($x->status);
+                $x->bukti_url = $x->bukti ? Storage::url('public/uploads/' . $x->bukti) : '#';
+                if ($x->status == 'pending') {
+                    $tgl_selesai = Carbon::parse($x->tgl_selesai);
+                    $current_date = Carbon::parse(date('Y-m-d'));
+                    $x->terlewat = $current_date->isAfter($tgl_selesai);
+                }
+            });
 
         if ($role == 'kabid') {
             $data = Izin::with('user')->where('status', '!=', 'pending')->get()
@@ -61,9 +66,11 @@ class ListDone extends Component
         }
 
         if ($role == 'admin') {
-            $data = Izin::with('user')->where(function ($x) {
-                return $x->where('status', '!=', 'pending')->orWhere('status', '!=', 'accepted_kabid');
-            })->get()
+            $data = Izin::with('user')
+                ->where(function ($x) {
+                    return $x->where('status', '!=', 'pending')->orWhere('status', '!=', 'accepted_kabid');
+                })
+                ->get()
                 ->each(function ($x) {
                     $x->durasi = Carbon::parse($x->tgl_mulai)->diff(Carbon::parse($x->tgl_selesai))->d . ' Hari';
                     $x->status = mapStatus($x->status);

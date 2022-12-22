@@ -18,9 +18,12 @@ class Izin extends BaseController
             'level' => $user->level,
             'is_waiting' => $count_pending > 0,
             'izin_aktif' => ModelsIzin::with('user')
-                ->where('status', 'pending')
-                ->orWhere('status', 'accepted_kabid')
-                ->where('tgl_selesai', '>=', date('Y-m-d'))
+                ->where([
+                    ['tgl_selesai', '>=', date('Y-m-d')],
+                    [function($x) {
+                        return $x->where('status', 'pending')->orWhere('status', 'accepted_kabid');
+                    }]
+                ])
                 ->get()
                 ->each(function ($x) {
                     $x->durasi = Carbon::parse($x->tgl_mulai)->diffInDays($x->tgl_selesai) . ' Hari';

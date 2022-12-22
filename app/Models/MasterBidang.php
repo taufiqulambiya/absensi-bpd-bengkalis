@@ -13,7 +13,7 @@ class MasterBidang extends Model
     protected $guarded = ['id'];
 
     public function users() {
-        return $this->hasMany(User::class, 'jabatan', 'id');
+        return $this->hasMany(User::class, 'bidang', 'id');
     }
     public function kabids() {
         return $this->hasOne(User::class, 'id', 'kabid');

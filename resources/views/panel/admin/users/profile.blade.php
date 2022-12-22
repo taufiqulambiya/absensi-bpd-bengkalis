@@ -106,12 +106,52 @@
                                             </tr>
                                             <tr>
                                                 <td>Jabatan</td>
-                                                <td class="text">{{ $user->bidang->nama }}</td>
+                                                <td class="text">{{ $user->jabatan }}</td>
+                                                <td class="input">
+                                                    <div class="form-group">
+                                                        <select class="form-control" name="jabatan" id="jabatan">
+                                                            <option value="Kabid" @if ($user->jabatan == 'Kabid')
+                                                                selected
+                                                                @endif>Kabid</option>
+                                                            <option value="Kasubbid" @if ($user->jabatan == 'Kasubbid')
+                                                                selected
+                                                                @endif>Kasubbid</option>
+                                                            <option value="Subbag" @if ($user->jabatan == 'Subbag')
+                                                                selected
+                                                                @endif>Subbag</option>
+                                                            <option value="Kasubbag" @if ($user->jabatan == 'Kasubbag')
+                                                                selected
+                                                                @endif>Kasubbag</option>
+                                                            <option value="Staff" @if ($user->jabatan == 'Staff')
+                                                                selected
+                                                                @endif>Staff</option>
+                                                            <option value="-1" @if ($user->jabatan != 'Kabid' and
+                                                                $user->jabatan != 'Kasubbid' and $user->jabatan !=
+                                                                'Subbag' and $user->jabatan != 'Kasubbag' and
+                                                                $user->jabatan != 'Staff')
+                                                                selected
+                                                                @endif>Lainnya</option>
+                                                        </select>
+                                                    </div>
+                                                    <div id="jabatan-lainnya-wrapper">
+                                                        @if ($user->jabatan != 'Kabid' and $user->jabatan != 'Kasubbid'
+                                                        and $user->jabatan != 'Subbag' and $user->jabatan != 'Kasubbag'
+                                                        and $user->jabatan != 'Staff')
+                                                        <input type="text" class="form-control" name="jabatan"
+                                                            id="jabatan-lainnya" placeholder="Isikan jabatan..."
+                                                            value="{{ $user->jabatan }}" required>
+                                                        @endif
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>Bidang</td>
+                                                <td class="text">{{ $user->bidangs->nama }}</td>
                                                 <td class="input">
                                                     <select name="jabatan" id="jabatan" class="form-control" disabled>
                                                         <option value="">-- PILIH --</option>
                                                         @foreach (DB::table('tb_bidang')->get() as $item)
-                                                        <option value="{{ $item->id }}" @if ($user->bidang->id ==
+                                                        <option value="{{ $item->id }}" @if ($user->bidangs->id ==
                                                             $item->id)
                                                             selected
                                                             @endif>{{ $item->nama }}</option>
@@ -269,6 +309,15 @@
           reader.readAsDataURL(file);
         }
         console.log(value);
-    })
+    });
+
+    $('#jabatan').on('change', function() {
+        const val = $(this).val();
+        if (val === '-1') {
+            $('#jabatan-lainnya-wrapper').html(`<input type="text" class="form-control" name="jabatan" id="jabatan-lainnya" placeholder="Isikan jabatan..." required>`);
+        } else {
+            $('#jabatan-lainnya-wrapper').html(null);
+        }
+    });
 </script>
 @endsection

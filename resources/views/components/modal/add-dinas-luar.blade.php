@@ -119,7 +119,7 @@
         console.log(user);
         $('#pegawai-nip').val(user.nip);
         $('#pegawai-golongan').val(user.golongan);
-        $('#pegawai-jabatan').val(user.bidang.nama);
+        $('#pegawai-jabatan').val(`${user.jabatan} - ${user.bidangs.nama}`);
         $('#pegawai-info').show();
         if (user === '') {
             $('#pegawai-info').hide();
@@ -145,8 +145,9 @@
             console.log(userInfo);
             $('#pegawai-nip').val(item.user.nip);
             $('#pegawai-golongan').val(item.user.golongan);
-            const jabatan = jabatans.find(v => v.id === parseInt(item.user.jabatan, 10))?.nama || '-';
-            $('#pegawai-jabatan').val(jabatan);
+            const bidang = jabatans.find(v => v.id === parseInt(item.user.bidang, 10))?.nama || '-';
+            console.log(item.user.bidang);
+            $('#pegawai-jabatan').val(`${item.user.jabatan} - ${bidang}`);
             $('#pegawai-info').show();
 
             $('#mulai').val(item.mulai);

@@ -46,6 +46,7 @@
                                                     <th>NIP</th>
                                                     <th>Golongan</th>
                                                     <th>Jabatan</th>
+                                                    <th>Bidang</th>
                                                     <th>Tanggal Lahir</th>
                                                     <th>No. HP</th>
                                                     <th>Alamat</th>
@@ -60,7 +61,8 @@
                                                     <td>{{ $item->nama }}</td>
                                                     <td>{{ $item->nip }}</td>
                                                     <td>{{ $item->golongan }}</td>
-                                                    <td>{{ $item->bidang->nama ?? '-' }}</td>
+                                                    <td>{{ $item->jabatan ?? '-' }}</td>
+                                                    <td>{{ $item->bidangs->nama ?? '-' }}</td>
                                                     <td>{{ date_format(date_create($item->tgl_lahir), 'd/m/Y') }}</td>
                                                     <td>{{ $item->no_telp }}</td>
                                                     <td>{{ $item->alamat }}</td>
@@ -135,6 +137,18 @@
                             <div class="form-group">
                                 <label for="jabatan">Jabatan</label>
                                 <select class="form-control" name="jabatan" id="jabatan" required>
+                                    <option value="Kabid">Kabid</option>
+                                    <option value="Kasubbid">Kasubbid</option>
+                                    <option value="Subbag">Subbag</option>
+                                    <option value="Kasubbag">Kasubbag</option>
+                                    <option value="Staff">Staff</option>
+                                    <option value="-1">Lainnya</option>
+                                </select>
+                                <div id="jabatan-lainnya-wrapper"></div>
+                            </div>
+                            <div class="form-group">
+                                <label for="bidang">Bidang</label>
+                                <select class="form-control" name="bidang" id="bidang" required>
                                     @foreach (DB::table('tb_bidang')->get() as $item)
                                     <option value="{{ $item->id }}">{{ $item->nama }}</option>
                                     @endforeach
@@ -190,7 +204,7 @@
         const item = $(this).data('item');
         $('.modal-title').text('Perbarui Pengguna');
         $('.btn-submit').text('Perbarui');
-        item.bidang = item.bidang?.id;
+        // item.bidang = item.bidang?.id;
         $('input').each(function() {
             const name = $(this).attr('name');
             $(this).val(item[name]);
@@ -230,6 +244,15 @@
             $('#level-message').html(`<b></b>`);
         }
     });
+
+    $('#jabatan').on('change', function() {
+        const val = $(this).val();
+        if (val === '-1') {
+            $('#jabatan-lainnya-wrapper').html(`<input type="text" class="form-control" name="jabatan" id="jabatan-lainnya" placeholder="Isikan jabatan..." required>`);
+        } else {
+            $('#jabatan-lainnya-wrapper').html(null);
+        }
+    })
 
     $('.btn-delete').each(function () {
         $(this).click(function () { 

@@ -41,10 +41,14 @@ class ListMissed extends Component
         $role = $user->level;
         $data = [];
         if ($role == 'pegawai') {
-            $data = Cuti::where('id_user', $user->id)
-                ->where('status', 'pending')
-                ->orWhere('status', 'accepted_kabid')
-                ->orWhere('status', 'accepted_admin')
+            $data = Cuti::where([
+                    ['id_user', $user->id],
+                    [function ($x) {
+                        return $x->where('status', 'pending')
+                            ->orWhere('status', 'accepted_kabid')
+                            ->orWhere('status', 'accepted_admin');
+                    }]
+                ])
                 ->get()
                 ->filter(function ($x) {
                     return $this->filterDate($x);

@@ -55,9 +55,13 @@ class ListMissedAdmin extends Component
     public function render()
     {
         $data = Izin::with('user')
-            ->where('status', 'pending')
-            ->orWhere('status', 'accepted_kabid')
-            ->where('tgl_mulai', '<=', date('Y-m-d'))
+            ->where([
+                ['tgl_mulai', '<=', date('Y-m-d')],
+                [function ($x) {
+                    return $x->where('status', 'pending')
+                        ->orWhere('status', 'accepted_kabid');
+                }]
+            ])
             ->get()
             ->each(function ($x) {
                 $x->durasi = Carbon::parse($x->tgl_mulai)->diff(Carbon::parse($x->tgl_selesai))->d . ' Hari';

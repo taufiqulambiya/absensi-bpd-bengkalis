@@ -20,6 +20,15 @@
                          <a class="dropdown-item" href="{{ route('logout') }}"><i class="fa fa-sign-out pull-right"></i> Keluar</a>
                      </div>
                  </li>
+                 @if ($user->level === 'kabid')
+                 <li class="nav-item">
+                     <a href="{{ route('toggle_kabid_level') }}" class="btn btn-info btn-sm">Login Sebagai @if ($sess_user->level == 'kabid')
+                        Pegawai
+                     @else
+                         Kabid
+                     @endif</a>
+                 </li>
+                 @endif
                  @if ($user->level === 'admin')
                  <li class="nav-item">
                      <a href="{{ route('toggle_admin_level') }}" class="btn btn-info btn-sm">Login Sebagai @if ($sess_user->level == 'admin')

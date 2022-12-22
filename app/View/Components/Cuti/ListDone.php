@@ -33,9 +33,12 @@ class ListDone extends Component
         $data = [];
         if ($role == 'pegawai') {
             $data = Cuti::with('user')
-                ->where('id_user', $user->id)
-                ->where('status', 'accepted_pimpinan')
-                ->orWhere('status', 'rejected')
+                ->where([
+                    ['id_user', $user->id],
+                    [function($x) {
+                        return $x->where('status', 'accepted_pimpinan')->orWhere('status', 'rejected');
+                    }]
+                ])
                 ->get()
                 ->each(function ($x) {
                     $x->jenis = mapJenisCuti($x->jenis);

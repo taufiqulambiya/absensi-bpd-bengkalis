@@ -41,9 +41,13 @@ class Izin extends BaseController
         }
 
         if ($level == 'pegawai') {
-            $count_queue = ModelsIzin::where('id_user', $user->id)
-                ->where('status', 'pending')
-                ->orWhere('status', 'accepted_kabid')
+            $count_queue = ModelsIzin::where([
+                    ['id_user', $user->id],
+                    [function($x) {
+                        return $x->where('status', 'pending')->orWhere('status', 'accepted_kabid');
+                    }],
+                ])
+                // ->where('status', 'accepted_kabid')
                 ->get()->count();
             $izin_mendatang = ModelsIzin::where('id_user', $user->id)
                 ->where('status', 'accepted_admin')
@@ -100,6 +104,14 @@ class Izin extends BaseController
                     $value->storeAs('public/uploads', $value->hashName());
                     $post[$key] = $value->hashName();
                 }
+            }
+
+            $user = User::find($id_user);
+            if ($user and $user->level == 'kabid') {
+                $post['status'] = 'accepted_kabid';
+            }
+            if ($user and $user->level == 'admin') {
+                $post['status'] = 'accepted_admin';
             }
             ModelsIzin::create($post);
 

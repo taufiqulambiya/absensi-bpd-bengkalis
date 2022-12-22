@@ -29,23 +29,29 @@ class ListMissed extends Component
         $user = session('user');
         $role = $user->level;
 
-        $data = Izin::with('user')->where('id_user', $user->id)->where('tgl_mulai', '<=', date('Y-m-d'))->where(function ($q) {
-            return $q->where('status', '!=', 'accepted_pimpinan')->orWhere('status', '!=', 'rejected');
-        })->orderBy('created_at', 'desc')->get()->each(function ($x) {
-            $x->durasi = Carbon::parse($x->tgl_mulai)->diffInDays($x->tgl_selesai) . ' Hari';
-            $x->status = mapStatus($x->status);
-            $x->bukti_url = $x->bukti ? Storage::url('public/uploads/' . $x->bukti) : '#';
-            if ($x->status == 'pending') {
-                $tgl_selesai = Carbon::parse($x->tgl_selesai);
-                $current_date = Carbon::parse(date('Y-m-d'));
-                $x->terlewat = $current_date->isAfter($tgl_selesai);
-            }
-        });
+        $data = Izin::with('user')
+            ->where([
+                ['id_user', $user->id],
+                ['tgl_mulai', '<=', date('Y-m-d')],
+                [function ($q) {
+                    return $q->where('status', '!=', 'accepted_pimpinan')->orWhere('status', '!=', 'rejected');
+                }]
+            ])
+            ->orderBy('created_at', 'desc')->get()->each(function ($x) {
+                $x->durasi = Carbon::parse($x->tgl_mulai)->diffInDays($x->tgl_selesai) . ' Hari';
+                $x->status = mapStatus($x->status);
+                $x->bukti_url = $x->bukti ? Storage::url('public/uploads/' . $x->bukti) : '#';
+                if ($x->status == 'pending') {
+                    $tgl_selesai = Carbon::parse($x->tgl_selesai);
+                    $current_date = Carbon::parse(date('Y-m-d'));
+                    $x->terlewat = $current_date->isAfter($tgl_selesai);
+                }
+            });
 
         // dd($data);
 
         if ($role == 'kabid') {
-            $data = Izin::with(['user' => function($q) {
+            $data = Izin::with(['user' => function ($q) {
                 $jabatan_id = session('user')->jabatan;
                 return $q->where('jabatan', $jabatan_id);
             }])

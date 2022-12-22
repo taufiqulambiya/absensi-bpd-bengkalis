@@ -6,9 +6,11 @@
     .prfltbl input {
         font-size: 14px;
     }
+
     .image-container {
         position: relative;
     }
+
     .upload-image {
         display: inline-block;
         position: absolute;
@@ -16,6 +18,7 @@
         bottom: 4px;
         transform: translateX(-50%);
     }
+
     #user-image {
         aspect-ratio: 1/1;
     }
@@ -45,7 +48,8 @@
                                 <h4 class="card-title">Profile Utama</h4>
                             </div>
                             <div class="card-body">
-                                <button class="btn btn-info position-absolute" style="z-index: 2" title="Perbarui" id="toggle-edit">
+                                <button class="btn btn-info position-absolute" style="z-index: 2" title="Perbarui"
+                                    id="toggle-edit">
                                     <i class="fa fa-pencil" aria-hidden="true"></i>
                                 </button>
                                 <form action="" method="POST" enctype="multipart/form-data">
@@ -58,20 +62,26 @@
                                                 <div class="image-container mb-3">
                                                     @if(!empty($user->gambar))
                                                     <img src="{{ Storage::url('public/uploads/'.$user->gambar) }}"
-                                                        alt="Profile" class="d-block w-50 rounded-circle mx-auto img-thumbnail" id="user-image">
+                                                        alt="Profile"
+                                                        class="d-block w-50 rounded-circle mx-auto img-thumbnail"
+                                                        id="user-image">
                                                     @else
                                                     <img src="https://via.placeholder.com/200?text={{ $user->nama }}"
                                                         alt="Profile"
-                                                        class="d-block w-50 rounded-circle mx-auto img-thumbnail" id="user-image">
+                                                        class="d-block w-50 rounded-circle mx-auto img-thumbnail"
+                                                        id="user-image">
                                                     @endif
 
                                                     <div class="upload-image text-center mt-3 input">
                                                         <label for="gambar" style="cursor: pointer">
-                                                            <button type="button" style="pointer-events: none" class="btn btn-primary rounded-circle">
-                                                                <i class="fas fa-camera" style="pointer-events: none"></i>
+                                                            <button type="button" style="pointer-events: none"
+                                                                class="btn btn-primary rounded-circle">
+                                                                <i class="fas fa-camera"
+                                                                    style="pointer-events: none"></i>
                                                             </button>
                                                         </label>
-                                                        <input type="file" name="gambar" id="gambar" accept="image/*" hidden>
+                                                        <input type="file" name="gambar" id="gambar" accept="image/*"
+                                                            hidden>
                                                     </div>
                                                 </div>
                                             </tr>
@@ -101,12 +111,47 @@
                                             </tr>
                                             <tr>
                                                 <td>Jabatan</td>
-                                                <td class="text">{{ $user->bidang->nama }}</td>
+                                                <td class="text">{{ $user->jabatan }}</td>
                                                 <td class="input">
-                                                    <select name="jabatan" id="jabatan" class="form-control" disabled>
+                                                    <div class="form-group">
+                                                        <select class="form-control" name="jabatan" id="jabatan">
+                                                            <option value="Kabid" @if ($user->jabatan == 'Kabid')
+                                                                selected
+                                                                @endif>Kabid</option>
+                                                            <option value="Kasubbid" @if ($user->jabatan == 'Kasubbid')
+                                                                selected
+                                                                @endif>Kasubbid</option>
+                                                            <option value="Subbag" @if ($user->jabatan == 'Subbag')
+                                                                selected
+                                                                @endif>Subbag</option>
+                                                            <option value="Kasubbag" @if ($user->jabatan == 'Kasubbag')
+                                                                selected
+                                                                @endif>Kasubbag</option>
+                                                            <option value="Staff" @if ($user->jabatan == 'Staff')
+                                                                selected
+                                                                @endif>Staff</option>
+                                                            <option value="-1" @if ($user->jabatan != 'Kabid' and $user->jabatan != 'Kasubbid' and $user->jabatan != 'Subbag' and $user->jabatan != 'Kasubbag' and $user->jabatan != 'Staff')
+                                                                selected
+                                                            @endif>Lainnya</option>
+                                                        </select>
+                                                    </div>
+                                                    <div id="jabatan-lainnya-wrapper">
+                                                        @if ($user->jabatan != 'Kabid' and $user->jabatan != 'Kasubbid' and $user->jabatan != 'Subbag' and $user->jabatan != 'Kasubbag' and $user->jabatan != 'Staff')
+                                                        <input type="text" class="form-control" name="jabatan"
+                                                            id="jabatan-lainnya" placeholder="Isikan jabatan..." value="{{ $user->jabatan }}"
+                                                            required>
+                                                        @endif
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>Bidang</td>
+                                                <td class="text">{{ $user->bidangs->nama }}</td>
+                                                <td class="input">
+                                                    <select name="bidang" id="bidang" class="form-control" disabled>
                                                         <option value="">-- PILIH --</option>
                                                         @foreach (DB::table('tb_bidang')->get() as $item)
-                                                        <option value="{{ $item->id }}" @if ($user->bidang->id ==
+                                                        <option value="{{ $item->id }}" @if ($user->bidangs->id ==
                                                             $item->id)
                                                             selected
                                                             @endif>{{ $item->nama }}</option>
@@ -263,6 +308,15 @@
           reader.readAsDataURL(file);
         }
         console.log(value);
+    });
+
+    $('#jabatan').on('change', function() {
+        const val = $(this).val();
+        if (val === '-1') {
+            $('#jabatan-lainnya-wrapper').html(`<input type="text" class="form-control" name="jabatan" id="jabatan-lainnya" placeholder="Isikan jabatan..." required>`);
+        } else {
+            $('#jabatan-lainnya-wrapper').html(null);
+        }
     })
 </script>
 @endsection
