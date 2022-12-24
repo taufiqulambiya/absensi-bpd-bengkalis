@@ -28,7 +28,7 @@ class ListDonePegawai extends Component
         $data = Cuti::where([
             ['id_user', $user->id],
             [function ($x) {
-                return $x->where('status', '==', 'accepted_admin')->orWhere('status', '==', 'rejected');
+                return $x->where('status', '==', 'accepted_admin')->where('status', '==', 'rejected');
             }]
         ])
             ->get()

@@ -112,7 +112,7 @@ class Cuti extends BaseController
                 'cuti_aktif' => ModelsCuti::where([
                     ['id_user', $user->id],
                     [function ($x) {
-                        return $x->where('status', '!=', 'accepted_pimpinan')->orWhere('status', '!=', 'rejected');
+                        return $x->where('status', '!=', 'accepted_pimpinan')->where('status', '!=', 'rejected');
                     }]
                 ])
                     ->get()

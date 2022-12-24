@@ -68,7 +68,7 @@ class ListDone extends Component
         if ($role == 'admin') {
             $data = Izin::with('user')
                 ->where(function ($x) {
-                    return $x->where('status', '!=', 'pending')->orWhere('status', '!=', 'accepted_kabid');
+                    return $x->where('status', '!=', 'pending')->where('status', '!=', 'accepted_kabid');
                 })
                 ->get()
                 ->each(function ($x) {

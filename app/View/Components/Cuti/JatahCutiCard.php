@@ -67,7 +67,7 @@ class JatahCutiCard extends Component
             $count_queue = Cuti::where([
                 ['id_user', $user->id],
                 [function ($q) {
-                    return $q->where('status', '!=', 'accepted_pimpinan')->orWhere('status', '!=', 'rejected');
+                    return $q->where('status', '!=', 'accepted_pimpinan')->where('status', '!=', 'rejected');
                 }]
             ])
                 ->get()->count();

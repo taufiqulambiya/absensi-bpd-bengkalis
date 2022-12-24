@@ -34,7 +34,7 @@ class ListMissed extends Component
                 ['id_user', $user->id],
                 ['tgl_mulai', '<=', date('Y-m-d')],
                 [function ($q) {
-                    return $q->where('status', '!=', 'accepted_pimpinan')->orWhere('status', '!=', 'rejected');
+                    return $q->where('status', '!=', 'accepted_pimpinan')->where('status', '!=', 'rejected');
                 }]
             ])
             ->orderBy('created_at', 'desc')->get()->each(function ($x) {
