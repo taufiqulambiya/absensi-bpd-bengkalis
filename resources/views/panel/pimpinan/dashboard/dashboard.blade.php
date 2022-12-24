@@ -23,7 +23,7 @@
         <div class="right_col" role="main" style="min-height: calc(100vh - 55px);">
             <div class="row">
                 <div class="col-md-3">
-                    <div class="card mb-3">
+                    <div class="card mb-3 bg-warning text-dark">
                         <div class="card-body">
                             <div>
                                 <h4 class="card-title d-inline-block">Pengajuan Izin</h4>
@@ -42,13 +42,13 @@
                                 </div>
                             </div>
                             <hr />
-                            <a href="{{ route('izin.index') }}" class="btn btn-primary btn-sm"><i
+                            <a href="{{ route('izin.index') }}" class="btn btn-light btn-sm"><i
                                     class="fas fa-database fa-fw"></i> Detail</a>
                         </div>
                     </div>
                 </div>
                 <div class="col-md-3">
-                    <div class="card mb-3">
+                    <div class="card mb-3 bg-yellow text-dark">
                         <div class="card-body">
                             <div>
                                 <h4 class="card-title d-inline-block">Pengajuan Cuti</h4>
@@ -67,13 +67,13 @@
                                 </div>
                             </div>
                             <hr />
-                            <a href="{{ route('cuti.index') }}" class="btn btn-primary btn-sm"><i
+                            <a href="{{ route('cuti.index') }}" class="btn btn-light btn-sm"><i
                                     class="fas fa-database fa-fw"></i> Detail</a>
                         </div>
                     </div>
                 </div>
                 <div class="col-md-3">
-                    <div class="card mb-3">
+                    <div class="card mb-3 bg-danger text-white">
                         <div class="card-body">
                             <div>
                                 <h4 class="card-title d-inline-block">Dinas Luar</h4>
@@ -86,7 +86,7 @@
                                 </div>
                             </div>
                             <hr />
-                            <a href="{{ route('cuti.index') }}" class="btn btn-primary btn-sm"><i
+                            <a href="{{ route('dinas_luar.index') }}" class="btn btn-light btn-sm"><i
                                     class="fas fa-database fa-fw"></i> Detail</a>
                         </div>
                     </div>

@@ -68,6 +68,14 @@ $jss = [
     .ui-timepicker-container {
         z-index: 1151 !important;
     }
+
+    .bg-yellow {
+        background: yellow !important;
+    }
+
+    .bg-dongker {
+        background: #202A44; !important;
+    }
 </style>
 
 @foreach ($jss as $js)

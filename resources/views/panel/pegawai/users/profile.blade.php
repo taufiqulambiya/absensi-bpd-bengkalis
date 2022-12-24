@@ -154,12 +154,13 @@
                                             </tr>
                                             <tr>
                                                 <td>Bidang</td>
-                                                <td class="text">{{ $user->bidangs->nama }}</td>
+                                                <td class="text">{{ $user->bidangs->nama ?? '-' }}</td>
                                                 <td class="input">
                                                     <select name="jabatan" id="jabatan" class="form-control" disabled>
                                                         <option value="">-- PILIH --</option>
                                                         @foreach (DB::table('tb_bidang')->get() as $item)
-                                                        <option value="{{ $item->id }}" @if ($user->bidangs->id ==
+                                                        <option value="{{ $item->id }}" @if ($user->bidangs and
+                                                            $user->bidangs->id ==
                                                             $item->id)
                                                             selected
                                                             @endif>{{ $item->nama }}</option>

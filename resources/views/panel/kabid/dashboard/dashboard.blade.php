@@ -1,18 +1,6 @@
 @extends('layouts.app')
 @section('title', 'Dashboard')
 @section('content')
-
-<style>
-    .blinking {
-        animation: blinker 1s linear infinite;
-    }
-
-    @keyframes blinker {
-        50% {
-            opacity: 0;
-        }
-    }
-</style>
 <div class="container body">
     <div class="main_container">
         <!-- sidebar -->
@@ -24,7 +12,7 @@
 
             <div class="row">
                 <div class="col-md-4">
-                    <div class="card">
+                    <div class="card bg-info text-white">
                         <div class="card-body">
                             <div>
                                 <h4 class="card-title d-inline-block">Pegawai</h4>
@@ -33,13 +21,13 @@
                             <hr />
                             <span class="display-4 font-weight-bold">{{$pegawai_count}}</span>
                             <hr />
-                            <a href="{{ route('users.index') }}" class="btn btn-primary btn-sm"><i
+                            <a href="{{ route('users.index') }}" class="btn btn-light btn-sm"><i
                                     class="fas fa-database fa-fw"></i> Detail</a>
                         </div>
                     </div>
                 </div>
                 <div class="col-md-4">
-                    <div class="card">
+                    <div class="card bg-warning text-dark">
                         <div class="card-body">
                             <div>
                                 <h4 class="card-title d-inline-block">Pengajuan Izin</h4>
@@ -58,13 +46,13 @@
                                 </div>
                             </div>
                             <hr />
-                            <a href="{{ route('izin.index') }}" class="btn btn-primary btn-sm"><i
+                            <a href="{{ route('izin.index') }}" class="btn btn-light btn-sm"><i
                                     class="fas fa-database fa-fw"></i> Detail</a>
                         </div>
                     </div>
                 </div>
                 <div class="col-md-4">
-                    <div class="card">
+                    <div class="card bg-yellow text-dark">
                         <div class="card-body">
                             <div>
                                 <h4 class="card-title d-inline-block">Pengajuan Cuti</h4>
@@ -83,7 +71,7 @@
                                 </div>
                             </div>
                             <hr />
-                            <a href="{{ route('cuti.index') }}" class="btn btn-primary btn-sm"><i
+                            <a href="{{ route('cuti.index') }}" class="btn btn-light btn-sm"><i
                                     class="fas fa-database fa-fw"></i> Detail</a>
                         </div>
                     </div>
