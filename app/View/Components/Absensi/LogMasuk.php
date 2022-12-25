@@ -39,7 +39,7 @@ class LogMasuk extends Component
                 $days = ['senin', 'selasa', 'rabu', 'kamis', 'jumat'];
                 $days_used = explode(', ', $x->days);
                 $current_day_index = date('w') - 1;
-                $current_day = $days[$current_day_index];
+                $current_day = $days[$current_day_index] ?? [];
 
                 return gettype(array_search($current_day, $days_used)) == 'integer';
             });
