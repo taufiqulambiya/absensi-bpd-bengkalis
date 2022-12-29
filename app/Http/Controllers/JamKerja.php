@@ -44,13 +44,6 @@ class JamKerja extends Controller
             $model = new ModelsJamKerja();
             $filtered_keys = ['_token', 'status'];
 
-            // if ($request->post('status') == 'on') {
-            //     $jam_kerja_aktif = ModelsJamKerja::where('status', 'aktif')->get();
-            //     foreach ($jam_kerja_aktif as $key => $value) {
-            //         $item_to_set = ModelsJamKerja::find($value->id);
-            //         $item_to_set->update(['status' => 'nonaktif']);
-            //     }
-            // }
             foreach ($request->post() as $key => $value) {
                 if (!in_array($key, $filtered_keys)) {
                     $model->$key = $value;
@@ -79,14 +72,6 @@ class JamKerja extends Controller
             $filtered_keys = ['_method', 'update_status', '_token', 'status'];
             $item = ModelsJamKerja::find($id);
 
-            if ($request->post('status') == 'on' && $id != $item->id) {
-                $jam_kerja_aktif = ModelsJamKerja::where('status', 'aktif')->get();
-                foreach ($jam_kerja_aktif as $key => $value) {
-                    $item_to_set = ModelsJamKerja::find($value->id);
-                    $item_to_set->update(['status' => 'nonaktif']);
-                }
-            }
-
             foreach ($request->post() as $key => $value) {
                 if (!in_array($key, $filtered_keys)) {
                     $item->$key = $value;
@@ -94,7 +79,9 @@ class JamKerja extends Controller
             }
             
             $item->status = $request->post('status') == 'on' ? 'aktif' : 'nonaktif';
-            $item->days = join(', ', $request->days);
+            if ($request->has('days')) {
+                $item->days = join(', ', $request->days);
+            }
             $item->save();
             return redirect()->back()->with('success', 'Data berhasil diubah.');
         } catch (\Throwable $th) {
