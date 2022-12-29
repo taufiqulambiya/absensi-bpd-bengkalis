@@ -88,6 +88,7 @@ class ListHarian extends Component
                 'nip' => $value->nip,
                 'nama' => $value->nama,
                 'absensi' => $find_absensi,
+                'user' => $find_absensi->user ?? null,
                 'status' => $status,
                 'color' => $switch_color[$status],
             ];

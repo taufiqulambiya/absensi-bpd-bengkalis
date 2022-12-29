@@ -188,6 +188,7 @@
         }
 
         printItem(item, title) {
+            const getOrStrip = _.getOr('-');
             const mapData = ($obj) =>
                 Object.entries($obj).map(([key, val]) => ({
                     margin: [0, 0, 0, 14],
@@ -206,36 +207,45 @@
                 }));
 
             const profile = {
-                Nama: item.nama,
-                NIP: item.nip,
-                "Jenis Kelamin": item.jk,
-                Alamat: item.alamat,
-                "No. Telp": item.no_telp,
+                Nama: getOrStrip('user.nama', item),
+                NIP: getOrStrip('user.nip', item),
+                "Jenis Kelamin": getOrStrip('user.jk', item),
+                Alamat: getOrStrip('user.alamat', item),
+                "No. Telp": getOrStrip('user.no_telp', item),
             };
 
             const absensi = {
-                Tanggal: _.getOr('-', 'absensi[0].tanggal', item),
-                "Jam Absen": _.getOr('-', 'absensi[0].jam_kerja', item),
-                "Jam Masuk": _.getOr('-', 'absensi[0].waktu_masuk', item),
-                "Jam Keluar": _.getOr('-', 'absensi[0].waktu_keluar', item),
-                "Total Jam": _.getOr('-', 'absensi[0].total_jam', item),
+                Tanggal: getOrStrip('absensi.tanggal', item),
+                "Jam Absen": getOrStrip('absensi.jam_kerja', item),
+                "Jam Masuk": getOrStrip('absensi.waktu_masuk', item),
+                "Jam Keluar": getOrStrip('absensi.waktu_keluar', item),
+                "Total Jam": getOrStrip('absensi.total_jam', item),
             };
 
             const dd = {
+                pageSize: 'A4',
+                pageMargins: [40,100,40,40],
+                header: [
+                    {
+                        stack: [
+                            {
+                                text: "Laporan Absensi Pegawai Harian",
+                                bold: true,
+                                alignment: "center",
+                                fontSize: 14,
+                            },
+                            {
+                                text: title,
+                                bold: true,
+                                alignment: "center",
+                                fontSize: 14,
+                                margin: [0, 0, 0, 0],
+                            },
+                        ],
+                        margin: [0,32,0,0]
+                    }
+                ],
                 content: [
-                    {
-                        text: "Laporan Absensi Pegawai Harian",
-                        bold: true,
-                        alignment: "center",
-                        fontSize: 16,
-                    },
-                    {
-                        text: title,
-                        bold: true,
-                        alignment: "center",
-                        fontSize: 16,
-                        margin: [0, 0, 0, 32],
-                    },
                     {
                         margin: [12, 0, 0, 14],
                         fontSize: 14,
