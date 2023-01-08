@@ -45,12 +45,13 @@ class User extends BaseController
 
             $post['password'] = password_hash($password, PASSWORD_DEFAULT);
 
-            $found_atasan = ModelsUser::with(['bidang' => function ($q) {
-                return $q->where('nama', 'Atasan');
-            }])->get()->filter(function ($q) {
-                return $q->bidang;
-            });
-            if ($found_atasan->count() > 0) {
+            $found_atasan = ModelsUser::with(['bidang'])
+                ->where('level', 'atasan')
+                ->get()
+                ->filter(function ($q) {
+                    return $q->bidang;
+                });
+            if ($found_atasan->count() > 0 and $request->level === 'atasan') {
                 throw new Error('Jabatan Atasan hanya dapat dipegang oleh satu Pengguna');
             }
 
@@ -75,43 +76,43 @@ class User extends BaseController
             'gambar' => 'mimes:jpg,jpeg,png',
         ], [], ['nip' => 'NIP']);
         // try {
-            $item = ModelsUser::findOrFail($id);
+        $item = ModelsUser::findOrFail($id);
 
-            $found_atasan = ModelsUser::with(['bidangs' => function ($q) {
-                return $q->where('nama', 'Atasan');
-            }])->get()->filter(function ($q) {
-                return $q->bidangs;
-            });
-            if ($found_atasan->count() > 0 and $found_atasan->first()->id != $id) {
-                $first_atasan = $found_atasan->first();
-                if ($request->bidang == $first_atasan->bidang) {
-                    throw new Error('Jabatan Atasan hanya dapat dipegang oleh satu Pengguna');
+        $found_atasan = ModelsUser::with(['bidangs' => function ($q) {
+            return $q->where('nama', 'Atasan');
+        }])->get()->filter(function ($q) {
+            return $q->bidangs;
+        });
+        if ($found_atasan->count() > 0 and $found_atasan->first()->id != $id) {
+            $first_atasan = $found_atasan->first();
+            if ($request->bidang == $first_atasan->bidang) {
+                throw new Error('Jabatan Atasan hanya dapat dipegang oleh satu Pengguna');
+            }
+            // if ($request->level == 'atasan') {
+            //     throw new Error('Jabatan Atasan hanya dapat dipegang oleh satu Pengguna');
+            // }
+        }
+
+        $found_admin = ModelsUser::where('level', 'admin');
+        if ($found_admin->count() == 1 and $found_admin->first()->id == $id and $request->level != 'admin') {
+            throw new Error('Ups, harap ada minimal satu Admin pada Sistem.');
+        }
+
+        $post = $request->post();
+        if (!empty($request->file())) {
+            foreach ($request->file() as $key => $value) {
+                if (Storage::exists('/public/uploads/' . $item->$key)) {
+                    Storage::delete('/public/uploads/' . $item->$key);
                 }
-                // if ($request->level == 'atasan') {
-                //     throw new Error('Jabatan Atasan hanya dapat dipegang oleh satu Pengguna');
-                // }
+                $value->storeAs('public/uploads', $value->hashName());
+                $post[$key] = $value->hashName();
             }
-
-            $found_admin = ModelsUser::where('level', 'admin');
-            if ($found_admin->count() == 1 and $found_admin->first()->id == $id and $request->level != 'admin') {
-                throw new Error('Ups, harap ada minimal satu Admin pada Sistem.');
-            }
-
-            $post = $request->post();
-            if (!empty($request->file())) {
-                foreach ($request->file() as $key => $value) {
-                    if (Storage::exists('/public/uploads/' . $item->$key)) {
-                        Storage::delete('/public/uploads/' . $item->$key);
-                    }
-                    $value->storeAs('public/uploads', $value->hashName());
-                    $post[$key] = $value->hashName();
-                }
-            }
-            $item->update($post);
-            if ($request->isXhr) {
-                return response()->json('ok');
-            }
-            return redirect()->back()->with('success', 'Data berhasil diperbarui.');
+        }
+        $item->update($post);
+        if ($request->isXhr) {
+            return response()->json('ok');
+        }
+        return redirect()->back()->with('success', 'Data berhasil diperbarui.');
         // } catch (\Throwable $th) {
         //     // dd($th);
         //     return redirect()->back()->with('error', $th->getMessage());
