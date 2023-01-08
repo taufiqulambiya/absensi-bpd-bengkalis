@@ -18,7 +18,7 @@ class ListDone extends Component
     }
     private function filterUser($x)
     {
-        return $x->where('jabatan', session('user')->jabatan);
+        return $x->where('bidang', session('user')->bidang);
     }
 
     /**
@@ -35,7 +35,7 @@ class ListDone extends Component
             $data = Cuti::with('user')
                 ->where([
                     ['id_user', $user->id],
-                    [function($x) {
+                    [function ($x) {
                         return $x->where('status', 'accepted_pimpinan')->orWhere('status', 'rejected');
                     }]
                 ])

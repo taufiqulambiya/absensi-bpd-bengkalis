@@ -50,8 +50,8 @@ class ListDone extends Component
         if ($role == 'kabid') {
             $data = Izin::with('user')->where('status', '!=', 'pending')->get()
                 ->filter(function ($x) {
-                    $jabatan_id = session('user')->jabatan;
-                    return $x->user->jabatan == $jabatan_id;
+                    $bidang_id = session('user')->bidang;
+                    return $x->user->bidang == $bidang_id;
                 })
                 ->each(function ($x) {
                     $x->durasi = Carbon::parse($x->tgl_mulai)->diff(Carbon::parse($x->tgl_selesai))->d . ' Hari';

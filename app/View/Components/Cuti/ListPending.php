@@ -20,7 +20,7 @@ class ListPending extends Component
 
     private function filterUser($x)
     {
-        return $x->where('jabatan', session('user')->jabatan);
+        return $x->where('bidang', session('user')->bidang);
     }
 
     private function filterDate($tgl)
