@@ -2,6 +2,10 @@
 @section('title', 'Absensi')
 
 @section('content')
+
+<div class="data-container" data-jam-kerja="{{ $jam_kerja }}"></div>
+<div class="data-container" data-absensi-id="{{ $missed_out->id ?? $current_absensi->id ?? '' }}"></div>
+
 <div class="container body">
     <div class="main_container">
         <!-- sidebar -->
@@ -43,32 +47,33 @@
                             @endif
                             @if ($has_izin)
                             <div class="col-md-6">
-                                <x-izin.detail-card />
+                                <x-izin.detail-card :data="$izin" />
                             </div>
                             @endif
                             @if ($has_cuti)
                             <div class="col-md-6">
-                                <x-cuti.detail-card />
+                                <x-cuti.detail-card :data="$cuti" />
                             </div>
                             @endif
                             @else
 
-                            @if ($jam_kerja AND $jam_kerja->is_absen_time)
+                            @if ($jam_kerja AND $jam_kerja['is_absen_time'])
                             {{-- JIKA ADA JAM KERJA --}}
                             <div class="row">
-                                @if ($absensi AND $absensi->terlewat AND !$absensi->has_keluar)
+                                @if ($has_missed_out)
                                 <div class="col-md-12">
                                     <div class="alert alert-secondary" role="alert">
                                         <h4 class="alert-heading">Perhatian</h4>
                                         <p style="font-size: 1rem">Anda sepertinya lupa melakukan log keluar sejak {{
-                                            date_format(date_create($absensi->tanggal), 'd/m/Y') }}, silahkan log keluar
+                                            date_format(date_create($missed_out->tanggal), 'd/m/Y') }}, silahkan log
+                                            keluar
                                             terlebih dahulu.</p>
                                     </div>
                                 </div>
                                 @elseif($current_absensi)
                                 {{-- DATA ABSENSI --}}
                                 <div class="col-md-6">
-                                    <x-absensi.detail-masuk :data_absensi="$current_absensi" />
+                                    <x-absensi.detail :data="$current_absensi" :type="'in'" />
                                 </div>
                                 {{-- DATA ABSENSI --}}
                                 @else
@@ -77,24 +82,44 @@
                                         <div class="card-header bg-primary text-white">
                                             <h4 class="card-title text-center">Absensi Masuk</h4>
                                         </div>
-                                        <x-absensi.log-masuk :disable-log="false" />
+                                        <livewire:absensi.record :disable_log="false" :id-jam="$jam_kerja->id"
+                                            :jam-kerja="$jam_kerja->formatted ?? '-'" :mode="'in'" />
+                                        {{--
+                                        <x-absensi.log-masuk :disable-log="false" /> --}}
                                     </div>
                                 </div>
                                 @endif
 
+
+                                @if ($current_absensi AND $current_absensi->has_out)
+                                <div class="col-md-6">
+                                    <x-absensi.detail :data="$current_absensi" :type="'out'" />
+                                </div>
+                                @else
                                 <div class="col-md-6">
                                     <div class="card mb-3">
                                         <div class="card-header bg-success text-white">
                                             <h4 class="card-title text-center">Absensi Keluar</h4>
                                         </div>
 
-                                        @if ($absensi AND $absensi->terlewat AND !$absensi->has_keluar)
-                                        <x-absensi.log-keluar :disable-log="false" />
+                                        @if ($has_missed_out)
+                                        {{--
+                                        <x-absensi.log-keluar :disable-log="false" :missed-out="$missed_out"
+                                            :jam-kerja="$jam_kerja" /> --}}
+                                        <livewire:absensi.record :disable_log="false" :id-jam="$jam_kerja->id"
+                                            :jam-kerja="$jam_kerja->formatted ?? '-'" :mode="'out'"
+                                            :missed-out="$missed_out" />
                                         @else
-                                        <x-absensi.log-keluar :disable-log="empty($current_absensi)" />
+                                        {{--
+                                        <x-absensi.log-keluar :disable-log="empty($current_absensi)"
+                                            :jam-kerja="$jam_kerja" :missed-out="$missed_out" /> --}}
+                                        <livewire:absensi.record :disable_log="empty($current_absensi)"
+                                            :id-jam="$jam_kerja->id" :jam-kerja="$jam_kerja->formatted ?? '-'"
+                                            :mode="'out'" />
                                         @endif
                                     </div>
                                 </div>
+                                @endif
                             </div>
                             {{-- JIKA ADA JAM KERJA --}}
                             @else

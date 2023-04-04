@@ -238,8 +238,8 @@
 
     $('#level').on('change', function(){
         if ($(this).val() === 'kabid') {
-            const jabatanValue = $('#jabatan option:selected').text();
-            $('#level-message').html(`<b class='text-info'>Sebagai kepala bidang untuk <label for='jabatan'>${jabatanValue}</label></b>`);
+            const bidang = $('#bidang option:selected').text();
+            $('#level-message').html(`<b class='text-info'>Sebagai kepala bidang untuk <label for='jabatan'>${bidang}</label></b>`);
         } else {
             $('#level-message').html(`<b></b>`);
         }

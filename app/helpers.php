@@ -1,5 +1,7 @@
 <?php
 
+use Carbon\Carbon;
+
 function mapStatus($status)
 {
     switch ($status) {
@@ -43,7 +45,8 @@ function mapJenisCuti($jenis)
     return $map_jenis[$jenis];
 }
 
-function getCustomAttributes($rule) {
+function getCustomAttributes($rule)
+{
     $customAttributes = [
         'setting' => [
             'jatah_cuti_tahunan' => 'Jatah Cuti Tahunan',
@@ -54,4 +57,85 @@ function getCustomAttributes($rule) {
         ]
     ];
     return $customAttributes[$rule];
+}
+
+function formatAbsensi($data)
+{
+    // dump($data->shift);
+    $data->formatted_shift = $data->shift ? Carbon::parse($data->shift->mulai)->format('H:i') . ' - ' . Carbon::parse($data->shift->selesai)->format('H:i') . ' WIB' : 'Libur';
+
+    $waktu_masuk = Carbon::parse($data->waktu_masuk);
+    $waktu_keluar = Carbon::parse($data->waktu_keluar);
+
+    $total_jam = 0;
+    // $total_jam = $waktu_keluar->diffInHours($waktu_masuk);
+    // $total_menit = $waktu_keluar->diffInMinutes($waktu_masuk) % 60;
+    // $data->total_jam = $total_jam == 0 ? $total_menit . ' menit' : $total_jam . ' jam ' . $total_menit . ' menit';
+
+    // if waktu masuk is greater then waktu keluar
+    if ($waktu_masuk->greaterThan($waktu_keluar)) {
+        // add 1 day to waktu keluar
+        $waktu_keluar->addDay();
+        $total_jam = $waktu_keluar->diffInHours($waktu_masuk);
+        $total_menit = $waktu_keluar->diffInMinutes($waktu_masuk) % 60;
+        $data->total_jam = $total_jam == 0 ? $total_menit . ' menit' : $total_jam . ' jam ' . $total_menit . ' menit';
+    } else {
+        $total_jam = $waktu_keluar->diffInHours($waktu_masuk);
+        $total_menit = $waktu_keluar->diffInMinutes($waktu_masuk) % 60;
+        $data->total_jam = $total_jam == 0 ? $total_menit . ' menit' : $total_jam . ' jam ' . $total_menit . ' menit';
+    }
+
+    $data->formatted_waktu_masuk = $waktu_masuk->format('H:i \W\I\B');
+    $data->formatted_waktu_keluar = $waktu_keluar->format('H:i \W\I\B');
+
+    $data->formatted_tanggal = Carbon::parse($data->tanggal)->format('d/m/Y');
+
+    return $data;
+}
+
+function formatStatusText($status)
+{
+    switch ($status) {
+        case 'accepted_kabid':
+            return 'Diterima oleh Kabid';
+        case 'accepted_admin':
+            return 'Diterima oleh Admin';
+        case 'accepted_pimpinan':
+            return 'Diterima oleh Pimpinan';
+        case 'rejected':
+            return 'Ditolak';
+        default:
+            return 'Pending';
+    }
+}
+
+function formatStatusCuti($status)
+{
+    switch ($status) {
+        case 'accepted_kabid':
+            return 'Diterima oleh Kabid';
+        case 'accepted_admin':
+            return 'Diterima oleh Admin';
+        case 'accepted_pimpinan':
+            return 'Diterima oleh Pimpinan';
+        case 'rejected':
+            return 'Ditolak';
+        default:
+            return 'Pending';
+    }
+}
+
+function formatStatusCutiColor($status)
+{
+    switch ($status) {
+        case 'accepted_kabid':
+            return 'warning';
+        case 'accepted_admin':
+        case 'accepted_pimpinan':
+            return 'success';
+        case 'rejected':
+            return 'danger';
+        default:
+            return 'secondary';
+    }
 }

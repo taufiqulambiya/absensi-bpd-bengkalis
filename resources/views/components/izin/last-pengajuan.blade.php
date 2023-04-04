@@ -1,4 +1,22 @@
+@if ($data)
 <style>
+    .color-label {
+        position: absolute;
+        left: 0;
+        top: 0;
+        height: 100%;
+        width: 4px;
+        content: "";
+    }
+
+    tr td {
+        vertical-align: middle;
+    }
+
+    a.more {
+        font-size: 24px;
+    }
+
     .lpi-grid {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
@@ -6,6 +24,7 @@
         grid-gap: 14px;
         margin-bottom: 14px;
     }
+
     @media screen and (max-width: 991px) {
         .lpi-grid {
             grid-template-columns: 1fr;
@@ -13,29 +32,6 @@
     }
 </style>
 <div class="lpi-grid">
-    @if ($izin)
-    <x-izin.detail-card />
-    @endif
-
-    @if ($data)
-    <style>
-        .color-label {
-            position: absolute;
-            left: 0;
-            top: 0;
-            height: 100%;
-            width: 4px;
-            content: "";
-        }
-
-        tr td {
-            vertical-align: middle;
-        }
-
-        a.more {
-            font-size: 24px;
-        }
-    </style>
     <div class="card">
         <div class="card-body">
             <div class="mb-3 d-flex align-items-center justify-content-between">
@@ -49,6 +45,7 @@
                     <tr>
                         <th>Mulai</th>
                         <th>Hingga</th>
+                        <th>Total Hari</th>
                         <th>Status</th>
                         @if (Route::current()->uri == 'panel/izin')
                         <th>Aksi</th>
@@ -57,13 +54,14 @@
                 </thead>
                 <tbody>
                     <tr>
-                        <td scope="row" class="position-relative">
-                            <div class="color-label bg-{{ $data->status['color'] }}"></div>
+                        <td scope="row">
+                            <div class="color-label bg-{{ $data->status_color }}"></div>
 
                             {{ $data->tgl_mulai }}
                         </td>
                         <td>{{ $data->tgl_selesai }}</td>
-                        <td>{{ $data->status['text'] }}</td>
+                        <td>{{ $data->total_hari }}</td>
+                        <td>{{ $data->status_text }}</td>
                         @if (Route::current()->uri == 'panel/izin')
                         <td>
                             @if ($data->can_cancel)
@@ -82,5 +80,5 @@
             </table>
         </div>
     </div>
-    @endif
 </div>
+@endif

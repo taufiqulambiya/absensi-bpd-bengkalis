@@ -51,11 +51,12 @@ class ListMissed extends Component
         // dd($data);
 
         if ($role == 'kabid') {
-            $data = Izin::with(['user' => function ($q) {
-                $bidang_id = session('user')->bidang;
-                return $q->user->bidang == $bidang_id;
-            }])
-                ->where('status', 'pending')->where('tgl_mulai', '<=', date('Y-m-d'))
+            $data = Izin::with('user')
+                ->whereHas('user', function ($q) use ($user) {
+                    $q->where('bidang', $user->bidang);
+                })
+                ->where('status', 'pending')
+                ->where('tgl_mulai', '<=', date('Y-m-d'))
                 ->get()
                 ->filter(function ($x) {
                     return $x->user;

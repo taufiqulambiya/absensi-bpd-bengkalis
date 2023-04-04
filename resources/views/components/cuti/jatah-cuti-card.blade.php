@@ -7,16 +7,16 @@
                         <label for="jenis-jatah">Pilih Jenis Jatah</label>
                         <select name="" id="jenis-jatah" class="form-control">
                             <option value="jatah_cuti_tahunan" data-label="TAHUNAN"
-                                data-value="{{ $data->jatah_cuti_tahunan }}">Cuti Tahunan</option>
+                                data-value="{{ $data['tahunan'] }}">Cuti Tahunan</option>
                             <option value="jatah_cuti_besar" data-label="BESAR"
-                                data-value="{{ $data->jatah_cuti_besar }}">Cuti
+                                data-value="{{ $data['besar'] }}">Cuti
                                 Besar</option>
                             <option value="jatah_cuti_melahirkan" data-label="MELAHIRKAN"
-                                data-value="{{ $data->jatah_cuti_melahirkan }}">Cuti Melahirkan</option>
+                                data-value="{{ $data['melahirkan'] }}">Cuti Melahirkan</option>
                             <option value="jatah_cuti_penting" data-label="ALASAN PENTING"
-                                data-value="{{ $data->jatah_cuti_penting }}">Cuti Alasan Penting</option>
+                                data-value="{{ $data['penting'] }}">Cuti Alasan Penting</option>
                             <option value="jatah_cuti_ctln" data-label="DILUAR TANGGUNGAN NEGARA"
-                                data-value="{{ $data->jatah_cuti_ctln }}">Cuti Diluar Tanggungan Negara</option>
+                                data-value="{{ $data['ctln'] }}">Cuti Diluar Tanggungan Negara</option>
                         </select>
                     </div>
                 </div>
@@ -26,13 +26,12 @@
             </div>
         </div>
         <hr>
-        <span class="display-4" id="jtct-value">{{$data->jatah_cuti_tahunan}}</span>
+        <span class="display-4" id="jtct-value">{{$data['tahunan']}}</span>
         @if ($level == 'pegawai')
         <hr>
-        @if ($data->is_waiting OR $data->has_cuti)
-        <button class="btn btn-secondary mb-3 disabled" style="cursor: not-allowed" @if ($data->has_cuti)
-            onclick="showErrorAlert('Masih ada pengajuan yang aktif.')" @else
-            onclick="showErrorAlert('Masih ada pengajuan belum/sedang diproses.')" @endif><i class="fas fa-plus"></i>
+        @if ($enableAdd)
+        <button class="btn btn-secondary mb-3 disabled" style="cursor: not-allowed"
+            onclick="showErrorAlert('Masih ada pengajuan belum/sedang diproses.')"><i class="fas fa-plus"></i>
             Ajukan Cuti</button>
         @else
         <button class="btn btn-primary mb-3" id="btn-add" data-toggle="modal" data-target="#modal-form"><i
@@ -44,6 +43,7 @@
     </div>
 </div>
 
+{{-- 
 <script>
     class JatahCuti {
         constructor() {
@@ -60,4 +60,4 @@
     }
 
     new JatahCuti();
-</script>
+</script> --}}

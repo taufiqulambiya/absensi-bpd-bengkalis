@@ -2,6 +2,9 @@
 @section('title', 'Jam Kerja')
 
 @section('content')
+
+<div class="data-container" data-allowed="{{ json_encode($allowed) }}"></div>
+
 <div class="container body">
     <div class="main_container">
         <!-- sidebar -->
@@ -30,8 +33,8 @@
                             <div class="x_content">
                                 <div class="row">
                                     <div class="col-12">
-                                        <button class="btn btn-primary" id="btn-add" data-toggle="modal" data-target="#modal-form"><i
-                                                class="fas fa-plus"></i> Tambah Jam</button>
+                                        <button class="btn btn-primary" id="btn-add" data-toggle="modal"
+                                            data-target="#modal-form"><i class="fas fa-plus"></i> Tambah Jam</button>
                                         <hr>
                                     </div>
                                     <div class="col-12">
@@ -53,37 +56,51 @@
                                                 <tr>
                                                     <th scope="row">{{$loop->iteration}}</th>
                                                     <td>{{ strtoupper($item->days) }}</td>
-                                                    <td>{{ explode(':', $item->mulai)[0].':'.explode(':', $item->mulai)[1] }}</td>
-                                                    <td>{{ explode(':', $item->selesai)[0].':'.explode(':', $item->selesai)[1] }}</td>
+                                                    <td>{{ explode(':', $item->mulai)[0].':'.explode(':',
+                                                        $item->mulai)[1] }}</td>
+                                                    <td>{{ explode(':', $item->selesai)[0].':'.explode(':',
+                                                        $item->selesai)[1] }}</td>
                                                     <td>{{$item->keterangan}}</td>
                                                     <td>
-                                                        <span class="badge @if($item->status == 'aktif') badge-primary @else badge-secondary @endif">{{$item->status}}</span>
-
-                                                        <form action="{{ route('jam_kerja.update', $item->id) }}" method="post">
+                                                        {{-- <form action="{{ route('jam_kerja.update', $item->id) }}"
+                                                            method="post">
                                                             @csrf
                                                             @method('PUT')
                                                             <input type="hidden" name="update_status" value="1">
-                                                            <input type="hidden" name="status" value="{{ $item->status == 'aktif' ? 'off' : 'on' }}">
-                                                            <label for="edit-submit{{ $item->id }}" class="text-primary" style="cursor: pointer">{{ $item->status == 'aktif' ? 'nonaktifkan' : 'aktifkan' }}</label>
-                                                            <button type="submit" id="edit-submit{{ $item->id }}" class="d-none" title="Aktifkan atau Nonaktifkan">
+                                                            <input type="hidden" name="status"
+                                                                value="{{ $item->status == 'aktif' ? 'off' : 'on' }}">
+                                                            <label for="edit-submit{{ $item->id }}" class="text-primary"
+                                                                style="cursor: pointer">{{ $item->status == 'aktif' ?
+                                                                'nonaktifkan' : 'aktifkan' }}</label>
+                                                            <button type="submit" id="edit-submit{{ $item->id }}"
+                                                                class="d-none" title="Aktifkan atau Nonaktifkan">
                                                             </button>
-                                                        </form>
+                                                        </form> --}}
+
+                                                        {{-- update: using switch component --}}
+                                                        <div class="custom-control custom-switch">
+                                                            <input type="checkbox" class="custom-control-input switch-status"
+                                                                id="customSwitch{{ $item->id }}"
+                                                                data-id="{{ $item->id }}"
+                                                                {{ $item->status == 'aktif' ? 'checked' : '' }}>
+                                                            <label class="custom-control-label"
+                                                                for="customSwitch{{ $item->id }}"></label>
+                                                        </div>
+
                                                     </td>
                                                     <td>
                                                         {{$item->created_at}}
                                                     </td>
                                                     <td>
-                                                        <button class="btn btn-info btn-edit" data-toggle="modal" data-target="#modal-form" title="Ubah data" data-item='{{ $item }}'>
+                                                        <button class="btn btn-info btn-edit" data-toggle="modal"
+                                                            data-target="#modal-form" title="Ubah data"
+                                                            data-item='{{ $item }}'>
                                                             <span class="fas fa-pencil"></span>
                                                         </button>
-                                                        
-                                                        <form action="{{ route('jam_kerja.destroy', $item->id) }}" method="post" class="d-inline" onsubmit="return confirm('Lanjutkan hapus data?')">
-                                                            @csrf
-                                                            @method('DELETE')
-                                                            <button type="submit" class="btn btn-danger" title="Hapus data">
-                                                                <span class="fas fa-times"></span>
-                                                            </button>
-                                                        </form>
+
+                                                        <button type="submit" class="btn btn-danger btn-delete" data-id="{{$item->id}}" title="Hapus data">
+                                                            <span class="fas fa-times"></span>
+                                                        </button>
                                                     </td>
                                                 </tr>
                                                 @endforeach
@@ -113,30 +130,30 @@
                         @csrf
                         <div class="modal-body">
                             <div class="form-group d-flex flex-column">
-                                <label for="day_start">Hari</label>
-                                <select name="days[]" id="days" style="width: 100%" class="form-control" multiple required>
+                                <label for="days">Hari</label>
+                                <select name="days[]" style="width: 100%" class="form-control" multiple>
                                     @foreach ($allowed as $item)
-                                        <option value="{{ $item }}">{{ strtoupper($item) }}</option>
+                                    <option value="{{ $item }}">{{ strtoupper($item) }}</option>
                                     @endforeach
                                 </select>
                             </div>
                             <div class="d-flex">
                                 <div class="form-group" style="flex-grow: 1">
                                     <label for="mulai">Jam Mulai</label>
-                                    <input type="text" class="form-control timepicker" name="mulai" required>
+                                    <input type="time" class="form-control" name="mulai">
                                 </div>
                                 <div class="form-group" style="flex-grow: 1">
                                     <label for="selesai">Jam Berakhir</label>
-                                    <input type="text" class="form-control timepicker" name="selesai" required>
+                                    <input type="time" class="form-control" name="selesai">
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label for="keterangan">Keterangan</label>
-                                <textarea name="keterangan" id="keterangan" cols="10" rows="5" class="form-control"
+                                <textarea name="keterangan" cols="10" rows="5" class="form-control"
                                     placeholder="Keterangan"></textarea>
                             </div>
                             <div class="form-group">
-                                <input type="checkbox" name="status" id="status" class="form-control-checkbox">
+                                <input type="checkbox" name="status" class="form-control-checkbox">
                                 <label for="status">Aktif</label>
                             </div>
                         </div>
@@ -161,6 +178,7 @@
     </div>
 </div>
 
+@if(false)
 <script>
     const initAllowedDays = JSON.parse(`<?= json_encode($allowed) ?>`);
     const days = JSON.parse(`<?= json_encode($days) ?>`);
@@ -219,4 +237,5 @@
         $('#days').select2();
     })
 </script>
+@endif
 @endsection

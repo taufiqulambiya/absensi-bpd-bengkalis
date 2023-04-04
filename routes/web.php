@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Absensi;
 use App\Http\Controllers\Auth;
+use App\Http\Controllers\BaseController;
 use App\Http\Controllers\Dashboard;
 use App\Http\Controllers\DinasLuar;
 use App\Http\Controllers\Izin;
@@ -37,7 +38,7 @@ Route::get('/linkstorage', function () {
     Artisan::call('storage:link');
 });
 
-Route::get('/', Auth::class)->name('auth');
+Route::get('/', Auth::class)->name('auth')->middleware('auth');
 Route::get('/auth', [Auth::class, 'index'])->name('auth');
 Route::post('/auth', [Auth::class, 'login'])->name('auth');
 Route::get('/auth/logout', [Auth::class, 'logout'])->name('logout');
@@ -51,10 +52,15 @@ Route::get('/storage/uploads/{file}', function($file) {
     return response($file)->header('Content-Type', $type);
 });
 
+Route::get('/hash_generator', function($pw = '12345') {
+    return password_hash($pw, PASSWORD_DEFAULT);
+});
+// Route::get('/assets', [BaseController::class, 'assets']);
+
 Route::resource('upload', Uploads::class);
 Route::prefix('panel')->middleware(['auth', 'cek_setting'])->group(function(){
     Route::get('/dashboard', Dashboard::class)->name('dashboard');
-
+    
     Route::get('/absensi/riwayat', [Absensi::class, 'riwayat'])->name('absensi.riwayat');
     Route::get('/absensi/print', [Absensi::class, 'print']);
     Route::resource('/absensi', Absensi::class);
@@ -77,6 +83,7 @@ Route::prefix('panel')->middleware(['auth', 'cek_setting'])->group(function(){
     Route::resource('/dinas_luar', DinasLuar::class);
 
     Route::resource('/report', Report::class);
+    Route::get('/report/get_image_base64/{image}', [Report::class, 'get_image_base64']);
 
     Route::get('/printing', Printing::class);
     Route::post('/printing', [Printing::class, 'print'])->name('printing.post');

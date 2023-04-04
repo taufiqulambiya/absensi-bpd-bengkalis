@@ -7,7 +7,10 @@ use App\Models\Cuti;
 use App\Models\DinasLuar;
 use App\Models\Izin;
 use App\Models\User;
+use App\Models\Report as ReportModel;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class Report extends Controller
 {
@@ -18,11 +21,31 @@ class Report extends Controller
      */
     public function index()
     {
+        if (!empty($_GET['jenis'])) {
+            return $this->print();
+        }
+
         $user = session('user');
         $role = $user->level;
-        $data = [];
 
-        return view('panel.pimpinan.report.report', compact('data'));
+        return view('panel.pimpinan.report.report');
+    }
+
+    public function print()
+    {
+        $jenis = request()->get('jenis');
+        // $pegawai = request()->get('pegawai');
+        // $tanggal_awal = request()->get('tanggal_awal');
+        // $tanggal_akhir = request()->get('tanggal_akhir');
+        // $jenis_cuti = request()->get('jenis_cuti');
+
+        $data = ReportModel::getData();
+        // dd($data);
+        // dd($data['data']);
+
+        $view = 'panel.pimpinan.report.' . $jenis;
+        $pdf = Pdf::loadView($view, $data);
+        return $pdf->stream('report.pdf');
     }
 
     /**
@@ -46,25 +69,49 @@ class Report extends Controller
         $return = [];
         switch ($request->filter) {
             case 'pegawai':
-                $pegawai = User::with('bidangs')->where('id', $request->post('pegawai'))->get()->each(function ($x) {
-                    $x->jabatan = $x->bidang->nama;
+                // make variable $pegawai where id is array of $request->post('pegawai'), then get it with bidangs
+                $pegawai = User::with('bidangs')->whereIn('id', $request->post('pegawai-select'))->get()->each(function ($x) {
+                    $x->jabatan = $x->bidangs->nama;
                 });
-                if ($request->post('pegawai') == '') {
+                // if $request->post('pegawai') is empty, then make variable $pegawai where level is pegawai, then get it with bidangs
+                if ($request->post('pegawai-select') == '') {
                     $pegawai = User::with('bidangs')->where('level', 'pegawai')->get()->each(function ($x) {
-                        $x->jabatan = $x->bidang->nama ?? '-';
+                        $x->jabatan = $x->bidangs->nama ?? '-';
                     });
                 }
-                $return = [
-                    'pegawai' => $pegawai,
-                ];
+                $return = $pegawai;
+
+                // $pegawai = User::with('bidangs')->where('id', $request->post('pegawai'))->get()->each(function ($x) {
+                //     $x->jabatan = $x->bidang->nama;
+                // });
+                // if ($request->post('pegawai') == '') {
+                //     $pegawai = User::with('bidangs')->where('level', 'pegawai')->get()->each(function ($x) {
+                //         $x->jabatan = $x->bidang->nama ?? '-';
+                //     });
+                // }
+                // $return = [
+                //     'pegawai' => $pegawai,
+                // ];
                 break;
             case 'absensi':
+                $split_range = explode(' - ', $request->range);
+                $start_date = date('Y-m-d', strtotime($split_range[0]));
+                $end_date = date('Y-m-d', strtotime($split_range[1]));
+
                 $absensi = Absensi::with(['user', 'shift'])
-                    ->whereBetween('tanggal', [$request->range[0], $request->range[1]]);
-                if ($request->pegawai) {
-                    $absensi->where('id_user', $request->pegawai);
+                    ->whereBetween('tanggal', [$start_date, $end_date]);
+                if ($request->post('pegawai-select')) {
+                    $absensi->whereIn('id_user', $request->post('pegawai-select'));
                 }
-                $return = $absensi->get();
+                $absensi = $absensi->get();
+
+
+                // $absensi = Absensi::with(['user', 'shift'])
+                //     ->whereBetween('tanggal', [$request->range[0], $request->range[1]]);
+                // if ($request->pegawai) {
+                //     $absensi->where('id_user', $request->pegawai);
+                // }
+                // $return = $absensi->get();
                 break;
             case 'izin':
                 $data = Izin::with('user')
@@ -154,5 +201,14 @@ class Report extends Controller
     public function destroy($id)
     {
         //
+    }
+
+    public function get_image_base64($image = '')
+    {
+        $path = Storage::disk('public')->path('uploads/' . $image);
+        $type = pathinfo($path, PATHINFO_EXTENSION);
+        $data = file_get_contents($path);
+        $base64 = 'data:image/' . $type . ';base64,' . base64_encode($data);
+        return response()->json($base64);
     }
 }

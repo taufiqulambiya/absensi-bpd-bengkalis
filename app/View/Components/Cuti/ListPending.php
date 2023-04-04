@@ -57,9 +57,10 @@ class ListPending extends Component
         }
 
         if ($role == 'kabid') {
-            $data = Cuti::with(['user' => function ($x) {
-                $this->filterUser($x);
-            }])
+            $data = Cuti::with('user')
+                ->whereHas('user', function ($q) use ($user) {
+                    $q->where('bidang', $user->bidang);
+                })
                 ->where('status', 'pending')
                 ->get()
                 ->filter(function ($x) {
@@ -86,7 +87,6 @@ class ListPending extends Component
                     $x->status = mapStatus($x->status);
                     $x->tanggal = explode(',', $x->tanggal);
                 });
-
         }
         if ($role == 'atasan') {
             $data = Cuti::with('user')

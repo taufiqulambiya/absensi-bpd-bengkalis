@@ -50,16 +50,31 @@
                                                 <div class="form-group col-3 p-0">
                                                     <label for="filter">Filter Bulan</label>
                                                     <select name="filter-bulan" id="filter-bulan" class="form-control"
-                                                        onchange="window.location.href = '?view=bulanan&bulan='+event.target.options[event.target.options.selectedIndex].value">
-                                                        @foreach ($bulan_indo as $key => $item)
+                                                        {{--
+                                                        onchange="window.location.href = '?view=bulanan&bulan='+event.target.options[event.target.options.selectedIndex].value"
+                                                        --}}>
+                                                        {{-- @foreach ($bulan_indo as $key => $item)
                                                         @if (!empty($_GET['bulan']))
-                                                        <option value="{{ $key + 1 }}" @if ($key + 1 == $_GET['bulan'])
-                                                            selected @endif>{{ $item }}</option>
+                                                        <option value="{{ $key + 1 }}"
+                                                            @if ($key + 1 == $_GET['bulan'] OR $key + 1 == date('m'))
+                                                            selected
+                                                            @endif
+                                                        >{{ $item }}</option>
                                                         @else
-                                                        <option value="{{ $key + 1 }}" @if ($key + 1 == date('m'))
-                                                            selected @endif>{{ $item }}</option>
+                                                        <option value="{{ $key + 1 }}"
+                                                            @if ($key + 1 == date('m'))
+                                                            selected
+                                                            @endif
+                                                        >{{ $item }}</option>
                                                         @endif
-                                                        @endforeach
+                                                        @endforeach --}}
+
+                                                        @foreach ($bulan_indo as $key => $item)
+                                                        <option value="{{ $key + 1 }}"
+                                                            @if ($key + 1 == date('m'))
+                                                            selected
+                                                            @endif
+                                                        >{{ $item }}</option>
                                                     </select>
                                                 </div>
                                                 <h4 class="my-3">Tanggal Hari Ini : {{ date('d - F - Y') }}</h4>

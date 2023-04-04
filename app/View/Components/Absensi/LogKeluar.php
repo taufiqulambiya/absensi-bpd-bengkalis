@@ -16,9 +16,13 @@ class LogKeluar extends Component
      * @return void
      */
     public $disable_log = false;
-    public function __construct($disableLog)
+    public function __construct(
+        public $disableLog = false,
+        public $missedOut = null,
+        public $jamKerja = null,
+        public $currentAbsensi = null,
+    )
     {
-        $this->disable_log = $disableLog;
     }
 
     /**
@@ -28,44 +32,11 @@ class LogKeluar extends Component
      */
     public function render()
     {
-        $shift = JamKerja::where('status', 'aktif')
-            ->get()
-            ->each(function ($x) {
-                $x->formatted = Carbon::parse($x->mulai)->format('H:i') . ' - ' . Carbon::parse($x->selesai)->format('H:i \W\I\B');
-                $current_time = Carbon::now();
-                $mulai = Carbon::parse($x->mulai);
-                $selesai = Carbon::parse($x->selesai);
-                $x->is_absen_time = $current_time->between($mulai, $selesai);
-            })->filter(function($x){
-                $days = ['senin', 'selasa', 'rabu', 'kamis', 'jumat'];
-                $days_used = explode(', ', $x->days);
-                $current_day_index = date('w') - 1;
-                $current_day = $days[$current_day_index] ?? [];
+        $current_absensi = $this->currentAbsensi;
 
-                return gettype(array_search($current_day, $days_used)) == 'integer';
-            });
-        $jam_kerja = null;
-        if ($shift->count() > 0) {
-            $jam_kerja =$shift->first();
-        }
-        $setting = Settings::first();
-        $user = session('user');
-        $absensi = Absensi::with('shift')
-            ->where('id_user', $user->id)
-            ->get()
-            ->each(function ($x) {
-                $x->has_keluar = Carbon::parse($x->waktu_keluar)->isMidnight() == false;
-                $x->terlewat = date('Y-m-d') > $x->tanggal ? 1 : 0;
-            })
-            ->last();
-        $current = Absensi::with('shift')
-            ->where(['id_user' => $user->id, 'tanggal' => date('Y-m-d')])
-            ->where('waktu_keluar', '!=', '00:00:00')
-            ->get()
-            ->each(function ($x) {
-                $x->formatted_shift = Carbon::parse($x->shift->mulai)->format('H:i') . ' - ' . Carbon::parse($x->shift->selesai)->format('H:i \W\I\B');
-            })
-            ->first();
-        return view('components.absensi.log-keluar', compact('jam_kerja', 'setting', 'user', 'absensi', 'current'));
+        // if (Carbon::parse($current_absensi->waktu_keluar)->format('H:i') == '00:00') {
+        //     $current_absensi = null;
+        // }
+        return view('components.absensi.log-keluar', compact('current_absensi'));
     }
 }

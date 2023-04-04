@@ -13,111 +13,93 @@
     }
 </style>
 
-<div id="video-wrapper-out">
-    <video id="video-out" style="width: 300px" height="500" autoplay></video>
-    <canvas id="canvas-out" style="width: 300px" height="500" autoplay></canvas>
-</div>
-<div class="capture-buttons-out" id="capture-buttons-out"></div>
 
+<div id="video-wrapper-out" class="border shadow">
+    <video id="video-out" class="img-fluid" autoplay></video>
+    <canvas id="canvas-out"></canvas>
+</div>
+<div class="capture-buttons-out" id="capture-buttons-out">
+    <button class="btn btn-primary btn-sm" id="start">
+        <i class="fa fa-camera"></i> Mulai
+    </button>
+    <button class="btn btn-success btn-sm" id="capture">
+        <i class="fa fa-camera"></i> Ambil Gambar
+    </button>
+    <button class="btn btn-secondary btn-sm" id="cancel">
+        <i class="fa fa-times"></i> Batal
+    </button>
+</div>
 <script>
     class CaptureOut {
-        constructor() {
-            this.stream = '';
-            this.captureButtons = document.querySelector("#capture-buttons-out");
-            this.videoEl = document.querySelector('#video-out');
-            const videoWrapper = document.querySelector('#video-wrapper-out');
-            this.videoWrapper = videoWrapper;
-            this.videoWidth = videoWrapper.clientWidth;
-            const canvas = document.querySelector('#canvas-out');
-            const ctx = canvas.getContext('2d');
-            this.canvas = canvas;
-            this.ctx = ctx;
+        constructor () {
+            this.video = document.getElementById('video-out');
+            this.canvas = document.getElementById('canvas-out');
+            this.context = this.canvas.getContext('2d');
+            this.captureButtons = document.getElementById('capture-buttons-out');
+            this.init();
             this.done = false;
         }
 
-        buttons = {
-            pre: `<button class="btn btn-primary btn-sm" id="btn-start-out">
-                    <span class="fas fa-camera"></span> Mulai Kamera
-                </button>`,
-            ready: `<button class="btn btn-primary btn-sm" onclick="takeOut()">
-                    <i class="fas fa-camera"></i>
-                    Ambil Gambar
-                </button>`,
-            taken: `<button class="btn btn-warning btn-sm" onclick="retakeOut()">
-                    <i class="fas fa-refresh"></i>
-                    Ulangi
-                </button>`,
-        }
-
-        init() {
-            this.captureButtons.innerHTML = this.buttons.pre;
+        init () {
             $('#canvas-out').hide();
+            $('#cancel').hide();
+            $('#capture').hide();
         }
 
-        getCamera() {
-            return new Promise((resolve, reject) => {
-                navigator.mediaDevices.getUserMedia({ video: {
-                    width: 300,
-                    height: 500,
-                }, audio: false})
-                    .then((stream) => {
-                        resolve(stream);
-                    })
-                    .catch(err => {
-                        showErrorAlert('Harap izinkan akses kamera.');
-                        reject(err);
-                    });
-            })
-        }
-
-        async startCam() {
+        startCamera () {
             this.done = false;
-            $('#canvas-out').hide();
-            $('#video-out').show();
-            try {
-                const stream = await this.getCamera();
-                this.stream = stream;
-                this.videoEl.srcObject = stream;
-                this.captureButtons.innerHTML = this.buttons.ready;
-            } catch (error) {}
-        }
-
-        stopTracks() {
-            this.stream.getTracks().forEach(track => track.stop());
-        }
-
-        capture() {
-            try {
-                this.ctx.drawImage(this.videoEl, 0, 0, 300, 500);
-                $('#video-out').hide();
-                $('#canvas-out').show();
-                this.captureButtons.innerHTML = this.buttons.taken;
-                this.done = true;
-            } catch (error) {
-                showErrorAlert('Gagal mengambil gambar.');
-            } finally {
-                this.stopTracks();
+            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                navigator.mediaDevices.getUserMedia({ video: true }).then(stream => {
+                    this.video.srcObject = stream;
+                    this.video.play();
+                });
             }
         }
 
-        getCanvasURL() {
-            return this.canvas.toDataURL();
+        capture () {
+            const wrapperWidth = $('#video-wrapper-out').width();
+            const wrapperHeight = $('#video-wrapper-out').height();
+            this.canvas.width = wrapperWidth;
+            this.canvas.height = wrapperHeight;
+            this.context.drawImage(this.video, 0, 0, wrapperWidth, wrapperHeight);
+            this.video.srcObject.getTracks()[0].stop();
+            this.done = true;
+            $('#canvas-out').show();
+            $('#video-out').hide();
+            
+        }
+
+        cancel () {
+            this.video.srcObject.getTracks()[0].stop();
+            this.video.srcObject = null;
+            this.video.pause();
+        }
+
+        getCanvasURL () {
+            return this.canvas.toDataURL('image/png');
         }
     }
 
     const captureOut = new CaptureOut();
 
-    captureOut.init();
-
-    $('#btn-start-out').click(() => {
-        captureOut.startCam();
+    $('#start').click(function () {
+        captureOut.startCamera();
+        $('#start').hide();
+        $('#capture').show();
+        $('#cancel').show();
     });
 
-    function takeOut() {
+    $('#capture').click(function () {
         captureOut.capture();
-    }
+        $('#capture').hide();
+    });
 
-    function retakeOut(){
-        captureOut.startCam();
-    }
+    $('#cancel').click(function () {
+        captureOut.cancel();
+        $('#canvas-out').hide();
+        $('#video-out').show();
+        $('#start').show();
+        $('#capture').hide();
+        $('#cancel').hide();
+    });
 </script>

@@ -15,7 +15,8 @@ class Auth extends Controller
      */
     public function __invoke(Request $request)
     {  
-        return view('auth.login');
+        $all_users = User::all();
+        return view('auth.login', compact('all_users'));
     }
 
     public function index(Request $request)
@@ -24,7 +25,8 @@ class Auth extends Controller
         if(!empty($sess_user)) {
             return redirect('panel/dashboard');
         }
-        return view('auth.login');
+        $all_users = User::all();
+        return view('auth.login', compact('all_users'));
     }
 
     public function login(Request $request)

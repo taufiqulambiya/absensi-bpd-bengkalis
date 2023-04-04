@@ -35,4 +35,8 @@ class User extends Model
     {
         return $this->hasMany(Izin::class, 'id_user', 'id');
     }
+    public function dinas_luar()
+    {
+        return $this->hasMany(DinasLuar::class, 'id_user', 'id');
+    }
 }

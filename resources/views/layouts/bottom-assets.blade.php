@@ -9,7 +9,7 @@
         init(){
             $(".datatable").each(function() {
                 try {
-                    $(this).DataTable(); 
+                    // $(this).DataTable(); 
                 } catch (error) {
                     console.log(error);
                 }

@@ -62,9 +62,9 @@ class ListDone extends Component
                 });
         }
         if ($role == 'admin') {
+            $done_statuses = ['accepted_admin', 'accepted_pimpinan', 'rejected'];
             $data = Cuti::with('user')
-                ->where('status', 'accepted_admin')
-                ->where('status', 'rejected')
+                ->whereIn('status', $done_statuses)
                 ->get()
                 ->each(function ($x) {
                     $x->jenis = mapJenisCuti($x->jenis);

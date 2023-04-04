@@ -40,7 +40,7 @@ class User extends BaseController
             'level' => 'required',
         ]);
         try {
-            $password = $this->randomPassword(5);
+            $password = $this->passwordByName($request->nama);
             $post = $request->post();
 
             $post['password'] = password_hash($password, PASSWORD_DEFAULT);

@@ -5,6 +5,7 @@
         justify-content: center;
         bottom: 20px;
     }
+
     #video-wrapper {
         display: flex;
         justify-content: center;
@@ -13,111 +14,94 @@
     }
 </style>
 
-<div id="video-wrapper">
-    <video id="video" class="mx-auto" style="width: 300px" height="500" autoplay></video>
-    <canvas id="canvas" class="mx-auto" style="width: 300px" height="500" autoplay></canvas>
+<div id="video-wrapper" class="border shadow">
+    <video id="video" class="img-fluid" autoplay></video>
+    <canvas id="canvas"></canvas>
 </div>
-<div class="capture-buttons" id="capture-buttons"></div>
+<div class="capture-buttons" id="capture-buttons">
+    <button class="btn btn-primary btn-sm" id="start">
+        <i class="fa fa-camera"></i> Mulai
+    </button>
+    <button class="btn btn-success btn-sm" id="capture">
+        <i class="fa fa-camera"></i> Ambil Gambar
+    </button>
+    <button class="btn btn-secondary btn-sm" id="cancel">
+        <i class="fa fa-times"></i> Batal
+    </button>
+</div>
 
 <script>
     class Capture {
-        constructor() {
-            this.stream = '';
-            this.captureButtons = document.querySelector("#capture-buttons");
-            this.videoEl = document.querySelector('#video');
-            const videoWrapper = document.querySelector('#video-wrapper');
-            this.videoWrapper = videoWrapper;
-            this.videoWidth = videoWrapper.clientWidth;
-            const canvas = document.querySelector('#canvas');
-            const ctx = canvas.getContext('2d');
-            this.canvas = canvas;
-            this.ctx = ctx;
+        constructor () {
+            this.video = document.getElementById('video');
+            this.canvas = document.getElementById('canvas');
+            this.context = this.canvas.getContext('2d');
+            this.captureButtons = document.getElementById('capture-buttons');
+            this.init();
             this.done = false;
         }
 
-        buttons = {
-            pre: `<button class="btn btn-primary btn-sm" id="btn-start">
-                    <span class="fas fa-camera"></span> Mulai Kamera
-                </button>`,
-            ready: `<button class="btn btn-primary btn-sm" onclick="take()">
-                    <i class="fas fa-camera"></i>
-                    Ambil Gambar
-                </button>`,
-            taken: `<button class="btn btn-warning btn-sm" onclick="retake()">
-                    <i class="fas fa-refresh"></i>
-                    Ulangi
-                </button>`,
-        }
-
-        init() {
-            this.captureButtons.innerHTML = this.buttons.pre;
+        init () {
             $('#canvas').hide();
+            $('#cancel').hide();
+            $('#capture').hide();
         }
 
-        getCamera() {
-            return new Promise((resolve, reject) => {
-                navigator.mediaDevices.getUserMedia({ video: {
-                    width: 300,
-                    height: 500,
-                }, audio: false})
-                    .then((stream) => {
-                        resolve(stream);
-                    })
-                    .catch(err => {
-                        showErrorAlert('Harap izinkan akses kamera.');
-                        reject(err);
-                    });
-            })
-        }
-
-        async startCam() {
+        startCamera () {
             this.done = false;
-            $('#canvas').hide();
-            $('#video').show();
-            try {
-                const stream = await this.getCamera();
-                this.stream = stream;
-                this.videoEl.srcObject = stream;
-                this.captureButtons.innerHTML = this.buttons.ready;
-            } catch (error) {}
-        }
-
-        stopTracks() {
-            this.stream.getTracks().forEach(track => track.stop());
-        }
-
-        capture() {
-            try {
-                this.ctx.drawImage(this.videoEl, 0, 0, 300, 500);
-                $('#video').hide();
-                $('#canvas').show();
-                this.captureButtons.innerHTML = this.buttons.taken;
-                this.done = true;
-            } catch (error) {
-                showErrorAlert('Gagal mengambil gambar.');
-            } finally {
-                this.stopTracks();
+            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                navigator.mediaDevices.getUserMedia({ video: true }).then(stream => {
+                    this.video.srcObject = stream;
+                    this.video.play();
+                });
             }
         }
 
-        getCanvasURL() {
-            return this.canvas.toDataURL();
+        capture () {
+            const wrapperWidth = $('#video-wrapper').width();
+            const wrapperHeight = $('#video-wrapper').height();
+            this.canvas.width = wrapperWidth;
+            this.canvas.height = wrapperHeight;
+            this.context.drawImage(this.video, 0, 0, wrapperWidth, wrapperHeight);
+            this.video.srcObject.getTracks()[0].stop();
+            this.video.srcObject = null;
+            this.video.pause();
+            $('#video').hide();
+            $('#canvas').show();
+            this.done = true;
+        }
+
+        cancel () {
+            this.video.srcObject.getTracks()[0].stop();
+            this.video.srcObject = null;
+            this.video.pause();
+        }
+
+        getCanvasURL () {
+            return this.canvas.toDataURL('image/png');
         }
     }
 
     const capture = new Capture();
 
-    capture.init();
-
-    $('#btn-start').click(() => {
-        capture.startCam();
+    $('#start').click(function () {
+        capture.startCamera();
+        $('#start').hide();
+        $('#capture').show();
+        $('#cancel').show();
     });
 
-    function take() {
+    $('#capture').click(function () {
         capture.capture();
-    }
+        $('#capture').hide();
+    });
 
-    function retake(){
-        capture.startCam();
-    }
+    $('#cancel').click(function () {
+        capture.cancel();
+        $('#canvas').hide();
+        $('#video').show();
+        $('#start').show();
+        $('#capture').hide();
+        $('#cancel').hide();
+    });
 </script>

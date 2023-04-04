@@ -1,0 +1,55 @@
+{
+  "resources/js/app.js": {
+    "file": "assets/app.5805e5f7.js",
+    "src": "resources/js/app.js",
+    "isEntry": true,
+    "imports": [
+      "_lodash.a10a1929.js",
+      "_axios.98e08a26.js",
+      "_jquery.dd257bdb.js",
+      "_swal.f7e1dfde.js",
+      "_moment.9709ab41.js",
+      "_pdfmake.92753e47.js",
+      "_yup.43c544e7.js"
+    ],
+    "dynamicImports": [
+      "_swal.f7e1dfde.js"
+    ]
+  },
+  "_lodash.a10a1929.js": {
+    "file": "assets/lodash.a10a1929.js"
+  },
+  "_moment.9709ab41.js": {
+    "file": "assets/moment.9709ab41.js"
+  },
+  "_swal.f7e1dfde.js": {
+    "file": "assets/swal.f7e1dfde.js",
+    "isDynamicEntry": true,
+    "imports": [
+      "_lodash.a10a1929.js"
+    ]
+  },
+  "_yup.43c544e7.js": {
+    "file": "assets/yup.43c544e7.js"
+  },
+  "_pdfmake.92753e47.js": {
+    "file": "assets/pdfmake.92753e47.js",
+    "imports": [
+      "_lodash.a10a1929.js"
+    ]
+  },
+  "_jquery.dd257bdb.js": {
+    "file": "assets/jquery.dd257bdb.js",
+    "imports": [
+      "_lodash.a10a1929.js"
+    ]
+  },
+  "_axios.98e08a26.js": {
+    "file": "assets/axios.98e08a26.js"
+  },
+  "resources/css/app.css": {
+    "file": "assets/app.9a276f37.css",
+    "src": "resources/css/app.css",
+    "isEntry": true
+  }
+}

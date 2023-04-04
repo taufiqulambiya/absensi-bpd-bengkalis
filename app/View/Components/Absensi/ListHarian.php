@@ -2,9 +2,6 @@
 
 namespace App\View\Components\Absensi;
 
-use App\Models\Absensi;
-use App\Models\Cuti;
-use App\Models\Izin;
 use App\Models\User;
 use Illuminate\Support\Carbon;
 use Illuminate\View\Component;
@@ -16,101 +13,82 @@ class ListHarian extends Component
      *
      * @return void
      */
-    public function __construct()
+    public function __construct(
+        public $data = [],
+    )
     {
         //
     }
 
     private function get_absensi()
     {
-        $date = request()->tgl ?? date('Y-m-d');
-        $db_user = User::all();
-        $absensi = [];
-        foreach ($db_user as $key => $value) {
-            $find_absensi = Absensi::with(['user', 'shift'])
-                ->where('tanggal', $date)
-                ->where('id_user', $value->id)
-                ->get()
-                ->each(function ($x) {
-                    $x->tanggal = Carbon::parse($x->tanggal)->format('d/m/Y');
-                    $waktu_masuk = Carbon::parse($x->waktu_masuk);
-                    $x->waktu_masuk = $waktu_masuk->format('H:i \W\I\B');
-                    $waktu_keluar = Carbon::parse($x->waktu_keluar);
-                    $x->waktu_keluar = $waktu_keluar->isMidnight() ? '-' : $waktu_keluar->format('H:i \W\I\B');
-                    $x->total_jam = $waktu_masuk->diffInHours($waktu_keluar);
+        $query = User::with(
+            [
+                'absensi' => function ($query) {
+                    $query->where('tanggal', 'like', '%' . (request()->tgl ?? date('Y-m-d')) . '%');
+                },
+                'absensi.shift',
+                'izin' => function ($query) {
+                    $query->where('status', 'accepted_pimpinan')
+                        ->where('tgl_mulai', '<=', request()->tgl ?? date('Y-m-d'));
+                },
+                'cuti' => function ($query) {
+                    $query->where('status', 'accepted_pimpinan')
+                        ->where('tanggal', 'like', '%' . (request()->tgl ?? date('Y-m-d')) . '%');
+                },
+                'dinas_luar' => function ($query) {
+                    $query->where('mulai', '<=', request()->tgl ?? date('Y-m-d'))
+                        ->where('selesai', '>=', request()->tgl ?? date('Y-m-d'));
+                },
+            ]
+        );
+        $query = $query->get()->map(function($q) {
+            $q->formatted_tanggal = Carbon::parse(request()->tgl ?? date('Y-m-d'))->format('d/m/Y');
 
-                    if ($x->shift) {
-                        $x->jam_kerja = Carbon::parse($x->shift->mulai)->format('H:i') . ' - ' . Carbon::parse($x->shift->selesai)->format('H:i \W\I\B');
+            $q->absensi = $q->absensi->map(function($abs) use($q) {
+                $waktu_masuk = Carbon::parse($abs->waktu_masuk);
+                $waktu_keluar = Carbon::parse($abs->waktu_keluar);
+                $abs->formatted_waktu_masuk = $waktu_masuk->format('H:i \W\I\B');
+                $abs->formatted_waktu_keluar = $waktu_keluar->isMidnight() ? '-' : $waktu_keluar->format('H:i \W\I\B');
 
-                        if ($x->forgotten) {
-                            $x->total_jam = Carbon::parse($x->shift->selesai)->diff($waktu_masuk)->h;
-                        }
-                    }
+                $shift_mulai = Carbon::parse($abs->shift->mulai);
+                $shift_selesai = Carbon::parse($abs->shift->selesai);
 
-                    $x->done = !$waktu_masuk->isMidnight() and !$waktu_keluar->isMidnight();
-                })
-                ->first();
+                $abs->formatted_shift = $shift_mulai->format('H:i') . ' - ' . $shift_selesai->format('H:i \W\I\B');
+                $abs->total_jam = '-';
 
-            $status = $find_absensi->status ?? 'belum absen';
-            if ($find_absensi and ($find_absensi->waktu_keluar != '-')) {
-                $status = 'done';
-            }
-            $find_izin = Izin::where(['id_user' => $value->id, 'status' => 'accepted_pimpinan'])->get()->filter(function ($x) {
-                $date = request()->tgl ?? date('Y-m-d');
-                return $x->tgl_mulai <= $date and $x->tgl_selesai >= $date;
+                if ($abs->formatted_waktu_keluar != '-') {
+                    $abs->total_jam = $waktu_masuk->diffInHours($waktu_keluar);
+                }
+
+
+                $status = [
+                    'belum absen' => $waktu_masuk->isMidnight() && $waktu_keluar->isMidnight(),
+                    'sudah masuk' => $waktu_masuk->isMidnight() == false && $waktu_keluar->isMidnight(),
+                    'done' => $waktu_masuk->isMidnight() == false && $waktu_keluar->isMidnight() == false,
+                    'izin' => $q->izin->count() > 0,
+                    'cuti' => $q->cuti->count() > 0,
+                    'dinas' => $q->dinas_luar->count() > 0,
+                ];
+                $status_color = [
+                    'belum absen' => 'secodary',
+                    'sudah masuk' => 'warning',
+                    'done' => 'success',
+                    'izin' => 'info',
+                    'cuti' => 'info',
+                    'dinas' => 'info',
+                ];
+                $abs->status = array_search(true, $status);
+                $abs->status_color = $status_color[$abs->status];
+                return $abs;
             });
-            if ($find_izin->count() > 0) {
-                $status = 'izin';
-            }
-            $find_cuti = Cuti::where(['id_user' => $value->id, 'status' => 'accepted_pimpinan'])->get()->filter(function ($x) {
-                $tanggal = explode(',', $x->tanggal);
-                $found = array_filter($tanggal, function ($y) {
-                    $date = request()->tgl ?? date('Y-m-d');
-                    return $y === $date;
-                });
-                return count($found) > 0;
-            });
-            if ($find_cuti->count() > 0) {
-                $status = 'cuti';
-            }
+            // return first data and to array
+            $q->absensi = $q->absensi->first();
+            return $q;
+        });
 
-            $switch_color = [
-                'belum absen' => 'black',
-                'hadir' => 'info',
-                'izin' => 'warning',
-                'cuti' => 'warning',
-                'dinas' => 'primary',
-                'done' => 'success',
-            ];
-
-            $absensi[$key] = [
-                'id' => $value->id,
-                'nip' => $value->nip,
-                'nama' => $value->nama,
-                'absensi' => $find_absensi,
-                'user' => $find_absensi->user ?? null,
-                'status' => $status,
-                'color' => $switch_color[$status],
-            ];
-        }
-
-        if (request('status') == 'izin') {
-            $absensi = array_filter($absensi, function ($x) {
-                return $x['status'] == 'izin';
-            });
-        }
-        if (request('status') == 'cuti') {
-            $absensi = array_filter($absensi, function ($x) {
-                return $x['status'] == 'cuti';
-            });
-        }
-        if (request('status') == 'dinas_luar') {
-            $absensi = array_filter($absensi, function ($x) {
-                return $x['status'] == 'dinas';
-            });
-        }
-
-        return $absensi;
+        return $query;
+        // return $absensi;
     }
 
     /**
@@ -120,15 +98,17 @@ class ListHarian extends Component
      */
     public function render()
     {
-        $days_in_current_month = Carbon::now()->daysInMonth;
-        $absensi = $this->get_absensi();
-        $filter_status = [
-            ['hadir', 'Hadir'],
-            ['izin', 'Izin'],
-            ['cuti', 'Cuti'],
-            ['dinas_luar', 'Dinas Luar']
-        ];
+        // $days_in_current_month = Carbon::now()->daysInMonth;
+        // $absensi_by_user = $this->get_absensi();
+        // $filter_status = [
+        //     ['hadir', 'Hadir'],
+        //     ['izin', 'Izin'],
+        //     ['cuti', 'Cuti'],
+        //     ['dinas_luar', 'Dinas Luar']
+        // ];
+        // $data_json = json_encode($absensi_by_user);
 
-        return view('components.absensi.list-harian', compact('absensi', 'days_in_current_month', 'filter_status'));
+        $data = $this->data;
+        return view('components.absensi.list-harian', compact('data'));
     }
 }

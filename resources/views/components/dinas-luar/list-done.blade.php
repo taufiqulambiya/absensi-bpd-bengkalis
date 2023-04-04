@@ -50,7 +50,6 @@
 <script>
     class DinasLuarDone {
         printPerItem(item) {
-            console.log(item);
             const mapData = $obj => Object.entries($obj).map(([key, val]) => ({
                     margin: [0, 0, 0, 14],
                     columns: [
@@ -85,16 +84,42 @@
             }
 
             const dd = {
+                pageSize: 'A4',
+                pageOrientation: 'portrait',
+                pageMargins: [ 40, 60, 40, 60 ],
+                header: {
+                    margin: [40, 20, 40, 0],
+                    stack: [
+                        {
+                            text: 'Laporan Dinas Luar Pegawai',
+                            bold: true,
+                            alignment: 'center',
+                            fontSize: 14,
+                        },
+                        {
+                            text: 'Badan Pendapatan Daerah Kabupaten Bengkalis',
+                            alignment: 'center',
+                            fontSize: 12,
+                            margin: [0,0],
+                        },
+                        {
+                            alignment: 'center',
+                            canvas : [
+                                {
+                                    type: 'line',
+                                    x1: 0,
+                                    y1: 0,
+                                    x2: 400,
+                                    y2: 0,
+                                    lineWidth: 1,
+                                }
+                            ]
+                        }
+                    ]
+                },
                 content: [
                     {
-                        text: 'Laporan Dinas Luar Pegawai',
-                        bold: true,
-                        alignment: 'center',
-                        fontSize: 16,
-                        margin: [0,24],
-                    },
-                    {
-                        margin: [12,0,0,14],
+                        margin: [12,14,0,14],
                         fontSize: 14,
                         bold: 'true',
                         text: 'Detail Pegawai :',
@@ -103,6 +128,7 @@
                     {
                         type: 'none',
                         ol: mapData(profile),
+                        fontSize: 12,
                     },
                     {
                         margin: [12,14,0,14],

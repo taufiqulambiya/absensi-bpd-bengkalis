@@ -2,16 +2,67 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Admin\Izin as AdminIzin;
 use App\Models\Izin as ModelsIzin;
 use App\Models\User;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class Izin extends BaseController
 {
+    private function transformData($data)
+    {
+        return $data->map(function ($x) {
+            $start_date = Carbon::parse($x->tgl_mulai);
+            $end_date = Carbon::parse($x->tgl_selesai);
+
+            $x->tgl_mulai = $start_date->format('d/m/Y');
+            $x->tgl_selesai = $end_date->format('d/m/Y');
+
+            // get different in days inclde the start date
+            $x->durasi = $start_date->diffInDays($end_date) + 1 . ' Hari';
+            $x->status = mapStatus($x->status);
+            $x->bukti_url = $x->bukti ? Storage::url('public/uploads/' . $x->bukti) : '#';
+            if ($x->status == 'pending') {
+                $tgl_selesai = Carbon::parse($x->tgl_selesai);
+                $current_date = Carbon::parse(date('Y-m-d'));
+                $x->terlewat = $current_date->isAfter($tgl_selesai);
+            }
+            return $x;
+        });
+    }
+
+    private function mapData($x)
+    {
+        $start_date = Carbon::parse($x->tgl_mulai);
+        $end_date = Carbon::parse($x->tgl_selesai);
+
+        $x->formatted_tgl_mulai = $start_date->format('d/m/Y');
+        $x->formatted_tgl_selesai = $end_date->format('d/m/Y');
+
+        // get different in days inclde the start date
+        $x->formatted_durasi = $start_date->diffInDays($end_date) + 1 . ' Hari';
+        $x->formatted_status = formatStatusText($x->status);
+        $x->bukti_url = $x->bukti ? Storage::url('public/uploads/' . $x->bukti) : '#';
+        if ($x->status == 'pending') {
+            $tgl_selesai = Carbon::parse($x->tgl_selesai);
+            $current_date = Carbon::parse(date('Y-m-d'));
+            $x->terlewat = $current_date->isAfter($tgl_selesai);
+        }
+        return $x;
+    }
+
+    public function printById($id)
+    {
+        $data = ModelsIzin::find($id);
+        $izin = $this->mapData($data);
+        $user = User::find($data->id_user);
+        $pdf = PDF::loadView('panel.pegawai.izin.print', compact('izin', 'user'));
+        return $pdf->stream();
+    }
+
     /**
      * Handle the incoming request.
      *
@@ -20,62 +71,31 @@ class Izin extends BaseController
      */
     public function index(Request $request)
     {
-        $user = session()->get('user');
+        $print = $request->print;
+        if (!empty($print) && $print == 'id') {
+            return $this->printById($request->id);
+        }
+
+        $status = request()->view ?? 'pending';
+        $user = session('user');
         $level = $user->level;
 
-        if ($level == 'admin') {
-            $admin_izin = new AdminIzin();
-            return $admin_izin->index();
+        $pending_count = 0;
+        $allow_ajukan = ModelsIzin::getAllowAjukan($user->id);
+
+        $activeIzin = ModelsIzin::lastPengajuan($user->id);
+
+        if ($activeIzin) {
+            $allow_ajukan = false;
         }
 
-        if ($level == 'kabid') {
-            $missed_count = $data = ModelsIzin::with('user')
-                ->where('status', 'pending')
-                ->where('tgl_mulai', '<=', date('Y-m-d'))
-                ->get()
-                ->filter(function ($x) {
-                    $jabatan_id = session('user')->jabatan;
-                    return $x->user->jabatan == $jabatan_id;
-                })->count();
-            return view('panel.kabid.izin.izin', compact('missed_count'));
-        }
-
-        if ($level == 'pegawai') {
-            $count_queue = ModelsIzin::where([
-                    ['id_user', $user->id],
-                    [function($x) {
-                        return $x->where('status', 'pending')->orWhere('status', 'accepted_kabid');
-                    }],
-                ])
-                // ->where('status', 'accepted_kabid')
-                ->get()->count();
-            $izin_mendatang = ModelsIzin::where('id_user', $user->id)
-                ->where('status', 'accepted_admin')
-                ->where('tgl_mulai', '>', date('Y-m-d'))
-                ->get()
-                ->last();
-
-            $data = [
-                'level' => $level,
-                'is_waiting' => $count_queue > 0,
-                'has_izin' => ModelsIzin::where(['id_user' => $user->id])
-                    ->where('tgl_mulai', '<=', date('Y-m-d'))
-                    ->where('tgl_selesai', '>=', date('Y-m-d'))
-                    ->where('status', 'accepted_admin')
-                    ->get()
-                    ->each(function ($x) {
-                        $x->tgl_mulai = Carbon::parse($x->tgl_mulai)->format('d/m/Y');
-                        $x->tgl_selesai = Carbon::parse($x->tgl_selesai)->format('d/m/Y');
-                    })
-                    ->first(),
-                'izin_mendatang' => $izin_mendatang,
-            ];
-            return view('panel.pegawai.izin.izin', $data);
-        }
-
-        if ($level == 'atasan') {
-            return view('panel.pimpinan.izin.izin');
-        }
+        $view_by_role = [
+            'pegawai' => 'panel.pegawai.izin.izin',
+            'kabid' => 'panel.kabid.izin.izin',
+            'admin' => 'panel.admin.izin.izin',
+            'atasan' => 'panel.pimpinan.izin.izin',
+        ];
+        return view($view_by_role[$level], compact('level', 'status', 'activeIzin', 'allow_ajukan', 'pending_count'));
     }
 
     public function store(Request $request)
@@ -95,6 +115,18 @@ class Izin extends BaseController
         ]);
         try {
             $id_user = $request->session()->get('user')->id;
+
+            // cek 1: apakah ada izin yang masih berlangsung, dibandingkan dengan tanggal yg diajukan
+            $cekIzin = ModelsIzin::where('id_user', $id_user)
+                ->where('status', 'accepted_pimpinan')
+                ->where('tgl_mulai', '<=', $post['tgl_mulai'])
+                ->where('tgl_selesai', '>=', $post['tgl_selesai'])
+                ->get();
+
+            if ($cekIzin->count() > 0) {
+                return redirect()->back()->with('error', 'Slot izin sudah terisi!');
+            }
+
             $post['id_user'] = $id_user;
             $tracking = [['status' => 'Pengajuan dibuat', 'date' => Carbon::now()->toDateTimeString()]];
             $post['tracking'] = json_encode($tracking);

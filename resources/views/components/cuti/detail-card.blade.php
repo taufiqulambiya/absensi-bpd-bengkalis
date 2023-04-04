@@ -1,5 +1,10 @@
 @if ($has_cuti->count() > 0)
 <style>
+    .dtcc  {
+        border: 1px solid #e6e6e6;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        border-radius: 4px;
+    }
     .dtcc h4 {
         font-size: 1rem;
     }
@@ -8,36 +13,43 @@
     }
 </style>
 <div class="card dtcc">
+    <div class="card-header">
+        <h4 class="card-title">Anda memiliki cuti yang disetujui.</h4>
+    </div>
     <div class="card-body">
-        <h4 class="mb-3">Anda memiliki cuti yang disetujui.</h4>
-        <hr>
-        <div class="row" style="font-size: 1rem; row-gap: 14px;">
-            <div class="col-md-4"><span>Tanggal</span></div>
-            <div class="col-md-8 d-flex">
-                <div class="d-flex flex-wrap" style="gap: 4px">
-                    @foreach ($has_cuti->last()->tanggal as $tgl)
-                    <span class="chip in-table bg-secondary px-3 text-white">{{
-                        $tgl }}</span>
-                    @endforeach
-                </div>
-                {{-- <ul>
-                    @foreach (explode(',', $has_cuti->last()->tanggal) as $item)
-                    <li>{{$item}}</li>
-                    @endforeach
-                </ul> --}}
-            </div>
-            <div class="col-md-4"><span>Total</span></div>
-            <div class="col-md-8"><span>: {{$has_cuti->last()->total}} Hari</span></div>
-            <div class="col-md-4"><span>Bukti</span></div>
-            <div class="col-md-8"><span>:
-                    @if ($has_cuti->last()->bukti)
-                    <a href="{{ Storage::url('public/uploads/'.$has_cuti->last()->bukti) }}" target="_blank"
-                        class="text-primary">Download</a>
-                    @endif
-                </span></div>
-            <div class="col-md-4"><span>Keterangan</span></div>
-            <div class="col-md-8"><span>: {{$has_cuti->last()->keterangan}}</span></div>
-        </div>
+        <table class="table table-sm">
+            <tbody>
+                <tr>
+                    <td>Tanggal</td>
+                    <td class="d-flex" style="column-gap: 4px">
+                        <span>:</span>
+                        <div class="d-flex flex-wrap" style="gap: 4px">
+                            @foreach ($has_cuti->last()->tanggal as $tgl)
+                            <span class="chip in-table bg-secondary px-3 text-white">{{
+                                $tgl }}</span>
+                            @endforeach
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Total</td>
+                    <td>: {{$has_cuti->last()->total}} Hari</td>
+                </tr>
+                <tr>
+                    <td>Bukti</td>
+                    <td>:
+                        @if ($has_cuti->last()->bukti)
+                        <a href="{{ Storage::url('public/uploads/'.$has_cuti->last()->bukti) }}" target="_blank"
+                            class="text-primary">Download</a>
+                        @endif
+                    </td>
+                </tr>
+                <tr>
+                    <td>Keterangan</td>
+                    <td>: {{$has_cuti->last()->keterangan}}</td>
+                </tr>
+            </tbody>
+        </table>
     </div>
 </div>
 @endif

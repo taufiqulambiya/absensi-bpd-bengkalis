@@ -1,3 +1,17 @@
+{{-- container for js access --}}
+{{-- <div class="data-container" data-data="{{ json_encode($absensi_by_user) }}"></div> --}}
+{{-- end container for js access --}}
+
+@php
+     $filter_status = [
+        ['all', 'Semua'],
+        ['hadir', 'Hadir'],
+        ['izin', 'Izin'],
+        ['cuti', 'Cuti'],
+        ['dinas_luar', 'Dinas Luar']
+    ];
+@endphp
+
 <div class="card-body">
     <div class="row">
         <div class="col-12">
@@ -57,47 +71,53 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach ($absensi as $item)
-                        <tr class="text-{{ $item['color'] }}">
-                            <th scope="row">{{ $loop->iteration }}</th>
-                            <th>{{ $item['nip'] }}</th>
-                            <th>{{ $item['nama'] }}</th>
-                            {{-- @if (!empty($item['absensi'])) --}}
-                            <th>{{ $item['absensi']->tanggal ?? '-' }}</th>
-                            <th>{{ $item['absensi']->waktu_masuk ?? '-'}}
-                            </th>
-                            <th>{{ $item['absensi']->waktu_keluar ?? '-'}}
-                            </th>
-                            <th>{{ $item['absensi']->jam_kerja ?? '-'}}
-                            </th>
-                            <th>{{ $item['absensi']->total_jam ?? '-'}}
-                            </th>
-                            <th>
-                                @if ($item['absensi']->dok_masuk ?? false AND
-                                Storage::disk('public')->has('uploads/'.$item['absensi']->dok_masuk))
-                                <a href="{{ Storage::url('public/uploads/'.$item['absensi']->dok_masuk) }}"
+                        @foreach ($data as $item)
+                        <tr>
+                            <td>{{ $loop->iteration }}</td>
+                            <td>{{ $item->nip }}</td>
+                            <td>{{ $item->nama }}</td>
+                            <td>{{ $item->formatted_tanggal ?? '-' }}</td>
+                            <td>{{ $item->absensi['formatted_waktu_masuk'] ?? '-' }}</td>
+                            <td>{{ $item->absensi['formatted_waktu_keluar'] ?? '-' }}</td>
+                            <td>{{ $item->absensi['formatted_shift'] ?? '-' }}</td>
+                            <td>{{ $item->absensi['total_jam'] ?? '-' }}</td>
+                            <td>
+                                @if ($item->absensi['dok_masuk'] ?? false)
+                                <a href="{{ Storage::url('public/uploads/'. $item->absensi['dok_masuk']) }}"
                                     target="_blank">
-                                    <p>Dok. Masuk</p>
+                                    Dok. Masuk
                                 </a>
+                                @else
+                                -
                                 @endif
-                                @if ($item['absensi']->dok_keluar ?? false AND
-                                Storage::disk('public')->has('uploads/'.$item['absensi']->dok_keluar))
-                                <a href="{{ Storage::url('public/uploads/'.$item['absensi']->dok_keluar) }}"
+                                <br />
+                                @if ($item->absensi['dok_keluar'] ?? false)
+                                <a href="{{ Storage::url('public/uploads/'. $item->absensi['dok_keluar']) }}"
                                     target="_blank">
-                                    <p>Dok. Keluar</p>
+                                    Dok. Keluar
                                 </a>
+                                @else
+                                -
                                 @endif
-                            </th>
-                            <th>{{ strtoupper($item['status']) }}</th>
-                            <th>
-                                @if ($item['status'] != 'belum absen')
-                                <button class="btn btn-success btn-print-item" data-item="{{ json_encode($item) }}"><i
+                            </td>
+                            <td>
+                                @if ($item->absensi['status'] ?? false)
+                                <span class="badge badge-{{ $item->absensi['status_color']}}">{{ ucwords($item->absensi['status']) }}</span>
+                                @else
+                                <span class="badge badge-secondary">
+                                    Belum Absen
+                                </span>
+                                @endif
+                            </td>
+                            <td>
+                                @if ($item->absensi['status'] ?? false)
+                                <a href="{{ route('absensi.show', $item->absensi['id']) }}" class="btn btn-info">
+                                    <i class="fas fa-info-circle"></i>
+                                </a>
+                                <button class="btn btn-success btn-print-item" data-id="{{ $item->id }}"><i
                                         class="fa fa-print" aria-hidden="true"></i></button>
                                 @endif
-                            </th>
-                            {{-- @else
-                            @for ($i = 0; $i < 8; $i++) <th>-</th> @endfor
-                                @endif --}}
+                            </td>
                         </tr>
                         @endforeach
                     </tbody>
@@ -106,191 +126,3 @@
         </div>
     </div>
 </div>
-
-<script>
-    class ListHarian {
-        constructor() {
-            this.absensi = JSON.parse(`<?= json_encode($absensi) ?? [] ?>`);
-            this.filterTanggal = `<?= $_GET['tgl'] ?? null ?>`;
-        }
-
-        getTitle () {
-            if (this.filterTanggal === '') {
-                return 'Laporan Absensi Harian - ' + moment().format('DD/MM/YYYY');
-            }
-            const $date = parseInt(this.filterTanggal, 10) < 10 ? `${moment().format('YYYY-MM')}-0${this.filterTanggal}` : `${moment().format('YYYY-MM')}-${this.filterTanggal}`;
-            return 'Laporan Absensi Harian - ' + moment($date).format('DD/MM/YYYY');
-        }
-
-        print() {
-            const tableBody = [
-                [
-                    { text: "NIP", style: "tableHeader" },
-                    { text: "Nama", style: "tableHeader" },
-                    { text: "Tanggal", style: "tableHeader" },
-                    { text: "Waktu Masuk", style: "tableHeader" },
-                    { text: "Waktu Keluar", style: "tableHeader" },
-                    { text: "Total Jam", style: "tableHeader" },
-                ],
-            ];
-
-            this.absensi.forEach((item) => {
-                const toPush = [
-                    item.nip,
-                    item.nama,
-                    _.getOr('-', 'absensi.tanggal', item),
-                    _.getOr('-', 'absensi.waktu_masuk', item),
-                    _.getOr('-', 'absensi.waktu_keluar', item),
-                    _.getOr('-', 'absensi.total_jam', item),
-                ];
-                tableBody.push(
-                    toPush.map((item) => ({
-                        text: item,
-                        style: "tableBody",
-                    }))
-                );
-            });
-
-            const title = this.getTitle();
-            const dd = {
-                content: [
-                    {
-                        text: title,
-                        alignment: "center",
-                        margin: [0, 32, 0, 24],
-                        fontSize: 12,
-                    },
-                    {
-                        style: "tableStyle",
-                        headerRows: 1,
-                        table: {
-                            // widths: Array.from({ length: 6 }).map(() => 60),
-                            widths: "*",
-                            body: tableBody,
-                        },
-                        layout: "lightHorizontalLines",
-                    },
-                ],
-                styles: {
-                    tableHeader: {
-                        fontSize: 10,
-                        bold: true,
-                        margin: [4, 4, 4, 4],
-                    },
-                    tableBody: {
-                        fontSize: 10,
-                        margin: [4, 4, 4, 4],
-                    },
-                },
-            };
-
-            pdfMake.createPdf(dd).open();
-        }
-
-        printItem(item, title) {
-            const getOrStrip = _.getOr('-');
-            const mapData = ($obj) =>
-                Object.entries($obj).map(([key, val]) => ({
-                    margin: [0, 0, 0, 14],
-                    columns: [
-                        {
-                            width: 80,
-                            text: key,
-                        },
-                        {
-                            alignment: "center",
-                            width: 30,
-                            text: ":",
-                        },
-                        val,
-                    ],
-                }));
-
-            const profile = {
-                Nama: getOrStrip('user.nama', item),
-                NIP: getOrStrip('user.nip', item),
-                "Jenis Kelamin": getOrStrip('user.jk', item),
-                Alamat: getOrStrip('user.alamat', item),
-                "No. Telp": getOrStrip('user.no_telp', item),
-            };
-
-            const absensi = {
-                Tanggal: getOrStrip('absensi.tanggal', item),
-                "Jam Absen": getOrStrip('absensi.jam_kerja', item),
-                "Jam Masuk": getOrStrip('absensi.waktu_masuk', item),
-                "Jam Keluar": getOrStrip('absensi.waktu_keluar', item),
-                "Total Jam": getOrStrip('absensi.total_jam', item),
-            };
-
-            const dd = {
-                pageSize: 'A4',
-                pageMargins: [40,100,40,40],
-                header: [
-                    {
-                        stack: [
-                            {
-                                text: "Laporan Absensi Pegawai Harian",
-                                bold: true,
-                                alignment: "center",
-                                fontSize: 14,
-                            },
-                            {
-                                text: title,
-                                bold: true,
-                                alignment: "center",
-                                fontSize: 14,
-                                margin: [0, 0, 0, 0],
-                            },
-                        ],
-                        margin: [0,32,0,0]
-                    }
-                ],
-                content: [
-                    {
-                        margin: [12, 0, 0, 14],
-                        fontSize: 14,
-                        bold: "true",
-                        text: "Detail Pegawai :",
-                        underline: "true",
-                    },
-                    {
-                        type: "none",
-                        ol: mapData(profile),
-                    },
-                    {
-                        margin: [12, 14, 0, 14],
-                        fontSize: 14,
-                        bold: "true",
-                        text: "Detail Absensi :",
-                    },
-                    {
-                        type: "none",
-                        ol: mapData(absensi),
-                    },
-                    {
-                        text: "Bengkalis, " + moment().format('DD/MM/YY'),
-                        alignment: "right",
-                        margin: [0, 64, 0, 64],
-                    },
-                    {
-                        text: "Administrator",
-                        alignment: "right",
-                    },
-                ],
-            };
-            pdfMake.createPdf(dd).open();
-        }
-    }
-
-    const harian = new ListHarian();
-
-    $('#print-all-harian').click(() => {
-        harian.print();
-    });
-    $.each($('.btn-print-item'), function() {
-        $(this).click(function() {
-            const item = $(this).data('item');
-            harian.printItem(item, `${item.nama} - ${_.getOr(moment().format('DD/MM/YY'), 'absensi[0].tanggal', item)}`);
-        })
-    })
-</script>

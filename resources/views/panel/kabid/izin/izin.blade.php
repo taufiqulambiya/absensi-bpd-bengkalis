@@ -10,6 +10,7 @@
         bottom: 20px;
     }
 </style>
+
 <div class="container body">
     <div class="main_container">
         <!-- sidebar -->
@@ -37,43 +38,7 @@
                                 <div class="clearfix"></div>
                             </div>
                             <div class="x_content">
-                                <ul class="nav nav-tabs" id="myTab" role="tablist">
-                                    <li class="nav-item">
-                                        <a class="nav-link active" id="all-tab" data-toggle="tab" href="#all" role="tab"
-                                            aria-controls="all" aria-selected="true">Pengajuan Aktif</a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="nav-link" id="terlewat-tab" data-toggle="tab" href="#terlewat"
-                                            role="tab" aria-controls="terlewat" aria-selected="false"><i
-                                                class="fa fa-info-circle" aria-hidden="true"></i> Pengajuan Terlewat
-                                            @if ($missed_count>0) <span class="badge badge-danger">{{ $missed_count }}</span> @endif </a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="nav-link" id="selesai-tab" data-toggle="tab" href="#selesai"
-                                            role="tab" aria-controls="selesai" aria-selected="false"><i
-                                                class="fa fa-check" aria-hidden="true"></i> Pengajuan Selesai</a>
-                                    </li>
-                                </ul>
-
-                                <div class="row">
-                                    <div class="col-12">
-                                        <div class="tab-content py-3" id="myTabContent">
-                                            @csrf
-                                            <div class="tab-pane fade show active" id="all" role="tabpanel"
-                                                aria-labelledby="all-tab">
-                                                <x-izin.list-pending />
-                                            </div>
-                                            <div class="tab-pane fade" id="terlewat" role="tabpanel"
-                                                aria-labelledby="terlewat-tab">
-                                                <x-izin.list-missed />
-                                            </div>
-                                            <div class="tab-pane fade" id="selesai" role="tabpanel"
-                                                aria-labelledby="selesai-tab">
-                                                <x-izin.list-done />
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+                                <livewire:izin.tabs />
                             </div>
                         </div>
                     </div>
@@ -98,7 +63,7 @@
     </div>
 </div>
 
-<script src="{{ asset('js/izin-page.js') }}"></script>
+{{-- <script src="{{ asset('js/izin-page.js') }}"></script>
 <script>
     $('.btn-delete').each(function() {
         const id = $(this).data('id');
@@ -107,5 +72,5 @@
             $('#form-delete').attr('action', formURL);
         })
     })
-</script>
+</script> --}}
 @endsection

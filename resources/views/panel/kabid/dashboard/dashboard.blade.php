@@ -12,7 +12,7 @@
 
             <div class="row">
                 <div class="col-md-4">
-                    <div class="card bg-info text-white">
+                    {{-- <div class="card bg-info text-white">
                         <div class="card-body">
                             <div>
                                 <h4 class="card-title d-inline-block">Pegawai</h4>
@@ -24,57 +24,86 @@
                             <a href="{{ route('users.index') }}" class="btn btn-light btn-sm"><i
                                     class="fas fa-database fa-fw"></i> Detail</a>
                         </div>
-                    </div>
+                    </div> --}}
+                    {{-- <x-dashboard.overview
+                        :bg-class="'bg-yellow'"
+                        :text-class="'text-dark'"
+                        :icon-class="'fas fa-right-from-bracket'"
+                        :title="'Pengajuan Cuti'"
+                        :count="$cuti_count"
+                        :link="route('cuti.index')"
+                    /> --}}
+                    <x-dashboard.overview
+                        :bg-class="'bg-info'"
+                        :text-class="'text-white'"
+                        :icon-class="'fas fa-users'"
+                        :title="'Pegawai'"
+                        :count="$pegawai_count"
+                        :link="route('users.index')"
+                    />
                 </div>
                 <div class="col-md-4">
-                    <div class="card bg-warning text-dark">
-                        <div class="card-body">
+                    {{-- <div class="card bg-warning text-dark"> --}}
+                        {{-- <div class="card-body">
                             <div>
                                 <h4 class="card-title d-inline-block">Pengajuan Izin</h4>
                                 <i class="fas fa-right-from-bracket float-right" style="font-size: 32px"></i>
                             </div>
                             <hr />
-                            <div class="row align-items-center">
-                                <div class="col-2">
-                                    <span class="display-4 font-weight-bold">{{$izin_count}}</span>
-                                </div>
-                                <div class="col-6">
-                                    @if ($izin_pending > 0)
-                                    <span class="text-info float-right" style="font-size: 14px">{{$izin_pending}} Pengajuan
-                                        Pending</span>
-                                    @endif
-                                </div>
+                            <div class="p-3">
+                                <div class="display-4 font-weight-bold">{{$izin_count}}</div>
+                                @if ($izin_pending > 0)
+                                <div class="text-primary">{{$izin_pending}} Pengajuan
+                                    Pending</div>
+                                @endif
                             </div>
                             <hr />
                             <a href="{{ route('izin.index') }}" class="btn btn-light btn-sm"><i
                                     class="fas fa-database fa-fw"></i> Detail</a>
-                        </div>
-                    </div>
+                        </div> --}}
+                    {{-- </div> --}}
+                    {{-- <x-dashboard.overview :bg_class="'bg-yellow'" :text_class="'text-dark'"
+                        :icon_class="'fas fa-right-from-bracket'" :title="'Pengajuan Cuti'" :count="$cuti_count" :pending_count="$cuti_pending"
+                        :link="route('cuti.index')" /> --}}
+                    <x-dashboard.overview
+                        :bg-class="'bg-warning'"
+                        :text-class="'text-dark'"
+                        :icon-class="'fas fa-right-from-bracket'"
+                        :title="'Pengajuan Izin'"
+                        :count="$izin_count"
+                        :pending-count="$izin_pending"
+                        :link="route('izin.index')"
+                    />
                 </div>
                 <div class="col-md-4">
-                    <div class="card bg-yellow text-dark">
+                    {{-- <div class="card bg-yellow text-dark">
                         <div class="card-body">
                             <div>
                                 <h4 class="card-title d-inline-block">Pengajuan Cuti</h4>
                                 <i class="fas fa-right-from-bracket float-right" style="font-size: 32px"></i>
                             </div>
                             <hr />
-                            <div class="row align-items-center">
-                                <div class="col-2">
-                                    <span class="display-4 font-weight-bold">{{$cuti_count}}</span>
-                                </div>
-                                <div class="col-6">
-                                    @if ($cuti_pending > 0)
-                                    <span class="text-info float-right" style="font-size: 14px">{{$cuti_pending}} Pengajuan
-                                        Pending</span>
-                                    @endif
-                                </div>
+                            <div class="p-3">
+                                <div class="display-4 font-weight-bold">{{$cuti_count}}</div>
+                                @if ($cuti_pending > 0)
+                                <div class="text-primary">{{$cuti_pending}} Pengajuan
+                                    Pending</div>
+                                @endif
                             </div>
                             <hr />
                             <a href="{{ route('cuti.index') }}" class="btn btn-light btn-sm"><i
                                     class="fas fa-database fa-fw"></i> Detail</a>
                         </div>
-                    </div>
+                    </div> --}}
+                    <x-dashboard.overview
+                        :bg-class="'bg-yellow'"
+                        :text-class="'text-dark'"
+                        :icon-class="'fas fa-right-from-bracket'"
+                        :title="'Pengajuan Cuti'"
+                        :count="$cuti_count"
+                        :pending-count="$cuti_pending"
+                        :link="route('cuti.index')"
+                    />
                 </div>
             </div>
         </div>

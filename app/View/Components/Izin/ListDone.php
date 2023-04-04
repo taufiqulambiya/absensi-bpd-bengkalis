@@ -48,11 +48,11 @@ class ListDone extends Component
             });
 
         if ($role == 'kabid') {
-            $data = Izin::with('user')->where('status', '!=', 'pending')->get()
-                ->filter(function ($x) {
-                    $bidang_id = session('user')->bidang;
-                    return $x->user->bidang == $bidang_id;
+            $data = Izin::with('user')
+                ->whereHas('user', function ($x) {
+                    return $x->where('bidang', session('user')->bidang);
                 })
+                ->where('status', '!=', 'pending')->get()
                 ->each(function ($x) {
                     $x->durasi = Carbon::parse($x->tgl_mulai)->diff(Carbon::parse($x->tgl_selesai))->d . ' Hari';
                     $x->status = mapStatus($x->status);

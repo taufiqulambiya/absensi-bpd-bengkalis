@@ -36,31 +36,7 @@
                                 <div class="clearfix"></div>
                             </div>
                             <div class="x_content">
-                                <ul class="nav nav-tabs" id="myTab" role="tablist">
-                                    <li class="nav-item">
-                                        <a class="nav-link active" id="all-tab" data-toggle="tab" href="#all" role="tab"
-                                            aria-controls="all" aria-selected="true">Aktif</a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="nav-link" id="selesai-tab" data-toggle="tab" href="#selesai"
-                                            role="tab" aria-controls="selesai" aria-selected="false"><i
-                                                class="fa fa-check" aria-hidden="true"></i> Selesai</a>
-                                    </li>
-                                </ul>
-                                <div class="row">
-                                    <div class="col-12">
-                                        <div class="tab-content py-3" id="myTabContent">
-                                            <div class="tab-pane fade show active" id="all" role="tabpanel"
-                                                aria-labelledby="all-tab">
-                                                <x-dinas-luar.list-coming />
-                                            </div>
-                                            <div class="tab-pane fade" id="selesai" role="tabpanel"
-                                                aria-labelledby="terlewat-tab">
-                                                <x-dinas-luar.list-done />
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+                                <livewire:dinas-luar.tabs />
                             </div>
                         </div>
                     </div>
@@ -134,11 +110,11 @@
 </div>
 
 <script>
-    $(document).ready(function(){
-        $('#durasi').daterangepicker(null, function (start, end, label) {
-            const diffDays = moment(end.toISOString()).diff(start.toISOString(), 'days');
-            $("#total-durasi").val(`${diffDays} hari`);
-        });
+    document.addEventListener('livewire:load', function () {
+        const LW = window.Livewire;
+        LW.on('print', url => {
+            window.open(url, '_blank');
+        })
     });
 </script>
 @endsection

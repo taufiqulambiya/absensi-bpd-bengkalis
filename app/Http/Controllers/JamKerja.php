@@ -15,21 +15,18 @@ class JamKerja extends Controller
      */
     public function index()
     {
-        $days = ['senin', 'selasa', 'rabu', 'kamis', 'jumat'];
-        $data = ModelsJamKerja::orderBy('status')->get();
-        
+        $days = ['minggu', 'senin', 'selasa', 'rabu', 'kamis', 'jumat', 'sabtu'];
+        $data = ModelsJamKerja::orderBy('status');
+        $data = $data->whereNull('deleted_at');
+        $data = $data->get();
         $disable_days = [];
-        foreach ($data as $key => $value) {
-            $used_days = explode(',', $value->days);
-            foreach ($used_days as $day) {
-                array_push($disable_days, trim($day));
-            }
+        foreach ($data as $item) {
+            $disable_days = array_merge($disable_days, explode(', ', $item->days));
         }
+
         // dd($disable_days);
-        $allowed = array_filter($days, function($x) use ($disable_days) {
-            $found = array_search($x, $disable_days);
-            return $found === false and $found !== 0;
-        });
+        $allowed = array_diff($days, $disable_days);
+
         return view('panel.admin.jam_kerja.jam_kerja', compact('data', 'allowed', 'days'));
     }
 
@@ -41,18 +38,14 @@ class JamKerja extends Controller
             'keterangan' => 'required',
         ]);
         try {
-            $model = new ModelsJamKerja();
-            $filtered_keys = ['_token', 'status'];
+            $post = $request->post();
+            $filtered_keys = ['_token'];
+            $post['status'] = $request->post('status') == 'on' ? 'aktif' : 'nonaktif';
+            $post['days'] = join(', ', $request->days);
 
-            foreach ($request->post() as $key => $value) {
-                if (!in_array($key, $filtered_keys)) {
-                    $model->$key = $value;
-                }
-            }
-            $model->status = $request->post('status') == 'on' ? 'aktif' : 'nonaktif';
-            $model->days = join(', ', $request->days);
-            $model->save();
-            return redirect()->back()->with('success', 'Data berhasil ditambah.');
+            $item = ModelsJamKerja::create($post);
+
+            return redirect()->back()->with('success', 'Data berhasil ditambahkan.');
         } catch (\Throwable $th) {
             return redirect()->back()->with('error', $th->getMessage());
         }
@@ -60,41 +53,60 @@ class JamKerja extends Controller
 
     public function update(Request $request, $id)
     {
-        if(empty($request->post('update_status'))) {
-            $request->validate([
-                'mulai' => 'required',
-                'selesai' => 'required',
-                'keterangan' => 'required',
+        $is_update_status = $request->update == 'status' ? true : false;
+
+        if ($is_update_status) {
+            $item = ModelsJamKerja::where('id', $id)->first();
+            $item->status = $item->status == 'aktif' ? 'nonaktif' : 'aktif';
+            $item->save();
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Data berhasil diubah.',
+                'data' => $item
             ]);
         }
 
-        try {
-            $filtered_keys = ['_method', 'update_status', '_token', 'status'];
-            $item = ModelsJamKerja::find($id);
+        $request->validate([
+            'mulai' => 'required',
+            'selesai' => 'required',
+            'keterangan' => 'required',
+        ]);
 
-            foreach ($request->post() as $key => $value) {
-                if (!in_array($key, $filtered_keys)) {
-                    $item->$key = $value;
-                }
-            }
-            
-            $item->status = $request->post('status') == 'on' ? 'aktif' : 'nonaktif';
-            if ($request->has('days')) {
-                $item->days = join(', ', $request->days);
-            }
-            $item->save();
-            return redirect()->back()->with('success', 'Data berhasil diubah.');
+        try {
+            $filtered_keys = ['_method', '_token', 'status'];
+            $post = $request->post();
+            $post['status'] = $request->post('status') == 'on' ? 'aktif' : 'nonaktif';
+            $post['days'] = join(', ', $request->days);
+
+            $item = ModelsJamKerja::where('id', $id)->update($post);
+            // return redirect()->back()->with('success', 'Data berhasil diubah.');
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Data berhasil diubah.',
+                'data' => $post
+            ]);
         } catch (\Throwable $th) {
-            return redirect()->back()->with('error', $th->getMessage());
+            // return redirect()->back()->with('error', $th->getMessage());
+            return response()->json([
+                'status' => 'error',
+                'message' => $th->getMessage(),
+            ]);
         }
     }
 
     public function destroy($id)
     {
         try {
-            $item = ModelsJamKerja::findOrFail($id);
+            $deleted_at = date('Y-m-d H:i:s');
 
-            $item->delete();
+            ModelsJamKerja::where('id', $id)->update(['deleted_at' => $deleted_at]);
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Data berhasil dihapus.',
+            ]);
+
+            // $item->delete();
             return redirect()->back()->with('success', 'Data berhasil dihapus.');
         } catch (\Throwable $th) {
             return redirect()->back()->with('error', 'Gagal menghapus shift, terdapat data absen yang terkait jam ini.');

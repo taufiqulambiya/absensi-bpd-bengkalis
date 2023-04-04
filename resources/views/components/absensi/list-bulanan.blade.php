@@ -1,19 +1,64 @@
+@php
+$months = [
+    'Januari',
+    'Februari',
+    'Maret',
+    'April',
+    'Mei',
+    'Juni',
+    'Juli',
+    'Agustus',
+    'September',
+    'Oktober',
+    'November',
+    'Desember',
+];
+@endphp
+
+<style>
+    .clickable {
+        cursor: pointer;
+    }
+</style>
+
+{{-- data container --}}
+<div class="data-container" data-data='<?= $data ?? [] ?>'></div>
+<div class="data-container" data-days='<?= json_encode($days) ?? [] ?>'></div>
+{{-- end data container --}}
+
 <div class="card-body">
     <div class="row">
         <div class="col-12">
-            <div class="form-group col-3 p-0">
+            <div class="form-group col-6 p-0">
                 <label for="filter">Filter Bulan</label>
-                <select name="filter-bulan" class="form-control"
-                    onchange="window.location.href = '?view=bulanan&bulan='+event.target.options[event.target.options.selectedIndex].value">
-                    @for ($i = 1; $i <= 12; $i++) @if (!empty($_GET['bulan'])) <option value="{{ $i }}" 
-                        @if ($i==$_GET['bulan']) selected @endif>{{ $i }}</option>
-                        @else
-                        <option value="{{ $i }}" @if ($i==date('m')) selected @endif>{{ $i }}</option>
-                        @endif
-                        @endfor
-                </select>
+                <div class="d-flex">
+                    <select id="filter-bulan" name="filter-bulan" class="form-control">
+                        @foreach ($months as $key => $month)
+                        <option value="{{ $key+1 }}" {{ $key+1==($_GET['bulan'] ?? date('m') ) ? 'selected' : '' }}>
+                            {{ $month }}
+                        </option>
+                        @endforeach
+                    </select>
+                    <select name="year" id="year" class="form-control" onchange="
+                        window.location.href = '?view=bulanan&bulan='+document.querySelector('select[name=filter-bulan]').options[document.querySelector('select[name=filter-bulan]').options.selectedIndex].value+'&year='+event.target.options[event.target.options.selectedIndex].value
+                    ">
+                        @for ($i = date('Y', strtotime('-3year')); $i <= date('Y'); $i++) <option value="{{ $i }}" {{
+                            $i==($_GET['year'] ?? date('Y') ) ? 'selected' : '' }}>
+                            {{ $i }}
+                            </option>
+                            @endfor
+                    </select>
+                    @if (isset($_GET['bulan']) || isset($_GET['year']))
+                    <a href="#" onclick="window.location.href = window.location.href.split('?')[0] + '?view=bulanan'"
+                        class="btn btn-secondary">
+                        <i class="fa fa-times" aria-hidden="true"></i>
+                    </a>
+                    @endif
+                </div>
             </div>
-            <h4 class="my-3">Tanggal Hari Ini : {{ date('d - F - Y') }}</h4>
+            <h4 class="my-3">Tanggal Hari Ini : {{
+                \Carbon\Carbon::now()->format('d/m/Y') }}
+            </h4>
         </div>
         <div class="col-12">
             <div class="border d-inline-block p-1">
@@ -48,32 +93,28 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach ($absensi as $item)
+                        @foreach ($data as $item)
                         <tr>
                             <td>{{ $item->nama }}</td>
-                            @foreach ($days as $date)
+                            @foreach ($days as $day)
+                            @if ($item->absensi->where('tanggal', $day->format('Y-m-d'))->count() > 0)
                             @php
-                            $abs = $item->absensi->where('tanggal', $date)->first();
+                            $absensi = $item->absensi->where('tanggal', $day->format('Y-m-d'))->first();
                             @endphp
-                            {{-- jika ada absen --}}
-                            @if($abs)
-                            {{-- jika sudah absen keluar --}}
-                            @if ($abs->has_out)
-                            <td class="bg-success text-white" style="cursor: pointer"
-                                onclick="window.location.href = `/panel/absensi/<?= $abs->id ?>`">
-                                {{ $abs->waktu_keluar }}
+                            @if ($absensi->waktu_keluar != null &&
+                            !\Carbon\Carbon::parse($absensi->waktu_keluar)->isMidnight())
+                            <td class="bg-success text-white clickable" data-id="{{ $absensi->id }}">
+                                {{ \Carbon\Carbon::parse($absensi->waktu_keluar)->format('H:i \W\I\B') }}
                             </td>
-                            {{-- jika belum absen keluar --}}
                             @else
-                            <td class="bg-primary text-white" style="cursor: pointer"
-                                onclick="window.location.href = `/panel/absensi/<?= $abs->id ?>`">
-                                {{ $abs->waktu_masuk }}
+                            <td class="bg-primary text-white clickable" data-id="{{ $absensi->id }}">
+                                {{ \Carbon\Carbon::parse($absensi->waktu_masuk)->format('H:i \W\I\B') }}
                             </td>
                             @endif
-                            {{-- jika tidak ada absen --}}
+                            @elseif (!$day->isAfter(date('Y-m-d')))
+                            <td class="bg-secondary"></td>
                             @else
-                            {{-- jika date item bigger than current date --}}
-                            <td @if ($date <=date('Y-m-d')) class="bg-secondary" @endif></td>
+                            <td></td>
                             @endif
                             @endforeach
                         </tr>
@@ -84,57 +125,3 @@
         </div>
     </div>
 </div>
-
-<script>
-    class ListBulanan {
-        constructor() {
-            this.absensi = JSON.parse(`<?= $absensi ?? [] ?>`);
-            this.days = JSON.parse(`<?= json_encode($days) ?? [] ?>`);
-            this.start = this.days[0];
-            this.end = this.days.slice(-1)[0];
-            this.title = `Laporan Absensi Periode, ${moment(this.start).format('DD/MM/YYYY')} - ${moment(this.end).format('DD/MM/YYYY')}`;
-            console.log(this);
-        }
-        print() {
-            const tableBody = [
-                [
-                    { text: "NIP", style: "tableHeader" },
-                    { text: "Nama", style: "tableHeader" },
-                    { text: "Tanggal", style: "tableHeader" },
-                    { text: "Waktu Masuk", style: "tableHeader" },
-                    { text: "Waktu Keluar", style: "tableHeader" },
-                    { text: "Total Jam", style: "tableHeader" },
-                ],
-            ];
-
-            this.absensi.forEach(item => {
-                const toPush = [
-                    item.nip,
-                    item.nama,
-                    item.tanggal,
-                    "-",
-                    "-",
-                    "-",
-                ];
-                item.absensi.forEach(abs => {
-                    toPush[3] = abs.waktu_masuk;
-                    toPush[4] = abs.waktu_keluar;
-                    toPush[5] = abs.total_jam;
-                    tableBody.push(
-                        toPush.map((item) => ({
-                            text: item,
-                            style: "tableBody",
-                        }))
-                    );
-                });
-            })
-
-
-            console.log(tableBody);
-        }
-    }
-
-    const bulanan = new ListBulanan();
-
-    $('#print-all-bulanan').click(() => bulanan.print());
-</script>

@@ -13,11 +13,27 @@ use Carbon\CarbonPeriod;
 use Faker\Core\Uuid;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class DinasLuar extends Controller
 {
+    private function printById($id) {
+        $item = ModelsDinasLuar::with('user')->find($id) ?? abort(404);
+
+        $item->mulai = Carbon::parse($item->mulai)->format('d/m/Y');
+        $item->selesai = Carbon::parse($item->selesai)->format('d/m/Y');
+        
+        $pdf = Pdf::loadView('panel.pegawai.dinas_luar.print', ['item' => $item]);
+        return $pdf->stream('dinas_luar_' . $item->id . '.pdf');
+    }
+
     public function index()
     {
+        $print = request('print');
+        if (!empty($print)) {
+            return $this->printById($print);
+        }
+
         $role = session('user')->level;
         $users = User::all()->each(function ($x) {
             $tgl_izin = [];

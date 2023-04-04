@@ -1,31 +1,48 @@
-@if (!empty($has_izin))
-
+@if (!empty($data))
 <style>
+    .dtis {
+        border: 1px solid #e6e6e6;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        border-radius: 4px;
+    }
     .dtis h4 {
         font-size: 1rem;
     }
 </style>
 <div class="card dtis">
+    <div class="card-header">
+        <h4 class="card-title">Anda memiliki izin yang disetujui.</h4>
+    </div>
     <div class="card-body">
-        <h4 class="mb-3">Anda memiliki izin yang disetujui.</h4>
-        <hr>
-        <div class="row" style="font-size: 12px; row-gap: 14px;">
-            <div class="col-md-4"><span>Tanggal Mulai</span></div>
-            <div class="col-md-8"><span>: {{$has_izin->tgl_mulai}}</span></div>
-            <div class="col-md-4"><span>Tanggal Selesai</span></div>
-            <div class="col-md-8"><span>: {{$has_izin->tgl_selesai}}</span></div>
-            <div class="col-md-4"><span>Jenis</span></div>
-            <div class="col-md-8"><span>: {{$has_izin->jenis}}</span></div>
-            <div class="col-md-4"><span>Bukti</span></div>
-            <div class="col-md-8"><span>:
-                    @if ($has_izin->bukti)
-                    <a href="{{ Storage::url('public/uploads/'.$has_izin->bukti) }}" target="_blank"
-                        class="text-primary">Download</a>
-                    @endif
-                </span></div>
-            <div class="col-md-4"><span>Keterangan</span></div>
-            <div class="col-md-8"><span>: {{$has_izin->keterangan}}</span></div>
-        </div>
+        <table class="table table-sm">
+            <tbody>
+                <tr>
+                    <td>Tanggal Mulai</td>
+                    <td>: {{$data->tgl_mulai}}</td>
+                </tr>
+                <tr>
+                    <td>Tanggal Selesai</td>
+                    <td>: {{$data->tgl_selesai}}</td>
+                </tr>
+                <tr>
+                    <td>Jenis</td>
+                    <td>: {{$data->jenis}}</td>
+                </tr>
+                <tr>
+                    <td>Bukti</td>
+                    <td>:
+                        @if ($data->bukti)
+                        <a href="{{ Storage::url('public/uploads/'.$data->bukti) }}" target="_blank"
+                            class="text-primary">Download</a>
+                        @endif
+                    </td>
+                </tr>
+                <tr>
+                    <td>Keterangan</td>
+                    <td>: {{$data->keterangan}}</td>
+                </tr>
+            </tbody>
+        </table>
     </div>
 </div>
 @endif

@@ -42,13 +42,13 @@ class ListMissed extends Component
         $data = [];
         if ($role == 'pegawai') {
             $data = Cuti::where([
-                    ['id_user', $user->id],
-                    [function ($x) {
-                        return $x->where('status', 'pending')
-                            ->orWhere('status', 'accepted_kabid')
-                            ->orWhere('status', 'accepted_admin');
-                    }]
-                ])
+                ['id_user', $user->id],
+                [function ($x) {
+                    return $x->where('status', 'pending')
+                        ->orWhere('status', 'accepted_kabid')
+                        ->orWhere('status', 'accepted_admin');
+                }]
+            ])
                 ->get()
                 ->filter(function ($x) {
                     return $this->filterDate($x);
@@ -60,9 +60,10 @@ class ListMissed extends Component
                 });
         }
         if ($role == 'kabid') {
-            $data = Cuti::with(['user' => function ($x) {
-                $this->filterUser($x);
-            }])
+            $data = Cuti::with('user')
+                ->whereHas('user', function ($x) {
+                    return $this->filterUser($x);
+                })
                 ->where('status', 'pending')
                 ->get()
                 ->filter(function ($x) {

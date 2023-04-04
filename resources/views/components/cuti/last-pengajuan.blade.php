@@ -1,4 +1,21 @@
 <style>
+    .color-label {
+        position: absolute;
+        left: 0;
+        top: 0;
+        height: 100%;
+        width: 4px;
+        content: "";
+    }
+
+    tr td {
+        vertical-align: middle;
+    }
+
+    a.more {
+        font-size: 24px;
+    }
+
     .lpc-grid {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
@@ -7,6 +24,7 @@
         grid-gap: 14px;
         margin-bottom: 14px;
     }
+
     @media screen and (max-width: 991px) {
         .lpc-grid {
             grid-template-columns: 1fr;
@@ -17,24 +35,6 @@
     <x-cuti.detail-card />
 
     @if ($data)
-    <style>
-        .color-label {
-            position: absolute;
-            left: 0;
-            top: 0;
-            height: 100%;
-            width: 4px;
-            content: "";
-        }
-
-        tr td {
-            vertical-align: middle;
-        }
-
-        a.more {
-            font-size: 24px;
-        }
-    </style>
     <div class="card">
         <div class="card-body">
             <div class="mb-3 d-flex align-items-center justify-content-between">

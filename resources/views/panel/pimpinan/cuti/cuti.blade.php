@@ -31,41 +31,7 @@
                             <div class="x_content">
                                 <div class="row">
                                     <div class="col-12">
-                                        <div class="card">
-                                            <div class="card-header">
-                                                <ul class="nav nav-tabs nav-stacked mb-3">
-                                                    <li class="nav-item">
-                                                        <a class="nav-link active" id="all-tab" data-toggle="tab"
-                                                            href="#all" role="tab" aria-controls="all"
-                                                            aria-selected="true">Pending</a>
-                                                    </li>
-                                                    <li class="nav-item">
-                                                        <a class="nav-link" id="terlewat-tab" data-toggle="tab"
-                                                            href="#terlewat" role="tab" aria-controls="terlewat"
-                                                            aria-selected="true">Terlewat</a>
-                                                    <li class="nav-item">
-                                                        <a class="nav-link" id="selesai-tab" data-toggle="tab"
-                                                            href="#selesai" role="tab" aria-controls="selesai"
-                                                            aria-selected="true">Selesai</a>
-                                                    </li>
-                                                </ul>
-                                            </div>
-
-                                            <div class="card-body">
-                                                <div class="tab-content py-3">
-                                                    <div class="tab-pane fade show active table-responsive" id="all">
-                                                        <x-cuti.list-pending />
-                                                    </div>
-                                                    <div class="tab-pane fade table-responsive" id="terlewat">
-                                                        <x-cuti.list-missed />
-                                                    </div>
-                                                    <div class="tab-pane fade table-responsive" id="selesai">
-                                                        <x-cuti.list-done />
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-
+                                        <livewire:cuti.tabs />
                                     </div>
                                 </div>
                             </div>

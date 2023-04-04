@@ -11,7 +11,9 @@ class Tracking extends Component
      *
      * @return void
      */
-    public function __construct()
+    public function __construct(
+        public $data = [],
+    )
     {
         //
     }
@@ -23,6 +25,7 @@ class Tracking extends Component
      */
     public function render()
     {
-        return view('components.modal.tracking');
+        $data = $this->data;
+        return view('components.modal.tracking', compact('data'));
     }
 }

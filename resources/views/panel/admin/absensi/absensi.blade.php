@@ -46,12 +46,12 @@
                                     </div>
                                     @if (request('view'))
                                         @if (request('view') == 'harian')
-                                        <x-absensi.list-harian />
+                                        <x-absensi.list-harian :data="$absensi" />
                                         @else
-                                        <x-absensi.list-bulanan />
+                                        <x-absensi.list-bulanan :data="$absensi" :days="$days" />
                                         @endif
                                     @else
-                                    <x-absensi.list-harian />
+                                    <x-absensi.list-harian :data="$absensi" />
                                     @endif
                                 </div>
                             </div>

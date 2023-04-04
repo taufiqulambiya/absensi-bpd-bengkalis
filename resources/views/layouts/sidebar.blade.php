@@ -9,8 +9,18 @@ $cuti_notif = 0;
 $izin_notif = 0;
 $dinas_luar = 0;
 if ($user->level == 'kabid') {
-    $cuti_notif = DB::table('cuti')->join('users', 'cuti.id_user', '=', 'users.id')->where('jabatan', $user->jabatan)->where('status', 'pending')->count();
-    $izin_notif = DB::table('izin')->join('users', 'izin.id_user', '=', 'users.id')->where('jabatan', $user->jabatan)->where('status', 'pending')->count();
+    $cuti_notif = DB::table('cuti')->join('users', 'cuti.id_user', '=', 'users.id')->where(function($q) use($user) {
+        $q->where('bidang', $user->bidang)->where('users.id', '!=', $user->id);
+    })->where('status', 'pending')->count();
+    // $izin_notif = DB::table('izin')->join('users', 'izin.id_user', '=', 'users.id')->where(function($q) use($user) {
+    //     $q->where('bidang', $user->bidang)->whereNot('users.id', $user->id);
+    // })->where('status', 'pending')->count();
+    $izin_notif = DB::table('izin')
+        ->join('users', 'izin.id_user', '=', 'users.id')
+        ->where('bidang', $user->bidang)
+        ->where('tgl_mulai', '>=', date('Y-m-d'))
+        ->where('users.id', '!=', $user->id)
+        ->where('status', 'pending')->count();
 }
 
 if ($user->level == 'admin') {

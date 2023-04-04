@@ -27,25 +27,18 @@ class LogMasuk extends Component
      */
     public function render()
     {
+        $days = ['minggu', 'senin', 'selasa', 'rabu', 'kamis', 'jumat', 'sabtu'];
         $shift = JamKerja::where('status', 'aktif')
+            ->where('days', 'like', '%' . $days[date('w')] . '%')
             ->get()
             ->each(function ($x) {
                 $x->formatted = Carbon::parse($x->mulai)->format('H:i') . ' - ' . Carbon::parse($x->selesai)->format('H:i \W\I\B');
                 $current_time = Carbon::now();
-                $mulai = Carbon::parse($x->mulai);
-                $selesai = Carbon::parse($x->selesai);
-                $x->is_absen_time = $current_time->between($mulai, $selesai);
-            })->filter(function($x){
-                $days = ['senin', 'selasa', 'rabu', 'kamis', 'jumat'];
-                $days_used = explode(', ', $x->days);
-                $current_day_index = date('w') - 1;
-                $current_day = $days[$current_day_index] ?? [];
-
-                return gettype(array_search($current_day, $days_used)) == 'integer';
+                $x->is_absen_time = $current_time->between(Carbon::parse($x->mulai), Carbon::parse($x->selesai));
             });
         $jam_kerja = null;
         if ($shift->count() > 0) {
-            $jam_kerja =$shift->first();
+            $jam_kerja = $shift->first();
         }
         // dd(count($jam_kerja));
         $setting = Settings::first();

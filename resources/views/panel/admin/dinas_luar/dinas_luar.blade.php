@@ -40,31 +40,8 @@
                                     class="btn btn-primary mb-3">
                                     <i class="fa fa-plus" aria-hidden="true"></i> Tambah
                                 </button>
-                                <ul class="nav nav-tabs" id="myTab" role="tablist">
-                                    <li class="nav-item">
-                                        <a class="nav-link active" id="all-tab" data-toggle="tab" href="#all" role="tab"
-                                            aria-controls="all" aria-selected="true">Mendatang</a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="nav-link" id="selesai-tab" data-toggle="tab" href="#selesai"
-                                            role="tab" aria-controls="selesai" aria-selected="false"><i
-                                                class="fa fa-check" aria-hidden="true"></i> Selesai</a>
-                                    </li>
-                                </ul>
-                                <div class="row">
-                                    <div class="col-12">
-                                        <div class="tab-content py-3" id="myTabContent">
-                                            <div class="tab-pane fade show active" id="all" role="tabpanel"
-                                                aria-labelledby="all-tab">
-                                                <x-dinas-luar.list-coming />
-                                            </div>
-                                            <div class="tab-pane fade" id="selesai" role="tabpanel"
-                                                aria-labelledby="terlewat-tab">
-                                                <x-dinas-luar.list-done />
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+
+                                <livewire:dinas-luar.tabs />
                             </div>
                         </div>
                     </div>
@@ -74,7 +51,9 @@
 
 
         {{-- modals --}}
-        <x-modal.add-dinas-luar />
+        {{--
+        <x-modal.add-dinas-luar /> --}}
+        <livewire:dinas-luar.modal />
         {{-- modals --}}
 
         <!-- footer content -->
@@ -88,12 +67,32 @@
     </div>
 </div>
 
-@csrf
 <script>
+    document.addEventListener("livewire:load", function (event) {
+        const LW = window.livewire;
+        LW.on("print", url => {
+            window.open(url, '_blank');
+        });
+
+        LW.on("success", message => {
+            Swal.fire({
+                title: 'Berhasil',
+                text: message,
+                icon: 'success',
+                confirmButtonText: 'OK'
+            }).then((result) => {
+                window.location.reload();
+            });
+        })
+    });
+</script>
+
+{{-- @csrf --}}
+{{-- <script>
     const users = JSON.parse(`<?= json_encode($users) ?>`);
     loadjs([`{{ asset('js/add-dinas-luar.js') }}`], 'loaded');
     loadjs.ready('loaded', () => {
         console.log('loaded');
     })
-</script>
+</script> --}}
 @endsection

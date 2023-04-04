@@ -3,175 +3,110 @@
 namespace App\Http\Controllers;
 
 use App\Models\Cuti as ModelsCuti;
-use App\Models\Izin;
 use App\Models\Settings;
 use App\Models\User;
 use Carbon\Carbon;
-use Carbon\CarbonPeriod;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class Cuti extends BaseController
 {
-    private function getNotAllowed()
-    {
-        $user = User::find(session('user')->id);
-        $izin = Izin::where(['id_user' => $user->id])
-            ->where('status', 'accepted_pimpinan')
-            ->get()
-            ->last();
-        // get cuti
-        $cuti = ModelsCuti::where('id_user', $user->id)
-            ->where('status', 'accepted_pimpinan')
-            ->get()
-            ->last();
-
-        $not_allowed = [];
-        if ($izin) {
-            $period = CarbonPeriod::create($izin->tgl_mulai, $izin->tgl_selesai);
-            foreach ($period as $p) {
-                array_push($not_allowed, $p->format('Y-m-d'));
-            }
-        }
-        if ($cuti) {
-            $tgl = explode(',', $cuti->tanggal);
-            $diff = array_diff($tgl, $not_allowed);
-            $not_allowed = array_merge($not_allowed, $diff);
-        }
-        return $not_allowed;
-    }
-
-    private function totalCutiMapper($x)
-    {
-        $tanggal = explode(',', $x->tanggal);
-        $x->total_tahunan = 0;
-        $x->total_besar = 0;
-        $x->total_melahirkan = 0;
-        $x->total_penting = 0;
-        $x->total_ctln = 0;
-        switch ($x->jenis) {
-            case 'tahunan':
-                $x->total_tahunan = count($tanggal);
-                break;
-            case 'besar':
-                $x->total_besar = count($tanggal);
-                break;
-            case 'melahirkan':
-                $x->total_melahirkan = count($tanggal);
-                break;
-            case 'penting':
-                $x->total_penting = count($tanggal);
-                break;
-            case 'ctln':
-                $x->total_ctln = count($tanggal);
-                break;
-            default:
-                $x->total_tahunan = count($tanggal);
-                break;
-        }
-    }
-
     public function index()
     {
+        $print = request()->get('print');
+        if (!empty($print)) {
+            $id = request()->get('id');
+            return $this->printById($id);
+        }
+
         $user = session('user');
-        $setting = Settings::first();
-        $level = $user->level;
+        if ($user->level == 'pegawai') {
+            $jatahCuti = ModelsCuti::getJatahCuti($user->id);
+            $pengajuanCutiAktif = ModelsCuti::getPengajuanCutiAktif($user->id);
+            $cutiAktif = ModelsCuti::getCutiAktif($user->id);
+            $hasCuti = $cutiAktif->count() > 0;
 
-        if ($level == 'pegawai') {
-            $all_cuti = ModelsCuti::where('id_user', $user->id)
-                ->where('status', 'accepted_pimpinan')
-                ->get()
-                ->filter(function ($x) {
-                    return Carbon::parse($x->created_at)->year == date('Y');
-                })
-                ->each(function ($x) {
-                    return $this->totalCutiMapper($x);
-                });
+            $disableDates = ModelsCuti::getNotAllowedDates($user->id);
 
-            $has_cuti = ModelsCuti::where('id_user', $user->id)
-                ->where('status', 'accepted_pimpinan')
-                ->get()
-                ->filter(function ($x) {
-                    $tanggal = explode(',', $x->tanggal);
-                    $found = array_filter($tanggal, function ($y) {
-                        $current_date = date('Y-m-d');
-                        return $y > $current_date;
-                    });
-                    return count($found) > 0;
-                })
-                ->each(function ($x) {
-                    $x->tanggal = array_map(function ($item) {
-                        return Carbon::parse($item)->format('d/m/Y');
-                    }, explode(',', $x->tanggal));
-                    $x->total = count($x->tanggal) . ' Hari';
-                })
-                ->last();
+            $status = request()->get('view') ?? 'pending';
+            $dataCuti = ModelsCuti::getByStatusAndRole($status, $user->level);
+
+            // allow ajukan, allowed only if has not cuti that pending
+            $allowedAjukan = ModelsCuti::getIsAllowedAjukan($user->id);
 
             $data = [
-                'level' => $level,
-                'cuti_aktif' => ModelsCuti::where([
-                    ['id_user', $user->id],
-                    [function ($x) {
-                        return $x->where('status', '!=', 'accepted_pimpinan')->where('status', '!=', 'rejected');
-                    }]
-                ])
-                    ->get()
-                    ->each(function ($x) {
-                        $x->tanggal = explode(',', $x->tanggal);
-                        $x->status_text = $this->statusGetter($x->status);
-                        $x->status_class = $this->statusColor($x->status);
-                    }),
-                'jatah_cuti_tahunan' =>  $setting->jatah_cuti_tahunan - $all_cuti->sum('total_tahunan'),
-                'jatah_cuti_besar' => $setting->jatah_cuti_besar - $all_cuti->sum('total_besar'),
-                'jatah_cuti_melahirkan' => $setting->jatah_cuti_melahirkan - $all_cuti->sum('total_melahirkan'),
-                'jatah_cuti_penting' => $setting->jatah_cuti_penting - $all_cuti->sum('total_penting'),
-                'jatah_cuti_ctln' => $setting->jatah_cuti_ctln - $all_cuti->sum('total_ctln'),
-                'has_cuti' => $has_cuti,
-                'cuti_selesai' => ModelsCuti::where(
-                    [
-                        ['id_user', $user->id],
-                        [function ($x) {
-                            return $x->where('status', 'accepted_pimpinan')->orWhere('status', 'rejected');
-                        }]
-                    ]
-                )
-                    ->get()
-                    ->each(function ($x) {
-                        $x->tanggal = array_map(function ($y) {
-                            return Carbon::parse($y)->format('d/m/Y');
-                        }, explode(',', $x->tanggal));
-                        $x->status_text = $this->statusGetter($x->status);
-                        $x->status_class = $this->statusColor($x->status);
-                    }),
-                'not_allowed' => $this->getNotAllowed(),
-                'user' => $user,
+                'data' => $dataCuti,
+                'level' => $user->level,
+                'active_tab' => $status,
+                'pengajuan_cuti_aktif' => $pengajuanCutiAktif,
+                'cuti_aktif' => $cutiAktif,
+                'has_cuti' => $hasCuti,
+                'jatah_cuti' => $jatahCuti,
+                'disable_dates' => $disableDates,
+                'allowed_ajukan' => $allowedAjukan,
             ];
+
+            
+            if (!empty(request()->get('mode')) && request()->get('mode') == 'json') {
+                return response()->json($data);
+            }
 
             return view('panel.pegawai.cuti.cuti', $data);
         }
 
-        if ($level == 'kabid') {
+        if ($user->level == 'kabid') {
             return $this->index_kabid();
         }
 
-        if ($level == 'admin') {
+        if ($user->level == 'admin') {
             return $this->index_admin();
         }
 
-        if ($level == 'atasan') {
+        if ($user->level == 'atasan') {
             return $this->index_atasan();
         }
+    }
+
+    public function printById($id) {
+        $cuti = ModelsCuti::find($id) ?? abort(404);
+        $user = User::with('bidangs')->find($cuti->id_user);
+        
+        $tanggal = explode(',', $cuti->tanggal);
+        $tanggal = array_map(function ($x) {
+            return Carbon::parse($x)->format('d/m/Y');
+        }, $tanggal);
+        $cuti->total = count($tanggal) . ' Hari';
+        $cuti->tanggal = implode(', ', $tanggal);
+
+        $replaceStatus = [
+            'pending' => 'Menunggu Persetujuan',
+            'accepted_pimpinan' => 'Disetujui Pimpinan',
+            'accepted_admin' => 'Disetujui Admin',
+            'accepted_kabid' => 'Disetujui Kabid',
+            'rejected' => 'Ditolak',
+        ];
+        $cuti->status = $replaceStatus[$cuti->status];
+
+        $data = [
+            'cuti' => $cuti,
+            'user' => $user,
+        ];
+
+        $pdf = PDF::loadView('panel.kabid.cuti.print', $data);
+        return $pdf->stream();
     }
 
     public function index_kabid()
     {
         $user = User::find(session('user')->id);
-        $setting = Settings::first();
+        $jatahCuti = Settings::getJatahCuti();
+
         $level = $user->level;
         $data = [
             'level' => $level,
             'user' => $user,
-            'jatah_cuti_tahunan' =>  $setting->jatah_cuti_tahunan,
+            'jatah_cuti' =>  $jatahCuti,
         ];
         return view('panel.kabid.cuti.cuti', $data);
     }
@@ -179,12 +114,13 @@ class Cuti extends BaseController
     public function index_admin()
     {
         $user = User::find(session('user')->id);
-        $setting = Settings::first();
+        $jatahCuti = Settings::getJatahCuti();
+
         $level = $user->level;
         $data = [
             'level' => $level,
             'user' => $user,
-            'jatah_cuti_tahunan' => $setting->jatah_cuti_tahunan,
+            'jatah_cuti' =>  $jatahCuti,
         ];
         return view('panel.admin.cuti.cuti', $data);
     }
@@ -205,21 +141,17 @@ class Cuti extends BaseController
     public function store(Request $request)
     {
         $post = $request->post();
+        // delete _token
+        unset($post['_token']);
+
         if (count($request->allFiles()) > 0) {
             foreach ($request->file() as $key => $file) {
                 $file->storeAs('public/uploads', $file->hashName());
                 $post[$key] = $file->hashName();
             }
         }
-        $tracking = [
-            [
-                'status' => 'Pengajuan dibuat.',
-                'date' => Carbon::now()->toDateTimeString()
-            ]
-        ];
-        $post['tracking'] = json_encode($tracking);
 
-        $id_user = session('user')->id;
+        $id_user = $post['id_user'];
         $user = User::find($id_user);
         if ($user and $user->level == 'kabid') {
             $post['status'] = 'accepted_kabid';
@@ -231,11 +163,13 @@ class Cuti extends BaseController
 
         if ($success) {
             return response()->json([
-                'success' => 'Pengajuan berhasil.',
+                'status' => 'success',
+                'message' => 'Pengajuan cuti berhasil diajukan',
             ]);
         } else {
             return response()->json([
-                'error' => 'Pengajuan gagal.',
+                'status' => 'error',
+                'message' => 'Pengajuan cuti gagal diajukan',
             ]);
         }
     }

@@ -10,6 +10,16 @@
         bottom: 20px;
     }
 </style>
+
+@php
+function renderList($label, $value) {
+    return '<div class="col-6">'.$label.'<span class="float-right">:</span></div>
+    <div class="col-6">'.$value.'</div>';
+}
+function isUrl($url) {
+    return preg_match('/^http(s)?:\/\//', $url);
+}
+@endphp
 <div class="container body">
     <div class="main_container">
         <!-- sidebar -->
@@ -46,36 +56,16 @@
                                             <div class="col-12">
                                                 <img src="{{ Storage::url('public/uploads/'.$absensi->user->gambar) }}"
                                                     alt="{{ $absensi->user->nama }}"
-                                                    class="img-thumbnail w-50 d-block mx-auto mb-3">
+                                                    class="img-thumbnail d-block mx-auto mb-3"
+                                                    style="height: 120px; width: 120px; object-fit: cover;">
                                             </div>
-                                            <div class="col-6">Nama
-                                                <span class="float-right">:</span>
-                                            </div>
-                                            <div class="col-6">{{ $absensi->user->nama }}</div>
-                                            <div class="col-6">NIP
-                                                <span class="float-right">:</span>
-                                            </div>
-                                            <div class="col-6">{{ $absensi->user->nip }}</div>
-                                            <div class="col-6">Golongan
-                                                <span class="float-right">:</span>
-                                            </div>
-                                            <div class="col-6">{{ $absensi->user->golongan }}</div>
-                                            <div class="col-6">Jabatan
-                                                <span class="float-right">:</span>
-                                            </div>
-                                            <div class="col-6">{{ $absensi->user->jabatan }}</div>
-                                            <div class="col-6">Tanggal Lahir
-                                                <span class="float-right">:</span>
-                                            </div>
-                                            <div class="col-6">{{ $absensi->user->tgl_lahir }}</div>
-                                            <div class="col-6">Jenis Kelamin
-                                                <span class="float-right">:</span>
-                                            </div>
-                                            <div class="col-6">{{ $absensi->user->jk }}</div>
-                                            <div class="col-6">Nomor Telepon
-                                                <span class="float-right">:</span>
-                                            </div>
-                                            <div class="col-6">{{ $absensi->user->no_telp }}</div>
+                                            {!! renderList('Nama', $absensi->user->nama) !!}
+                                            {!! renderList('NIP', $absensi->user->nip) !!}
+                                            {!! renderList('Golongan', $absensi->user->golongan) !!}
+                                            {!! renderList('Jabatan', $absensi->user->jabatan) !!}
+                                            {!! renderList('Tanggal Lahir', $absensi->user->tgl_lahir) !!}
+                                            {!! renderList('Jenis Kelamin', $absensi->user->jk) !!}
+                                            {!! renderList('Nomor Telepon', $absensi->user->no_telp) !!}
                                         </div>
                                     </div>
                                 </div>
@@ -83,7 +73,8 @@
                             <div class="col-md-4">
                                 <div class="card">
                                     <div class="card-header">
-                                        <h4 class="card-title">Absensi Tanggal - {{ date_format(date_create($absensi->tanggal), 'd/m/Y') }}</h4>
+                                        <h4 class="card-title">Absensi Tanggal - {{
+                                            date_format(date_create($absensi->tanggal), 'd/m/Y') }}</h4>
                                     </div>
                                     <div class="card-body">
                                         <div class="d-block mx-auto mb-3">
@@ -91,33 +82,20 @@
                                         </div>
                                         @if ($absensi)
                                         <div class="row" style="row-gap: 14px;">
-                                            <div class="col-6">
-                                                Waktu
-                                                <span class="float-right">:</span>
-                                            </div>
-                                            <div class="col-6">
-                                                {{ $absensi->waktu_masuk }}
-                                            </div>
-                                            <div class="col-6">
-                                                Lokasi
-                                                <span class="float-right">:</span>
-                                            </div>
-                                            <div class="col-6">
-                                                {{ $absensi->lokasi_masuk }}
-                                            </div>
-                                            <div class="col-6">
-                                                Jarak dari kantor
-                                                <span class="float-right">:</span>
-                                            </div>
-                                            <div class="col-6">
-                                                {{ $absensi->jarak_masuk }} Meter
-                                            </div>
+                                            {!! renderList('Tanggal', date_format(date_create($absensi->tanggal), 'd/m/Y')) !!}
+                                            {!! renderList('Waktu', $absensi->waktu_masuk) !!}
+                                            {!! renderList('Lokasi', $absensi->lokasi_masuk) !!}
+                                            {!! renderList('Jam Absensi', $absensi->jam_absen) !!}
+                                            {!! renderList('Jarak dari kantor', $absensi->jarak_masuk.' Meter') !!}
                                             <div class="col-6">
                                                 Gambar
                                                 <span class="float-right">:</span>
                                             </div>
                                             <div class="col-6">
-                                                <img src="{{ Storage::url('public/uploads/'.$absensi->dok_masuk) }}"
+                                                @php
+                                                    $src = isUrl($absensi->dok_masuk) ? $absensi->dok_masuk : Storage::url('public/uploads/'.$absensi->dok_masuk);
+                                                @endphp
+                                                <img src="{{ $src }}"
                                                     alt="{{ $absensi->dok_masuk }}" class="img-thumbnail"
                                                     style="width: 100%; aspect-ratio: 1; object-fit: cover; cursor: pointer;"
                                                     onclick="window.open(event.target.src)">
@@ -135,7 +113,8 @@
                             <div class="col-md-4">
                                 <div class="card">
                                     <div class="card-header">
-                                        <h4 class="card-title">Absensi Tanggal - {{ date_format(date_create($absensi->tanggal), 'd/m/Y') }}</h4>
+                                        <h4 class="card-title">Absensi Tanggal - {{
+                                            date_format(date_create($absensi->tanggal), 'd/m/Y') }}</h4>
                                     </div>
                                     <div class="card-body">
                                         <div class="d-block mx-auto mb-3">
@@ -143,33 +122,20 @@
                                         </div>
                                         @if ($absensi AND $absensi->has_out)
                                         <div class="row" style="row-gap: 14px;">
-                                            <div class="col-6">
-                                                Waktu
-                                                <span class="float-right">:</span>
-                                            </div>
-                                            <div class="col-6">
-                                                {{ $absensi->waktu_keluar }}
-                                            </div>
-                                            <div class="col-6">
-                                                Lokasi
-                                                <span class="float-right">:</span>
-                                            </div>
-                                            <div class="col-6">
-                                                {{ $absensi->lokasi_keluar }}
-                                            </div>
-                                            <div class="col-6">
-                                                Jarak dari kantor
-                                                <span class="float-right">:</span>
-                                            </div>
-                                            <div class="col-6">
-                                                {{ $absensi->jarak_keluar }} Meter
-                                            </div>
+                                            {!! renderList('Tanggal', date_format(date_create($absensi->tanggal), 'd/m/Y')) !!}
+                                            {!! renderList('Waktu', $absensi->waktu_keluar) !!}
+                                            {!! renderList('Lokasi', $absensi->lokasi_keluar) !!}
+                                            {!! renderList('Jam Absen', $absensi->jam_absen) !!}
+                                            {!! renderList('Jarak dari kantor', $absensi->jarak_keluar.' Meter') !!}
                                             <div class="col-6">
                                                 Gambar
                                                 <span class="float-right">:</span>
                                             </div>
                                             <div class="col-6">
-                                                <img src="{{ Storage::url('public/uploads/'.$absensi->dok_keluar) }}"
+                                                @php
+                                                    $src = isUrl($absensi->dok_keluar) ? $absensi->dok_keluar : Storage::url('public/uploads/'.$absensi->dok_keluar);
+                                                @endphp
+                                                <img src="{{ $src }}"
                                                     alt="{{ $absensi->dok_keluar }}" class="img-thumbnail"
                                                     style="width: 100%; aspect-ratio: 1; object-fit: cover; cursor: pointer;"
                                                     onclick="window.open(event.target.src)">
