@@ -55,7 +55,8 @@ class Modal extends Component
         $this->validate([
             'form.nama' => 'required',
             'form.tgl_lahir' => 'required|date|before:'.$minBirthDay,
-            'form.nip' => 'required|numeric|digits_between:15,'.$maxNipLength.'|unique:users,nip,'.$this->form['id'],
+            'form.nip' => 'required|numeric|digits_between:15,'.$maxNipLength.'|unique:users,nip'.
+                ($this->isEdit ? ','.$this->form['id'] : ''),
             'form.jabatan' => 'required',
             'form.jabatan_lainnya' => 'required_if:jabatan,==,Lainnya',
             'form.bidang' => 'required',
