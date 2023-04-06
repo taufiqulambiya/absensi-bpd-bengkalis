@@ -45,7 +45,7 @@
                     {{--
                     <livewire:cuti.table :data="$dataCuti" /> --}}
                     <div class="table-responsive">
-                        <div class="row mb-3">
+                        {{-- <div class="row mb-3">
                             <div class="col-md-6">
                                 <div>Filter Tanggal</div>
                                 <div class="d-flex">
@@ -55,7 +55,7 @@
 
                                 </div>
                             </div>
-                        </div>
+                        </div> --}}
                         <table class="datatable table table-striped table-bordered" style="width: 100%">
                             <thead>
                                 <tr>

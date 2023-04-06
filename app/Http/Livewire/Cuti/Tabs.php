@@ -27,7 +27,7 @@ class Tabs extends Component
 
     public function changeTab($tab)
     {
-        session(['active_tab' => $tab]);
+        session(['activeTabCuti' => $tab]);
         $this->active_tab = $tab;
         $this->dataCuti = Cuti::getByStatusAndRole($tab, $this->filter);
 
@@ -120,7 +120,7 @@ class Tabs extends Component
 
     public function mount()
     {
-        $this->active_tab = session('active_tab') ?? 'pending';
+        $this->active_tab = session('activeTabCuti') ?? 'pending';
         $this->dataCuti = Cuti::getByStatusAndRole($this->active_tab);
         if (count($this->dataCuti) > 0) {
             $this->emit('initDataTable');

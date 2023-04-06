@@ -19,7 +19,7 @@ class Tabs extends Component
     public function changeTab($tab) {
         $this->activeTab = $tab;
         $this->data = Izin::getByStatus($this->activeTab);
-        session(['activeTab' => $tab]);
+        session(['activeTabIzin' => $tab]);
 
         if (count($this->data) > 0) {
             $this->emit('initDataTable');
@@ -34,7 +34,7 @@ class Tabs extends Component
 
     public function mount()
     {
-        $this->activeTab = session('activeTab') ?? 'pending';
+        $this->activeTab = session('activeTabIzin') ?? 'pending';
         $this->data = Izin::getByStatus($this->activeTab);
         if (count($this->data) > 0) {
             $this->emit('initDataTable');

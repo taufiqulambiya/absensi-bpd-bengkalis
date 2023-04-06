@@ -34,6 +34,11 @@
                                 </tr>
                             </thead>
                             <tbody>
+                                @if (count($data) == 0)
+                                <tr>
+                                    <td colspan="{{$level == 'pegawai' ? 9 : 11}}" class="text-center">Tidak ada data</td>
+                                </tr>
+                                @endif
                                 @foreach ($data as $item)
                                 <tr>
                                     <td>{{ $loop->iteration }}</td>
@@ -61,13 +66,14 @@
                                         </button>
                                         @endif
                                         @if (in_array('delete', $item->action))
-                                        <button class="btn btn-danger btn-cancel" title="Batalkan"
-                                            data-id="{{ $item->id }}">
+                                        <button class="btn btn-danger" title="Batalkan"
+                                            wire:click="$emit('confirmDelete', {{ $item->id }})">
                                             <i class="fa fa-times" aria-hidden="true"></i>
                                         </button>
                                         @endif
                                         @if (in_array('print', $item->action))
-                                        <button class="btn btn-success" title="Cetak" wire:click="print({{ $item->id }})">
+                                        <button class="btn btn-success" title="Cetak"
+                                            wire:click="print({{ $item->id }})">
                                             <i class="fa fa-print" aria-hidden="true"></i>
                                         </button>
                                         @endif

@@ -39,7 +39,7 @@ function isUrl($url) {
                 <div class="clearfix"></div>
 
                 <div class="x_panel">
-                    <a href="#" onclick="window.history.back()" role="button" class="btn btn-secondary">Kembali</a>
+                    <a href="{{route('absensi.index')}}" role="button" class="btn btn-secondary">Kembali</a>
                     <div class="x_title">
                         <h2>Konten @yield('title')</h2>
                         <div class="clearfix"></div>
@@ -54,7 +54,7 @@ function isUrl($url) {
                                     <div class="card-body">
                                         <div class="row" style="row-gap: 14px;">
                                             <div class="col-12">
-                                                <img src="{{ Storage::url('public/uploads/'.$absensi->user->gambar) }}"
+                                                <img src="{{ Storage::url('public/user_images/'.$absensi->user->gambar) }}"
                                                     alt="{{ $absensi->user->nama }}"
                                                     class="img-thumbnail d-block mx-auto mb-3"
                                                     style="height: 120px; width: 120px; object-fit: cover;">

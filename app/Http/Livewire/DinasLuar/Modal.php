@@ -38,34 +38,47 @@ class Modal extends Component
         $this->users = User::with('bidangs')->where('level', 'pegawai')->get();
     }
 
-    public function getPegawaiInfo($id) {
+    public function getPegawaiInfo($id)
+    {
         $item = User::with('bidangs')->find($id);
-        
+
         $this->selectedPegawai = $item;
     }
 
-    public function submit() {
-        $this->validate([
-            'form.id_user' => 'required',
-            'form.mulai' => 'required',
-            'form.selesai' => 'required|after_or_equal:form.mulai',
-            'form.maksud' => 'required',
-            'form.lokasi' => 'required',
-            'form.file' =>  ($this->isEdit ? '' : 'required|') . 'file|mimes:pdf,jpeg,png|max:2048',
-        ],
-        [
-            'form.id_user.required' => 'Pegawai harus dipilih',
-            'form.mulai.required' => 'Tanggal mulai harus diisi',
-            'form.selesai.required' => 'Tanggal selesai harus diisi',
-            'form.selesai.after_or_equal' => 'Tanggal selesai harus setelah atau sama dengan tanggal mulai',
-            'form.maksud.required' => 'Maksud harus diisi',
-            'form.lokasi.required' => 'Lokasi harus diisi',
-            'form.file.required' => 'File harus diisi',
-            'form.file.file' => 'File harus berupa file',
-            'form.file.mimes' => 'File harus berupa PDF, JPEG, atau PNG',
-        ]);
+    public function submit()
+    {
+        $this->validate(
+            [
+                'form.id_user' => 'required',
+                'form.mulai' => 'required',
+                'form.selesai' => 'required|after_or_equal:form.mulai',
+                'form.maksud' => 'required',
+                'form.lokasi' => 'required',
+                'form.file' => ($this->isEdit ? '' : 'required|') . 'file|mimes:pdf,jpeg,png|max:2048',
+            ],
+            [
+                'form.id_user.required' => 'Pegawai harus dipilih',
+                'form.mulai.required' => 'Tanggal mulai harus diisi',
+                'form.selesai.required' => 'Tanggal selesai harus diisi',
+                'form.selesai.after_or_equal' => 'Tanggal selesai harus setelah atau sama dengan tanggal mulai',
+                'form.maksud.required' => 'Maksud harus diisi',
+                'form.lokasi.required' => 'Lokasi harus diisi',
+                'form.file.required' => 'File harus diisi',
+                'form.file.file' => 'File harus berupa file',
+                'form.file.mimes' => 'File harus berupa PDF, JPEG, atau PNG',
+            ]
+        );
 
         $payload = $this->form;
+
+        $isAllowAdd = DinasLuar::checkAllowAdd($payload['id_user'], $payload['mulai'], $payload['selesai']);
+        $isAllow = $isAllowAdd['allow'];
+        $isAllowMessage = $isAllowAdd['message'];
+        
+        if (!$isAllow) {
+            $this->emit('error', $isAllowMessage);
+            return;
+        }
 
         if (isset($this->form['file'])) {
             $this->form['file']->store('public/dinas-luar');
@@ -95,7 +108,7 @@ class Modal extends Component
 
         $payload['record_id'] = $uniqueId;
 
-        if ($this->isEdit ) {
+        if ($this->isEdit) {
             $dinas = DinasLuar::find($this->form['id']);
             $record_id = $dinas->record_id;
             $absensi = Absensi::where('dinas_id', $record_id)->get();
@@ -110,11 +123,12 @@ class Modal extends Component
             Absensi::insert($absensis);
             $this->emit('success', 'Dinas luar berhasil ditambahkan');
         }
-        
+
 
     }
 
-    public function edit($item) {
+    public function edit($item)
+    {
         $item = (object) $item;
 
         $this->isEdit = true;

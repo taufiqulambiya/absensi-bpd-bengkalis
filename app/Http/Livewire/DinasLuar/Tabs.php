@@ -2,6 +2,7 @@
 
 namespace App\Http\Livewire\DinasLuar;
 
+use App\Models\Absensi;
 use App\Models\DinasLuar;
 use Livewire\Component;
 
@@ -9,6 +10,7 @@ class Tabs extends Component
 {
     public $tab = 'active';
     public $data = [];
+    protected $listeners = ['delete'];
     public function render()
     {
         $user = session('user');
@@ -18,7 +20,7 @@ class Tabs extends Component
 
     public function mount()
     {
-        $this->tab = session('tab') ?? 'active';
+        $this->tab = session('activeTabDinas') ?? 'active';
         $this->data = DinasLuar::getByTab($this->tab);
     }
 
@@ -26,7 +28,7 @@ class Tabs extends Component
     {
         $this->tab = $tab;
         $this->data = DinasLuar::getByTab($this->tab);
-        session(['tab' => $tab]);
+        session(['activeTabDinas' => $tab]);
     }
 
     public function print($id) {
@@ -40,5 +42,24 @@ class Tabs extends Component
         $item = DinasLuar::find($id);
         $this->data = DinasLuar::getByTab($this->tab);
         $this->emit('edit', $item);
+    }
+
+    public function delete($id) {
+        $item = DinasLuar::find($id);
+        // dump($item->record_id);
+        // deelte all absensi with record_id = $item->record_id
+        $absensis = Absensi::where('dinas_id', $item->record_id)->get();
+        foreach ($absensis as $absensi) {
+            $absensi->delete();
+        }
+        // unlink file in public/dinas-luar/
+        $file = public_path('dinas-luar/' . $item->file);
+        if (file_exists($file)) {
+            unlink($file);
+        }
+        $item->delete();
+        $this->data = DinasLuar::getByTab($this->tab);
+
+        $this->emit('success', 'Data berhasil dihapus');
     }
 }

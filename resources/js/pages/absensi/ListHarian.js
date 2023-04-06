@@ -22,9 +22,9 @@ export default class ListHarian {
         this.data = [];
         this.state = {};
 
-        if (isHarian || noParam) {
-            this.init();
-        }
+        // if (isHarian || noParam) {
+        //     this.init();
+        // }
     }
 
     init() {

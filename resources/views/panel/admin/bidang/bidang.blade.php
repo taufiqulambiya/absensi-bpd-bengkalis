@@ -35,39 +35,7 @@
                                         <hr>
                                     </div>
                                     <div class="col-12">
-                                        <table class="datatable table table-striped table-bordered" style="width: 100%">
-                                            <thead>
-                                                <tr>
-                                                    <th>#</th>
-                                                    <th>Nama</th>
-                                                    {{-- <th>Kepala Bidang</th> --}}
-                                                    <th>Jumlah Staff</th>
-                                                    <th>Tanggal Dibuat</th>
-                                                    <th>Terakhir Diperbarui</th>
-                                                    <th>Aksi</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                @foreach ($data as $item)
-                                                <tr>
-                                                    <th scope="row">{{$loop->iteration}}</th>
-                                                    <td>{{ $item->nama }}</td>
-                                                    {{-- <td>{{ $item->kabids->nama ?? '-' }}</td> --}}
-                                                    <td>{{ $item->users->count() }}</td>
-                                                    <td>{{ $item->created_at }}</td>
-                                                    <td>{{ $item->updated_at }}</td>
-                                                    <td>
-                                                        <button type="button" class="btn btn-info btn-edit"
-                                                            data-toggle="modal" data-target="#modal-form"
-                                                            data-item="{{ $item }}" title="Perbarui">
-                                                            <i class="fa fa-pencil" aria-hidden="true"></i></button>
-                                                        <button type="button" class="btn btn-danger btn-delete" data-id="{{ $item->id }}" title="Hapus"><i
-                                                                class="fa fa-times" aria-hidden="true"></i></button>
-                                                    </td>
-                                                </tr>
-                                                @endforeach
-                                            </tbody>
-                                        </table>
+                                        <livewire:bidang.table />
                                     </div>
                                 </div>
                             </div>
@@ -78,34 +46,7 @@
         </div>
 
         <!-- Modal -->
-        <div class="modal fade" id="modal-form" tabindex="-1" role="dialog" aria-labelledby="modelTitleId"
-            aria-hidden="true">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Tambah Bidang</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        <form action="" id="form" method="POST" autocomplete="off">
-                            @csrf
-                            <div class="form-group mb-3">
-                                <label for="nama">Nama</label>
-                                <input type="text" class="form-control" name="nama" id="nama" aria-describedby="namaId"
-                                    placeholder="Nama..." required>
-                                <small id="namaId" class="form-text text-muted">Masukkan nama bidang</small>
-                            </div>
-                        </form>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
-                        <button type="submit" class="btn btn-primary" form="form">Simpan</button>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <livewire:bidang.modal />
 
         <!-- footer content -->
         <footer>
@@ -119,78 +60,39 @@
 </div>
 
 <script>
-    const bidangs = JSON.parse(`<?= json_encode($data) ?>`);
-    const notAllowed = bidangs.map(v => v.nama.toLowerCase());
-    const all_users = JSON.parse(`<?= json_encode($all_users) ?>`);
-
-
-    $(document).ready(function () {
-        $('#nama').keyup(function () {
-            const val = $(this).val();
-            if (notAllowed.includes(val.toLowerCase())) {
-                $(this).val('');
-                $(this).addClass('is-invalid');
-                $(this).after('<small class="invalid-feedback">Nama sudah ada di sistem.</small>');
-            } else {
-                $(this).removeClass('is-invalid');
-                $('.invalid-feedback').remove();
-            }
-        });
-
-        $('.btn-edit').each(function () {
-            $(this).click(function () { 
-                const item = $(this).data('item');
-                
-                const inputNames = $('form').serializeArray().map(v => v.name).filter(v => v !== '_token');
-                inputNames.forEach(v => {
-                    if (v === 'kabid') {
-                        const selectedKabid = all_users.find(k => k.id === item[v]);
-                        const kabidId = item[v] || null;
-                        if (kabidId) {
-                            const kabidName = selectedKabid ? selectedKabid.nama : 'Pilih';
-                            $(`#${v}`).prepend(`<option value="${kabidId}" id="kabid-prepend">${kabidName}</option>`);    
-                        }
-                    }
-                    $(`#${v}`).val(item[v]);
-                });
-                $('form').attr('action', `${baseURL}/panel/master/bidang/${item.id}`);
-                $('form').prepend(`@method('PUT')`);
-                $('.modal-title').text('Edit Bidang');
+    document.addEventListener('livewire:load', () => {
+        const LW = window.livewire;
+        LW.on('success', (message) => {
+            $('#modal-form').modal('hide');
+            Swal.fire({
+                icon: 'success',
+                title: 'Berhasil',
+                text: message,
             });
         });
-
-        $('.btn-delete').each(function (_, element) {
-            // element == this
-            $(element).click(function () { 
-                const id = $(this).data('id');
-                dangerConfirmator({}, () => {
-                    const URI = `${baseURL}/panel/master/bidang/${id}`;
-                    const payload = {
-                        _token: $('input[name=_token]').val(),
-                        _method: 'DELETE',
-                    }
-                    $.post(URI, payload)
-                        .then(res => {
-                            if (res?.success) {
-                                showSuccessAlert(res?.success, () => {
-                                    window.location.reload();
-                                });
-                            }
-                            if (res?.error) {
-                                showErrorAlert(res?.error);
-                            }
-                        })
-                })
+        LW.on('error', (message) => {
+            Swal.fire({
+                icon: 'error',
+                title: 'Gagal',
+                text: message,
             });
         });
-
-        $('#modal-form').on('hide.bs.modal', function () {
-            $('form').attr('action', `${baseURL}/panel/master/bidang`);
-            $('#kabid-prepend').remove();
-            $('input[name=_method]').remove();
-            $('.modal-title').text('Tambah Bidang');
-            $('form').trigger('reset');
+        // confimDelete
+        LW.on('confimDelete', id => {
+            Swal.fire({
+                title: 'Lanjutkan?',
+                text: "Data yang dihapus tidak dapat dikembalikan!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Ya, hapus!',
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    LW.emit('delete', id);
+                }
+            });
         });
-    }); 
+    });
 </script>
 @endsection

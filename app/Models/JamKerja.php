@@ -28,4 +28,18 @@ class JamKerja extends Model
             ->first();
         return $data;
     }
+
+    static function getAllowedDays() {
+        $data = JamKerja::where('status', 'aktif')
+            ->get()
+            ->each(function($item) {
+                $item->days = explode(', ', $item->days);
+            })
+            ->pluck('days')
+            ->flatten()
+            ->unique()
+            ->toArray();
+        $allowed = array_diff(self::$days, $data);
+        return $allowed;
+    }
 }

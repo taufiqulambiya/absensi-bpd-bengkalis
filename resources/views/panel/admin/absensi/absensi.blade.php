@@ -29,7 +29,8 @@
                                 <div class="clearfix"></div>
                             </div>
                             <div class="x_content">
-                                <div class="card">
+                                <livewire:absensi.tabs />
+                                {{-- <div class="card">
                                     <div class="card-header">
                                         <ul class="nav nav-tabs nav-stacked mb-3">
                                             <li class="nav-item">
@@ -45,15 +46,15 @@
                                         </ul>
                                     </div>
                                     @if (request('view'))
-                                        @if (request('view') == 'harian')
-                                        <x-absensi.list-harian :data="$absensi" />
-                                        @else
-                                        <x-absensi.list-bulanan :data="$absensi" :days="$days" />
-                                        @endif
+                                    @if (request('view') == 'harian')
+                                    <x-absensi.list-harian :data="$absensi" />
+                                    @else
+                                    <x-absensi.list-bulanan :data="$absensi" :days="$days" />
+                                    @endif
                                     @else
                                     <x-absensi.list-harian :data="$absensi" />
                                     @endif
-                                </div>
+                                </div> --}}
                             </div>
                         </div>
                     </div>
@@ -71,6 +72,15 @@
         <!-- /footer content -->
     </div>
 </div>
+
+<script>
+    //  on livewire load
+document.addEventListener('livewire:load', function () {
+    window.livewire.on('openUrl', function (url) {
+        window.open(url, '_blank');
+    });
+});
+</script>
 
 
 {{-- <script src="{{ asset('js/printer.js') }}"></script>

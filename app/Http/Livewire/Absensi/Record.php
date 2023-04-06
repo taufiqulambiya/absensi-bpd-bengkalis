@@ -12,6 +12,7 @@ class Record extends Component
 {
     public $mode = 'in';
     public $disable_log = true;
+    public $currentRecord = null;
     public $idJam = null;
     public $jamKerja = null;
     public $missedOut = null;
@@ -116,6 +117,14 @@ class Record extends Component
                     'type' => 'success',
                     'message' => 'Absensi keluar berhasil'
                 ]);
+            } else {
+                $id = $this->currentRecord->id;
+                $data = Absensi::find($id);
+                $data->update($payload);
+                $this->emit('setResponse', [
+                    'type' => 'success',
+                    'message' => 'Absensi keluar berhasil'
+                ]);
             }
         }
     }
@@ -127,7 +136,7 @@ class Record extends Component
 
     public function mount()
     {
-        // $this->showRecord = session('showRecord') ?? false;
+        $this->currentRecord = Absensi::getCurrentAbsensi(session('user')->id);
         
         if (!empty($this->missedOut)) {
             $data = $this->missedOut;

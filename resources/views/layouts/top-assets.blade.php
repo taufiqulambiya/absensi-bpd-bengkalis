@@ -36,7 +36,7 @@ $jss = [
     URL::to('/').'/admin-assets/vendors/datatables.net-bs/js/dataTables.bootstrap.min.js',
     URL::to('/').'/admin-assets/vendors/moment/min/moment.min.js',
     URL::to('/').'/admin-assets/vendors/bootstrap-daterangepicker/daterangepicker.js',
-    // 'https://cdnjs.cloudflare.com/ajax/libs/loadjs/4.2.0/loadjs.min.js',
+    'https://cdnjs.cloudflare.com/ajax/libs/loadjs/4.2.0/loadjs.min.js',
     // 'https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js',
     'https://cdnjs.cloudflare.com/ajax/libs/timepicker/1.3.5/jquery.timepicker.min.js',
     // 'https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js',

@@ -17,6 +17,7 @@ use Barryvdh\DomPDF\Facade\Pdf;
 
 class Absensi extends BaseController
 {
+
     /**
      * Handle the incoming request.
      *
@@ -56,6 +57,11 @@ class Absensi extends BaseController
         }
 
         return view('panel.pegawai.absensi.absensi', $data);
+    }
+
+    public function print() {
+        // print all harian
+        
     }
 
     public function store(Request $request)
@@ -176,9 +182,10 @@ class Absensi extends BaseController
         $mode = request('mode');
 
         $data = [
-            'absensi' => ModelsAbsensi::getRiwayat(),
+            'absensi' => ModelsAbsensi::getRiwayatV2(),
             'absensiPaginate' => ModelsAbsensi::getRiwayat(true),
         ];
+        // dd($data['absensi']);
         if ($mode == 'json') {
             return response()->json($data);
         }

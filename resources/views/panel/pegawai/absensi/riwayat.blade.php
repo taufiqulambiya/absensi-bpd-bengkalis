@@ -76,47 +76,48 @@
                                                             </tr>
                                                         </thead>
                                                         <tbody>
-                                                            @foreach ($absensi as $item)
-                                                            <tr @if ($item->forgotten)
-                                                                class="text-warning"
-                                                                @endif>
+                                                            @php
+                                                                $user = $absensi;
+                                                            @endphp
+                                                            @foreach ($user->absensi as $a)
+                                                            <tr>
                                                                 <td scope="row">{{ $loop->iteration }}</td>
-                                                                <td>{{ $item->user->nip }}</td>
-                                                                <td>{{ $item->user->nama }}</td>
-                                                                <td>{{ $item->formatted_tanggal }}</td>
-                                                                <td>{{ $item->formatted_waktu_masuk }}</td>
-                                                                <td>{{ $item->formatted_waktu_keluar }}</td>
-                                                                <td>{{ $item->formatted_shift }}</td>
-                                                                <td>{{ $item->total_jam }}</td>
+                                                                <td>{{ $user->nip }}</td>
+                                                                <td>{{ $user->nama }}</td>
+                                                                <td>{{ $a->formatted_tanggal }}</td>
+                                                                <td>{{ $a->formatted_waktu_masuk }}</td>
+                                                                <td>{{ $a->formatted_waktu_keluar }}</td>
+                                                                <td>{{ $a->formatted_shift }}</td>
+                                                                <td>{{ $a->total_jam }}</td>
                                                                 <td>
                                                                     {{-- check if file is exist in storage --}}
-                                                                    @if ($item->dok_masuk &&
-                                                                    Storage::exists('public/uploads/'.$item->dok_masuk))
-                                                                    <a href="{{ Storage::url('public/uploads/'.$item->dok_masuk) }}"
+                                                                    @if ($a->dok_masuk &&
+                                                                    Storage::exists('public/uploads/'.$a->dok_masuk))
+                                                                    <a href="{{ Storage::url('public/uploads/'.$a->dok_masuk) }}"
                                                                         target="_blank" class="d-block">Dok. Masuk</a>
                                                                     @endif
-                                                                    @if ($item->dok_keluar
-                                                                    &&Storage::exists('public/uploads/'.$item->dok_keluar))
-                                                                    <a href="{{ Storage::url('public/uploads/'.$item->dok_keluar) }}"
+                                                                    @if ($a->dok_keluar
+                                                                    &&Storage::exists('public/uploads/'.$a->dok_keluar))
+                                                                    <a href="{{ Storage::url('public/uploads/'.$a->dok_keluar) }}"
                                                                         target="_blank" class="d-block">Dok. Keluar</a>
                                                                     @endif
 
-                                                                    {{-- @if ($item->dok_masuk)
-                                                                    <a href="{{ Storage::url('public/uploads/'.$item->dok_masuk) }}"
+                                                                    {{-- @if ($a->dok_masuk)
+                                                                    <a href="{{ Storage::url('public/uploads/'.$a->dok_masuk) }}"
                                                                         target="_blank" class="d-block">Dok. Masuk</a>
                                                                     @endif
-                                                                    @if ($item->dok_keluar)
-                                                                    <a href="{{ Storage::url('public/uploads/'.$item->dok_keluar) }}"
+                                                                    @if ($a->dok_keluar)
+                                                                    <a href="{{ Storage::url('public/uploads/'.$a->dok_keluar) }}"
                                                                         target="_blank" class="d-block">Dok. Keluar</a>
                                                                     @endif --}}
                                                                 </td>
-                                                                <td>{{ strtoupper($item->status) }}</td>
+                                                                <td>{{ strtoupper($a->status) }}</td>
                                                                 <td>
                                                                     {{-- <button
                                                                         class="btn btn-success btn-print-detail"
-                                                                        data-id="{{ $item->id }}"><i class="fa fa-print"
+                                                                        data-id="{{ $a->id }}"><i class="fa fa-print"
                                                                             aria-hidden="true"></i></button> --}}
-                                                                    <a href="?print=id&&id={{$item->id}}"
+                                                                    <a href="?print=id&&id={{$a->id}}"
                                                                         target="_blank"
                                                                         class="btn btn-success"><i class="fa fa-print"
                                                                             aria-hidden="true"></i></a>

@@ -62,7 +62,7 @@ Route::prefix('panel')->middleware(['auth', 'cek_setting'])->group(function(){
     Route::get('/dashboard', Dashboard::class)->name('dashboard');
     
     Route::get('/absensi/riwayat', [Absensi::class, 'riwayat'])->name('absensi.riwayat');
-    Route::get('/absensi/print', [Absensi::class, 'print']);
+    Route::get('/absensi/print', [Absensi::class, 'print'])->name('admin.absensi.print.harian');
     Route::resource('/absensi', Absensi::class);
     
     Route::resource('/izin', Izin::class);

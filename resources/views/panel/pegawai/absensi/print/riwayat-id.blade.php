@@ -108,8 +108,8 @@
                         <td>{{ $absensi->formatted_waktu_keluar }}</td>
                     </tr>
                     <tr>
-                        <th>Keterangan</th>
-                        <td>{{ $absensi->keterangan }}</td>
+                        <th>Total Jam</th>
+                        <td>{{ $absensi->total_jam }}</td>
                     </tr>
                     <tr>
                         <th>Lokasi Masuk</th>
@@ -130,7 +130,7 @@
                 </table>
             </div>
 
-            <div class="section">
+            {{-- <div class="section">
                 <h4>Foto</h4>
                 <table class="table table-bordered">
                     <tr>
@@ -139,14 +139,14 @@
                     </tr>
                     <tr>
                         <td>
-                            <img src="{{ $absensi->dok_masuk }}" alt="Foto Masuk" width="200">
+                            <img src="{{ Storage::url('public/uploads/'.$absensi->dok_masuk) }}" alt="Foto Masuk" width="200">
                         </td>
                         <td>
-                            <img src="{{ $absensi->dok_masuk }}" alt="Foto Keluar" width="200">
+                            <img src="{{ Storage::url('public/uploads/'.$absensi->dok_keluar) }}" alt="Foto Keluar" width="200">
                         </td>
                     </tr>
                 </table>
-            </div>
+            </div> --}}
         </div>
     </div>
 </body>

@@ -7,7 +7,7 @@ import { swalConfirmator } from "../../misc/swal-template";
 export default class JamKerja {
     constructor() {
         this.state = {};
-        this.init();
+        // this.init();
     }
 
     init() {

@@ -1,10 +1,6 @@
 @extends('layouts.app')
-@section('title', 'Dashboard')
+@section('title', 'Settings')
 @section('content')
-
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.8.0/dist/leaflet.css"
-    integrity="sha512-hoalWLoI8r4UszCkZ5kL8vayOGVae1oxXe/2A4AO6J9+580uKHDO3JdHb7NzwwzK5xr/Fs0W40kiNHxM9vyTtQ=="
-    crossorigin="" />
 
 <style>
     #map {
@@ -23,77 +19,7 @@
         <!-- /page content -->
         <div class="right_col" role="main">
             <div class="x_content">
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="card">
-                            <div class="card-header">
-                                <h4 class="card-title">Umum</h4>
-                            </div>
-                            <form action="#" onsubmit="submitGeneralForm(event)" method="POST">
-                                @csrf
-                                @method("POST")
-                                <div class="card-body">
-                                    <div class="form-group">
-                                        <label for="jenis_jatah">Pilih Jenis Jatah</label>
-                                        <select name="" id="jenis-jatah" class="form-control">
-                                            <option value="jatah_cuti_tahunan" data-label="TAHUNAN" data-value="{{ $data->jatah_cuti_tahunan }}">Cuti Tahunan</option>
-                                            <option value="jatah_cuti_besar" data-label="BESAR" data-value="{{ $data->jatah_cuti_besar }}">Cuti Besar</option>
-                                            <option value="jatah_cuti_melahirkan" data-label="MELAHIRKAN" data-value="{{ $data->jatah_cuti_melahirkan }}">Cuti Melahirkan</option>
-                                            <option value="jatah_cuti_penting" data-label="ALASAN PENTING" data-value="{{ $data->jatah_cuti_penting }}">Cuti Alasan Penting</option>
-                                            <option value="jatah_cuti_ctln" data-label="DILUAR TANGGUNGAN NEGARA" data-value="{{ $data->jatah_cuti_ctln }}">Cuti Diluar Tanggungan Negara</option>
-                                        </select>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="jatah_cuti_tahunan">Jatah cuti <span id="cuti-label">TAHUNAN</span> pegawai (Hari)</label>
-                                        <input type="number" class="form-control" name="jatah_cuti_tahunan" id="jatah-cuti"
-                                         value="{{ $data->jatah_cuti_tahunan }}"
-                                            placeholder="Masukan angka">
-                                    </div>
-                                </div>
-                                <div class="card-footer">
-                                    <button type="submit" class="btn btn-primary">Perbarui</button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="card">
-                            <div class="card-header">
-                                <h4 class="mb-3 card-title">Atur Lokasi Kantor</h4>
-                            </div>
-                            <div class="card-body">
-                                <div class="alert alert-info">
-                                    <h4>Anda bisa mencari lokasi atau memilih lokasi melalui peta.</h4>
-                                </div>
-                                <div class="form-group mb-3">
-                                    <label for="input-search">Cari Alamat</label>
-                                    <div class="input-group">
-                                        <input type="text" placeholder="Cari Alamat..." id="input-search"
-                                            class="form-control">
-                                        <div class="input-group-prepend">
-                                            <button class="btn btn-primary" id="search-btn"><i
-                                                    class="fas fa-search"></i></button>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div id="search-result" class="mb-3"></div>
-                                <div id="map-wrapper">
-                                    <div id="map"
-                                        class="border bg-secondary mb-3 d-flex align-items-center justify-content-center">
-                                        <h3 class="text-center text-white">Memuat peta...</h3>
-                                    </div>
-                                </div>
-                                <div class="mb-3">
-                                    <h4>Latitude : <span id="lat">Loading...</span></h4>
-                                    <h4>Longitue : <span id="long">Loading...</span></h4>
-                                    <h4 id="location">Loading...</h4>
-                                </div>
-                                @csrf
-                                <button class="btn btn-primary" id="submit-location-btn">Simpan</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <livewire:admin.settings />
             </div>
         </div>
 
@@ -108,11 +34,21 @@
     </div>
 </div>
 
-<script src="https://unpkg.com/leaflet@1.8.0/dist/leaflet.js"
-    integrity="sha512-BB3hKbKWOc9Ez/TAwyWxNXeoV9c1v6FIeYiBieIWkpLjauysF18NzgR1MBNBXf8/KABdlkX68nAhlwcDFLGPCQ=="
-    crossorigin=""></script>
-
 <script>
+    document.addEventListener('livewire:load', () => {
+            const lw = window.livewire;
+            lw.on('success', message => {
+                Swal.fire({
+                    title: 'Berhasil',
+                    text: message,
+                    icon: 'success',
+                    confirmButtonText: 'OK'
+                })
+            });
+        })
+</script>
+
+{{-- <script>
     class Settings {
         changeJenisCuti(){
             const name = $(this).val();
@@ -320,5 +256,5 @@
         $('#submit-location-btn').click(submitLocationForm);
     // })
 
-</script>
+</script> --}}
 @endsection

@@ -11,7 +11,7 @@ export default class ListBulanan {
         console.log("ListBulanan");
         this.state = {};
         this.data = [];
-        this.init();
+        // this.init();
     }
 
     init() {

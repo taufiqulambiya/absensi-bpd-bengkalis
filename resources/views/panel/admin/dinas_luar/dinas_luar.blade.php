@@ -83,6 +83,31 @@
             }).then((result) => {
                 window.location.reload();
             });
+        });
+
+        LW.on("error", message => {
+            Swal.fire({
+                title: 'Gagal',
+                text: message,
+                icon: 'error',
+                confirmButtonText: 'OK'
+            });
+        });
+
+        LW.on("confirmDelete", id => {
+            Swal.fire({
+                title: 'Lanjutkan?',
+                text: "Data yang dihapus tidak dapat dikembalikan!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Ya, hapus!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    LW.emit('delete', id);
+                }
+            })
         })
     });
 </script>

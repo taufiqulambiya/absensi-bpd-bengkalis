@@ -19,13 +19,9 @@ class JamKerja extends Controller
         $data = ModelsJamKerja::orderBy('status');
         $data = $data->whereNull('deleted_at');
         $data = $data->get();
-        $disable_days = [];
-        foreach ($data as $item) {
-            $disable_days = array_merge($disable_days, explode(', ', $item->days));
-        }
 
         // dd($disable_days);
-        $allowed = array_diff($days, $disable_days);
+        $allowed = ModelsJamKerja::getAllowedDays();
 
         return view('panel.admin.jam_kerja.jam_kerja', compact('data', 'allowed', 'days'));
     }

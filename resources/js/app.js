@@ -1,9 +1,9 @@
 import "./bootstrap";
 
 import $ from "jquery";
-import AbsensiPegawai from "./pages/absensi/AbsensiPegawai";
-import ListBulanan from "./pages/absensi/ListBulanan";
-import ListHarian from "./pages/absensi/ListHarian";
+// import AbsensiPegawai from "./pages/absensi/AbsensiPegawai";
+// import ListBulanan from "./pages/absensi/ListBulanan";
+// import ListHarian from "./pages/absensi/ListHarian";
 import Riwayat from "./pages/absensi/Riwayat";
 import Auth from "./pages/auth/Auth";
 import Cuti from "./pages/cuti/Cuti";
@@ -24,23 +24,23 @@ const switchClass = [
         pathRegex: /auth/g,
         class: Auth,
     },
-    {
-        path: "/panel/absensi",
-        pathRegex: /panel\/absensi/g,
-        exact: true,
-        class: AbsensiPegawai,
-        adminClass: ListHarian,
-    },
-    {
-        path: "panel/absensi?view=harian",
-        pathRegex: /panel\/absensi\?view=harian/g,
-        class: ListHarian,
-    },
-    {
-        path: "panel/absensi?view=bulanan",
-        pathRegex: /panel\/absensi\?view=bulanan/g,
-        class: ListBulanan,
-    },
+    // {
+    //     path: "/panel/absensi",
+    //     pathRegex: /panel\/absensi/g,
+    //     exact: true,
+    //     class: AbsensiPegawai,
+    //     adminClass: ListHarian,
+    // },
+    // {
+    //     path: "panel/absensi?view=harian",
+    //     pathRegex: /panel\/absensi\?view=harian/g,
+    //     class: ListHarian,
+    // },
+    // {
+    //     path: "panel/absensi?view=bulanan",
+    //     pathRegex: /panel\/absensi\?view=bulanan/g,
+    //     class: ListBulanan,
+    // },
     {
         path: "panel/absensi/riwayat",
         pathRegex: /panel\/absensi\/riwayat/g,
