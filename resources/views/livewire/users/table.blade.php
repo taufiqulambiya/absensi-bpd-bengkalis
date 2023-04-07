@@ -28,7 +28,7 @@
             <td>{{ date_format(date_create($item->tgl_lahir), 'd/m/Y') }}</td>
             <td>{{ $item->no_telp }}</td>
             <td>{{ $item->alamat }}</td>
-            <td>{{ strtoupper($item->level) }}</td>
+            <td>{{ strtoupper($item->level == 'atasan' ? 'pimpinan' : $item->level) }}</td>
             @if ($level == 'admin')
             <td>
                 <button class="btn btn-info btn-edit" data-toggle="modal" data-target="#modal-form"

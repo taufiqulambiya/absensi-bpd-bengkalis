@@ -85,7 +85,7 @@ class Profile extends Component
             'form.tgl_lahir' => 'required',
             'form.jk' => 'required',
             'form.alamat' => 'required',
-            'form.no_telp' => 'required',
+            // 'form.no_telp' => 'required',
         ], [
                 'form.gambar.image' => 'Gambar harus berupa gambar',
                 'form.gambar.max' => 'Gambar maksimal 1 MB',
@@ -98,7 +98,7 @@ class Profile extends Component
                 'form.tgl_lahir.required' => 'Tanggal lahir harus diisi',
                 'form.jk.required' => 'Jenis kelamin harus diisi',
                 'form.alamat.required' => 'Alamat harus diisi',
-                'form.no_telp.required' => 'Nomor telepon harus diisi',
+                // 'form.no_telp.required' => 'Nomor telepon harus diisi',
             ]);
 
         // if gambar is not empty

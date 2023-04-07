@@ -33,10 +33,21 @@ class Table extends Component
     }
     
     public function delete($id) {
+        $currentUser = User::find(session('user')->id);
         $item = User::find($id);
+        if ($currentUser->id == $item->id) {
+            $this->emit('error', 'Tidak bisa menghapus diri sendiri');
+            return;
+        }
+
         $allAdmin = User::where('level', 'admin')->get();
         if($item->level == 'admin' && count($allAdmin) == 1) {
             $this->emit('error', 'Tidak bisa menghapus admin terakhir');
+            return;
+        }
+        $allAtasan = User::where('level', 'atasan')->get();
+        if($item->level == 'atasan' && count($allAtasan) == 1) {
+            $this->emit('error', 'Tidak bisa menghapus atasan terakhir');
             return;
         }
 

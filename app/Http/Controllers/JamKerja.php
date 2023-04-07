@@ -17,7 +17,7 @@ class JamKerja extends Controller
     {
         $days = ['minggu', 'senin', 'selasa', 'rabu', 'kamis', 'jumat', 'sabtu'];
         $data = ModelsJamKerja::orderBy('status');
-        $data = $data->whereNull('deleted_at');
+        // $data = $data->whereNull('deleted_at');
         $data = $data->get();
 
         // dd($disable_days);

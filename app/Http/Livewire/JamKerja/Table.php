@@ -15,7 +15,7 @@ class Table extends Component
     }
 
     public function mount() {
-        $this->data = JamKerja::whereNull('deleted_at')->get();
+        $this->data = JamKerja::all();
     }
     public function toggleStatus($id) {
         $item = JamKerja::where('id', $id)->first();
