@@ -28,16 +28,17 @@
                                 <div class="clearfix"></div>
                             </div>
                             <div class="row">
-                                <div class="col-6">
+                                @if ($has_cuti)
+                                <div class="col-md-6">
+                                    {{-- <x-cuti.detail-card /> --}}
+                                    <livewire:cuti.detail-card />
+                                </div>
+                                @endif
+                                <div class="col-md-6">
                                     {{-- <x-cuti.jatah-cuti-card :data="$jatah_cuti" :enable-add="$allowed_ajukan" /> --}}
                                     <livewire:cuti.jatah-cuti-card :data="$jatah_cuti" :enable-add="$allowed_ajukan" />
                                 </div>
 
-                                @if ($has_cuti)
-                                <div class="col-md-6">
-                                    <x-cuti.detail-card />
-                                </div>
-                                @endif
 
                                 <livewire:cuti.tabs />
                                 <livewire:cuti.modal
@@ -68,60 +69,4 @@
         <!-- /footer content -->
     </div>
 </div>
-
-
-
-@if (false)
-<script>
-    const notAllowedDates = JSON.parse(`<?= json_encode($not_allowed) ?>`);
-    const idUser = `{{ $user->id }}`;
-    let jatahCuti = `{{ $jatah_cuti_tahunan }}`;
-</script>
-<script src="{{ asset('js/cuti.js') }}"></script>
-<script>
-    function removeTanggal(idx) {
-        cuti.removeTanggal(idx);
-    }
-    
-    $('#tanggal-selector').change(function() {
-        const val = $(this).val();
-        cuti.selectTanggal(val);
-        $(this).val('');
-    });
-
-    $('.btn-edit').each(function() {
-        $(this).click(function() {
-            const item = $(this).data('item');
-            cuti.fillForm(item);
-        })
-    })
-
-    $('#modal-form').on('hide.bs.modal', function(){
-        cuti.clearForm();
-    })
-
-    $('#tanggal-clear').click(function(){
-        cuti.clearTanggal();
-    })
-
-    $('#submit-cuti').click(function(){
-        cuti.submit();
-    })
-
-    $('.selected-tanggal').each(function() {
-        $(this).click(function(){
-            console.log($(this).data('idx'))
-        })
-    });
-
-    $('#jcf-selector').change(function() {
-        const name = $(this).val();
-        const value = $(this).find('option:selected').data('value');
-        cuti.updateJatahCuti(value);
-        $('#jcf-value').text(value);
-    });
-
-    cuti.renderTanggalInput();
-</script>
-@endif
 @endsection

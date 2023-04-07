@@ -13,12 +13,17 @@ class Report extends Model
     static public function getData() {
         $jenis = request()->get('jenis') ?? 'pegawai';
         $pegawai = request()->get('pegawai') ?? [];
-        $tanggal_awal = request()->get('tanggal_awal');
-        $tanggal_akhir = request()->get('tanggal_akhir');
+        $tanggal_awal = request()->get('tanggal_awal') ?? null;
+        $tanggal_akhir = request()->get('tanggal_akhir') ?? date('Y-m-d');
 
         $data = [
             'data' => [],
         ];
+
+        if (empty($tanggal_awal)) {
+            $data['tanggal_awal'] = 'terdahulu';
+            $data['tanggal_akhir'] = date('d/m/Y', strtotime($tanggal_akhir));
+        }
 
         if ($tanggal_awal && $tanggal_akhir) {
             $data['tanggal_awal'] = date('d/m/Y', strtotime($tanggal_awal));
@@ -38,7 +43,9 @@ class Report extends Model
                     ->when($pegawai, function ($query, $pegawai) {
                         return $query->whereIn('id_user', $pegawai);
                     })
-                    ->whereBetween('tanggal', [$tanggal_awal, $tanggal_akhir])
+                    ->when($tanggal_awal && $tanggal_akhir, function ($query) use ($tanggal_awal, $tanggal_akhir) {
+                        return $query->whereBetween('tanggal', [$tanggal_awal, $tanggal_akhir]);
+                    })
                     ->orderBy('tanggal', 'asc')
                     ->get()
                     ->map(function ($x) {
@@ -68,7 +75,9 @@ class Report extends Model
                     ->when($pegawai, function ($query, $pegawai) {
                         return $query->whereIn('id_user', $pegawai);
                     })
-                    ->whereBetween('tgl_mulai', [$tanggal_awal, $tanggal_akhir])
+                    ->when($tanggal_awal && $tanggal_akhir, function ($query) use ($tanggal_awal, $tanggal_akhir) {
+                        return $query->whereBetween('tgl_mulai', [$tanggal_awal, $tanggal_akhir]);
+                    })
                     ->orderBy('tgl_mulai', 'asc')
                     ->get()
                     ->map(function ($x) {
@@ -99,7 +108,11 @@ class Report extends Model
                     ->filter(function ($x) use ($tanggal_awal, $tanggal_akhir) {
                         $tanggals = explode(',', $x->tanggal);
                         $first = Carbon::parse($tanggals[0])->format('Y-m-d');
-                        return Carbon::parse($first)->between($tanggal_awal, $tanggal_akhir);
+                        // return Carbon::parse($first)->between($tanggal_awal, $tanggal_akhir);
+                        if ($tanggal_awal && $tanggal_akhir) {
+                            return Carbon::parse($first)->between($tanggal_awal, $tanggal_akhir);
+                        }
+                        return true;
                     })
                     ->map(function ($x) {
                         $formatted_tanggals = [];

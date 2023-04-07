@@ -74,6 +74,27 @@ class Cuti extends Model
         return $data;
     }
 
+    static function getDisableDates($user_id) {
+        return Cuti::where('id_user', $user_id)
+            ->where('status', 'accepted_pimpinan')
+            ->get()
+            ->map(function ($item) {
+                $item->tanggal = explode(',', $item->tanggal);
+                return $item;
+            })
+            ->map(function ($item) {
+                return array_map(function ($item) {
+                    return Carbon::parse($item)->format('m/d/Y');
+                }, $item->tanggal);
+            })
+            ->flatten()
+            ->filter(function ($item) {
+                return strtotime($item) > strtotime(date('m/d/Y'));
+            })
+            ->unique()
+            ->toArray();
+    }
+
     static function getPengajuanCutiAktif($user_id)
     {
         // conds: id_user => $user_id, status not in ['accepted_pimpinan', 'rejected']
@@ -97,6 +118,7 @@ class Cuti extends Model
             ->get()
             ->map(function ($item) {
                 $item->tanggal = explode(',', $item->tanggal);
+                $item->total_formatted = count($item->tanggal) . ' hari';
                 $item->status_text = formatStatusCuti($item->status);
                 $item->status_color = formatStatusCutiColor($item->status);
                 return $item;

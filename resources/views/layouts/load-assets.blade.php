@@ -1,7 +1,8 @@
 <?php
 $styles = [
     // 'https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.13.2/themes/base/jquery-ui.min.css',
-    'https://balubes.com/assets/jquery-ui/themes/humanity/jquery-ui.min.css',
+    // 'https://balubes.com/assets/jquery-ui/themes/humanity/jquery-ui.min.css',
+    'https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.13.2/themes/pepper-grinder/jquery-ui.min.css',
     'https://cdnjs.cloudflare.com/ajax/libs/jquery-ui-multidatespicker/1.6.6/jquery-ui.multidatespicker.min.css',
     URL::to('/').'/admin-assets/vendors/bootstrap/dist/css/bootstrap.min.css',
     URL::to('/').'/admin-assets/vendors/nprogress/nprogress.css',
@@ -36,58 +37,19 @@ $jss = [
     URL::to('/').'/admin-assets/vendors/datatables.net-bs/js/dataTables.bootstrap.min.js',
     URL::to('/').'/admin-assets/vendors/moment/min/moment.min.js',
     URL::to('/').'/admin-assets/vendors/bootstrap-daterangepicker/daterangepicker.js',
-    'https://cdnjs.cloudflare.com/ajax/libs/loadjs/4.2.0/loadjs.min.js',
+    // 'https://cdnjs.cloudflare.com/ajax/libs/loadjs/4.2.0/loadjs.min.js',
     // 'https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js',
     'https://cdnjs.cloudflare.com/ajax/libs/timepicker/1.3.5/jquery.timepicker.min.js',
     // 'https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js',
     // 'https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.fp.min.js',
     'https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.15.2/js/selectize.min.js',
+    'https://cdnjs.cloudflare.com/ajax/libs/qs/6.11.1/qs.min.js',
 ];
 ?>
 
-@foreach ($styles as $style)
-<link rel="stylesheet" href="{{ $style }}">
-@endforeach
-
-<style>
-    .btn-flat {
-        border-radius: 0 !important;
-    }
-
-    .chip {
-        padding: 2px;
-        border-radius: 12px;
-        flex: 20%;
-        text-align: center;
-    }
-
-    .chip.in-table {
-        display: block;
-        flex: 100% !important;
-        max-width: 100px;
-    }
-
-    .ui-timepicker-container {
-        z-index: 1151 !important;
-    }
-
-    .bg-yellow {
-        background: yellow !important;
-    }
-
-    .bg-dongker {
-        background: #202A44;
-         !important;
-    }
-</style>
-
-@foreach ($jss as $js)
-<script src="{{ $js }}"></script>
-@endforeach
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/loadjs/4.2.0/loadjs.min.js"></script>
 <script>
     const baseURL = `{{ URL::to('/') }}`;
-
     const dangerConfirmator = ({
         text = 'Tindakan ini akan menghapus data, lanjutkan?',
         confirmText = 'Ya, hapus',
@@ -111,5 +73,55 @@ $jss = [
                 callback();
             }
         })
+    }
+
+
+    const css = `<?= json_encode($styles) ?>`;
+    const js = `<?= json_encode($jss) ?>`;
+
+    const cssArr = JSON.parse(css);
+    const jsArr = JSON.parse(js);
+
+    cssArr.forEach((css) => {
+        loadjs(css, {
+            async: false,
+        });
+    });
+
+    jsArr.forEach((js) => {
+        loadjs(js, {
+            async: false,
+            success: () => {
+                initialize();
+            },
+        });
+    });
+
+    function initialize() {
+        $('.preloader').fadeOut();
+        
+        $('.modal').each(function() {
+            const modalAnims = ['fade', 'slide', 'rotate', 'flip', 'bounce', 'zoom'];
+            if (!modalAnims.some((anim) => $(this).hasClass(anim))) {
+                $(this).addClass('fade');
+            }
+        });
+
+        $('#menu_toggle').on('click', function() {
+            if ($('body').hasClass('nav-md')) {
+                $('body').removeClass('nav-md').addClass('nav-sm');
+            } else {
+                $('body').removeClass('nav-sm').addClass('nav-md');
+            }
+        });
+
+        const navHeight = $('.nav_menu').height();
+        $('.right_col[role="main"]').css('min-height', $(window).height() - navHeight);
+
+        $('table').each(function() {
+            if (!$(this).parent().hasClass('table-responsive')) {
+                $(this).wrap('<div class="table-responsive"></div>');
+            }
+        });
     }
 </script>

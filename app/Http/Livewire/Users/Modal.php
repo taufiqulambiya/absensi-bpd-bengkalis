@@ -7,6 +7,16 @@ use Livewire\Component;
 
 class Modal extends Component
 {
+    public $jabatans = [
+        'Kabid',
+        'Kasubbid',
+        'Subbag',
+        'Kasubbag',
+        'Kasi',
+        'Sekretaris',
+        'Staff',
+        'Lainnya'
+    ];
     public $form = [
         'nama' => '',
         'jk' => 'Laki-laki',
@@ -27,7 +37,8 @@ class Modal extends Component
         return view('livewire.users.modal');
     }
 
-    public function resetForm() {
+    public function resetForm()
+    {
         $this->form = [
             'nama' => '',
             'jk' => 'Laki-laki',
@@ -44,19 +55,26 @@ class Modal extends Component
         $this->isEdit = false;
     }
 
-    public function fillEdit($item) {
+    public function fillEdit($item)
+    {
         $this->form = $item;
+        $jabatan = $item['jabatan'];
+        if (!in_array($jabatan, $this->jabatans)) {
+            $this->form['jabatan'] = 'Lainnya';
+            $this->form['jabatan_lainnya'] = $jabatan;
+        }
         $this->isEdit = true;
     }
 
-    public function store() {
+    public function store()
+    {
         $minBirthDay = date('Y-m-d', strtotime('-15 years'));
         $maxNipLength = 18;
         $this->validate([
             'form.nama' => 'required',
-            'form.tgl_lahir' => 'required|date|before:'.$minBirthDay,
-            'form.nip' => 'required|numeric|digits_between:15,'.$maxNipLength.'|unique:users,nip'.
-                ($this->isEdit ? ','.$this->form['id'] : ''),
+            'form.tgl_lahir' => 'required|date|before:' . $minBirthDay,
+            'form.nip' => 'required|numeric|digits_between:15,' . $maxNipLength . '|unique:users,nip' .
+            ($this->isEdit ? ',' . $this->form['id'] : ''),
             'form.jabatan' => 'required',
             'form.jabatan_lainnya' => 'required_if:jabatan,==,Lainnya',
             'form.bidang' => 'required',
@@ -64,23 +82,24 @@ class Modal extends Component
             'form.alamat' => 'required',
             'form.no_telp' => 'numeric|digits_between:1,15',
         ], [
-            'form.nama.required' => 'Nama tidak boleh kosong',
-            'form.tgl_lahir.required' => 'Tanggal lahir tidak boleh kosong',
-            'form.tgl_lahir.date' => 'Tanggal lahir harus berupa tanggal',
-            'form.tgl_lahir.before' => 'Tanggal lahir tidak boleh kurang dari 15 tahun',
-            'form.nip.required' => 'NIP tidak boleh kosong',
-            'form.nip.numeric' => 'NIP harus berupa angka',
-            'form.nip.digits_between' => 'NIP harus berupa angka dengan panjang minimal 15 dan maksimal '.$maxNipLength.' karakter',
-            'form.nip.unique' => 'NIP sudah terdaftar',
-            'form.jabatan.required' => 'Jabatan tidak boleh kosong',
-            'form.jabatan_lainnya.required_if' => 'Jabatan lainnya tidak boleh kosong',
-            'form.bidang.required' => 'Bidang tiak boleh kosong',
-            'form.golongan.required' => 'Golongan tidak boleh kosong',
-            'form.alamat.required' => 'Alamat tidak boleh kosong',
-            'form.no_telp.numeric' => 'No. Telp harus berupa angka',
-            'form.no_telp.digits_between' => 'No. Telp harus berupa angka dengan panjang maksimal 15 karakter',
-        ]);
+                'form.nama.required' => 'Nama tidak boleh kosong',
+                'form.tgl_lahir.required' => 'Tanggal lahir tidak boleh kosong',
+                'form.tgl_lahir.date' => 'Tanggal lahir harus berupa tanggal',
+                'form.tgl_lahir.before' => 'Tanggal lahir tidak boleh kurang dari 15 tahun',
+                'form.nip.required' => 'NIP tidak boleh kosong',
+                'form.nip.numeric' => 'NIP harus berupa angka',
+                'form.nip.digits_between' => 'NIP harus berupa angka dengan panjang minimal 15 dan maksimal ' . $maxNipLength . ' karakter',
+                'form.nip.unique' => 'NIP sudah terdaftar',
+                'form.jabatan.required' => 'Jabatan tidak boleh kosong',
+                'form.jabatan_lainnya.required_if' => 'Jabatan lainnya tidak boleh kosong',
+                'form.bidang.required' => 'Bidang tiak boleh kosong',
+                'form.golongan.required' => 'Golongan tidak boleh kosong',
+                'form.alamat.required' => 'Alamat tidak boleh kosong',
+                'form.no_telp.numeric' => 'No. Telp harus berupa angka',
+                'form.no_telp.digits_between' => 'No. Telp harus berupa angka dengan panjang maksimal 15 karakter',
+            ]);
         $payload = $this->form;
+        $payload['jabatan'] = $payload['jabatan'] == 'Lainnya' ? $payload['jabatan_lainnya'] : $payload['jabatan'];
         if ($this->isEdit) {
             $user = User::find($payload['id']);
 
@@ -91,7 +110,7 @@ class Modal extends Component
                     return;
                 }
             }
-            if($user->level == 'atasan') {
+            if ($user->level == 'atasan') {
                 $allAtasan = User::where('level', 'atasan')->get();
                 if ($allAtasan->count() == 1 && $user->level == 'atasan' && $payload['level'] != 'atasan') {
                     $this->addError('form.level', 'Harap setidaknya ada 1 user dengan level atasan');
@@ -116,18 +135,19 @@ class Modal extends Component
 
             User::create($payload);
 
-            $msgHtml = '<p>User baru berhasil ditambahkan, password: <b>'.$randomPassword.'</b>, beritahu user untuk segera mengganti passwordnya.</p>';
+            $msgHtml = '<p>User baru berhasil ditambahkan, password: <b>' . $randomPassword . '</b>, beritahu user untuk segera mengganti passwordnya.</p>';
             $this->emit('successHtml', $msgHtml);
             $this->emit('toggleModal');
             $this->emit('refreshTable');
         }
     }
 
-    private function getRandomPassword() {
+    private function getRandomPassword()
+    {
         $pattern = '1234567890abcdefghijklmnopqrstuvwxyz';
         $key = '';
-        for($i=0;$i<8;$i++) {
-            $key .= $pattern[rand(0,35)];
+        for ($i = 0; $i < 8; $i++) {
+            $key .= $pattern[rand(0, 35)];
         }
         return $key;
     }

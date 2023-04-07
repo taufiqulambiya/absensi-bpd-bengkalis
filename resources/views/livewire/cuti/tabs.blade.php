@@ -98,9 +98,9 @@
                                     <td>{{ $item->user->nip }}</td>
                                     @endif
                                     <td>
-                                        <div class="d-flex flex-wrap flex-column" style="gap: 4px">
+                                        <div class="chips in-table" style="gap: 4px">
                                             @foreach ($item->tanggal_arr as $tgl)
-                                            <span class="chip in-table bg-secondary text-white">{{
+                                            <span class="chip">{{
                                                 $tgl }}</span>
                                             @endforeach
                                         </div>

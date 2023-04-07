@@ -356,8 +356,6 @@ class Cuti {
             minDate: 1,
             maxDate: end.diff(today, "days"),
             autoSize: true,
-            // pre selected
-
             onSelect: (dateText, inst) => {
                 const dates = $("#ctmdp").multiDatesPicker("getDates");
                 const total = dates.length;

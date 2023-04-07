@@ -9,37 +9,37 @@ export default class Report {
         // this.dataType = "pegawai";
         // this.inputIds = ["pegawai-select"];
         // this.init();
-        this.initLivewire();
+        // this.initLivewire();
     }
 
     initLivewire() {
         const LW = window.livewire;
         const initJS = () => {
-            $("#pegawai-select").selectize({
-                plugins: ["remove_button"],
-                delimiter: ",",
-                persist: false,
-                create: function (input) {
-                    return {
-                        value: input,
-                        text: input,
-                    };
-                },
-                onChange: (values) => {
-                    LW.emit("setPegawaiIds", values);
-                },
-            });
+            // $("#pegawai-select").selectize({
+            //     plugins: ["remove_button"],
+            //     delimiter: ",",
+            //     persist: false,
+            //     create: function (input) {
+            //         return {
+            //             value: input,
+            //             text: input,
+            //         };
+            //     },
+            //     onChange: (values) => {
+            //         LW.emit("setPegawaiIds", values);
+            //     },
+            // });
         };
 
-        LW.on("initJS", () => {
-            initJS();
-        });
+        // LW.on("initJS", () => {
+        //     initJS();
+        // });
 
-        LW.on("print", (url) => {
-            window.open(url, "_blank");
-        });
+        // LW.on("print", (url) => {
+        //     window.open(url, "_blank");
+        // });
 
-        initJS();
+        // initJS();
     }
 
     init() {

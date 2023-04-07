@@ -28,7 +28,11 @@ class Report extends Controller
         $user = session('user');
         $role = $user->level;
 
-        return view('panel.pimpinan.report.report');
+        $data = [
+            'pegawai' => User::where('level', 'pegawai')->get(),
+        ];
+
+        return view('panel.pimpinan.report.report')->with($data);
     }
 
     public function print()

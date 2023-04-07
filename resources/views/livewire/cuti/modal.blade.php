@@ -12,10 +12,10 @@
                 @csrf
                 @if (count($disableDates) > 0)
                 <div class="not-allowed mb-3">
-                    <span class="d-block text-danger">Harap pilih selain dari tanggal berikut:</span>
-                    <div class="d-flex flex-wrap chips" style="gap: 4px">
+                    <span class="d-block mb-2 text-danger">Harap pilih selain dari tanggal berikut:</span>
+                    <div class="chips" style="gap: 4px">
                         @foreach ($disableDates as $item)
-                        <span class="chip bg-secondary text-white">{{$item}}</span>
+                        <span class="chip">{{$item}}</span>
                         @endforeach
                     </div>
                 </div>

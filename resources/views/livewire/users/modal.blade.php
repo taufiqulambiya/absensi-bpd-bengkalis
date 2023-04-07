@@ -49,7 +49,6 @@
                             <option value="Kasubbid">Kasubbid</option>
                             <option value="Subbag">Subbag</option>
                             <option value="Kasubbag">Kasubbag</option>
-                            <option value="Kasubbag">Kasubbag</option>
                             <option value="Kasi">Kasi</option>
                             <option value="Sekretaris">Sekretaris</option>
                             <option value="Staff">Staff</option>

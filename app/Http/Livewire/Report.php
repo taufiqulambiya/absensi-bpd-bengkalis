@@ -14,7 +14,7 @@ class Report extends Component
     public $tanggal_awal = '';
     public $tanggal_akhir = '';
 
-    protected $listeners = ['setPegawaiIds', 'setJenisCutis'];
+    protected $listeners = ['setPegawaiIds', 'setJenisCutis', 'setSelect'];
 
     public function render()
     {
@@ -24,6 +24,17 @@ class Report extends Component
             'pegawai' => $pegawai,
         ];
         return view('livewire.report')->with($data);
+    }
+    public function mount() {
+        // $this->emit('renderSelectize');
+    }
+    public function updated() {
+        $this->emit('changeType', $this->jenis);
+        // $this->emit('reinitSelectize');
+    }
+
+    public function setSelect($name, $value) {
+        $this->$name = $value;
     }
 
     public function setPegawaiIds($pegawai_ids)
@@ -38,7 +49,8 @@ class Report extends Component
 
     public function print() 
     {
-        if ($this->jenis == 'absensi') {
+        $this->emit('reinitSelectize');
+        if ($this->jenis == 'absensi' || $this->jenis == 'cuti' || $this->jenis == 'izin' || $this->jenis == 'dinas-luar') {
             $this->validate([
                 'tanggal_awal' => 'required',
                 'tanggal_akhir' => 'required|after_or_equal:tanggal_awal',
@@ -58,6 +70,6 @@ class Report extends Component
 
         $url = URL::signedRoute('report.index', $filter);
         
-        $this->emit('print', $url);
+        $this->emit('openBlank', $url);
     }
 }

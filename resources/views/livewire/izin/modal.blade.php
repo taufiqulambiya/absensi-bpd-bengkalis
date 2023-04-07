@@ -10,10 +10,10 @@
 
             @if (count($disableDates) > 0)
             <div class="disable-dates m-3 p-2 border" style="max-height: 60px;overflow:scroll;">
-                <span class="d-block text-danger">Harap pilih range diluar dari tanggal berikut:</span>
-                <div class="d-flex flex-wrap" style="gap: 4px">
+                <span class="d-block text-danger mb-2">Harap pilih range diluar dari tanggal berikut:</span>
+                <div class="chips" style="gap: 4px">
                     @foreach ($disableDates as $item)
-                    <span class="bg-secondary text-white px-2">{{$item}}</span>
+                    <span class="chip">{{$item}}</span>
                     @endforeach
                 </div>
             </div>

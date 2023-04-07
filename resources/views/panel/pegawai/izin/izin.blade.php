@@ -33,7 +33,10 @@
                             </div>
                             <div class="x_content">
                                 <div class="row">
-                                    <x-izin.last-pengajuan :data="$activeIzin" />
+                                    {{-- <x-izin.last-pengajuan :data="$activeIzin" /> --}}
+                                    <div class="col-md-6">
+                                        <livewire:izin.detail-card />
+                                    </div>
 
                                     <div class="col-12">
                                         @if ($allow_ajukan)

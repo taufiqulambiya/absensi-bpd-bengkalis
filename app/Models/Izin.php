@@ -19,6 +19,22 @@ class Izin extends Model
         return $this->hasOne(User::class, 'id', 'id_user');
     }
 
+    static function getIzinAktif($user_id)
+    {
+        $data = Izin::where('id_user', $user_id)
+            ->where('status', 'accepted_pimpinan')
+            ->where('tgl_mulai', '<=', date('Y-m-d'))
+            ->where('tgl_selesai', '>=', date('Y-m-d'))
+            ->get()
+            ->each(function ($x) {
+                $x->total = CarbonPeriod::create($x->tgl_mulai, $x->tgl_selesai)->count() . ' hari';
+                $x->tgl_mulai = Carbon::parse($x->tgl_mulai)->format('d/m/Y');
+                $x->tgl_selesai = Carbon::parse($x->tgl_selesai)->format('d/m/Y');
+            })
+            ->last();
+        return $data;
+    }
+
     static function lastPengajuan($user_id)
     {
         $data = Izin::where('id_user', $user_id)
@@ -30,7 +46,8 @@ class Izin extends Model
         return $data;
     }
 
-    static function getAllowAjukan($user_id) {
+    static function getAllowAjukan($user_id)
+    {
         $count = Izin::where('id_user', $user_id)
             ->whereNotIn('status', ['accepted_pimpinan', 'rejected'])
             ->where('tgl_mulai', '>=', date('Y-m-d'))
@@ -101,7 +118,7 @@ class Izin extends Model
                 break;
             case 'kabid':
                 $bidang_kabid = $user->bidang;
-                $query->whereHas('user', function ($q) use($user) {
+                $query->whereHas('user', function ($q) use ($user) {
                     $bidang_kabid = $user->bidang;
                     $q->where('bidang', $bidang_kabid);
                 });
@@ -112,7 +129,9 @@ class Izin extends Model
         }
 
 
-        $data = $query->get()
+        $data = $query
+            ->get()
+            ->sortByDesc('created_at')
             ->map(function ($item) {
                 $item->status_text = formatStatusCuti($item->status);
                 $item->status_color = formatStatusCutiColor($item->status);
@@ -129,16 +148,42 @@ class Izin extends Model
         return $data;
     }
 
-    static public function getDisableDates($user_id) {
+    static public function getDisableDates($user_id)
+    {
         // get izin with status of 'accepted_pimpinan' and the dates are between tgl_mulai and tgl_selesai but after today
-        $data = Izin::where('id_user', $user_id)
+        $izin = Izin::where('id_user', $user_id)
             ->where('status', 'accepted_pimpinan')
             ->where('tgl_mulai', '>=', date('Y-m-d'))
             ->get();
-        
+        $cuti = Cuti::where('id_user', $user_id)
+            ->where('status', 'accepted_pimpinan')
+            ->where('tanggal', 'like', date('Y-m-d') . '%')
+            ->get();
+        $dinas = DinasLuar::where('id_user', $user_id)
+            ->where('mulai', '>=', date('Y-m-d'))
+            ->get();
+
         $dates = [];
-        foreach ($data as $key => $value) {
+        // foreach ($data as $key => $value) {
+        //     $period = CarbonPeriod::create($value->tgl_mulai, $value->tgl_selesai);
+        //     foreach ($period as $date) {
+        //         $dates[] = $date->format('Y-m-d');
+        //     }
+        // }
+        foreach ($izin as $key => $value) {
             $period = CarbonPeriod::create($value->tgl_mulai, $value->tgl_selesai);
+            foreach ($period as $date) {
+                $dates[] = $date->format('Y-m-d');
+            }
+        }
+        foreach ($cuti as $key => $value) {
+            $tgls = explode(',', $value->tanggal);
+            foreach ($tgls as $tgl) {
+                $dates[] = $tgl;
+            }
+        }
+        foreach ($dinas as $key => $value) {
+            $period = CarbonPeriod::create($value->mulai, $value->selesai);
             foreach ($period as $date) {
                 $dates[] = $date->format('Y-m-d');
             }
@@ -146,7 +191,8 @@ class Izin extends Model
         return $dates;
     }
 
-    static function isInRange($start, $end, $disables = []) {
+    static function isInRange($start, $end, $disables = [])
+    {
         $start = Carbon::parse($start);
         $end = Carbon::parse($end);
         $period = CarbonPeriod::create($start, $end);

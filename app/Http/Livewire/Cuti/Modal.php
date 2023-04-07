@@ -2,6 +2,7 @@
 
 namespace App\Http\Livewire\Cuti;
 
+use App\Models\User;
 use Carbon\Carbon;
 use Livewire\Component;
 use Livewire\WithFileUploads;
@@ -31,6 +32,7 @@ class Modal extends Component
     public function mount()
     {
         $this->jatahCutiView = $this->jatahCuti['tahunan'];
+        $this->disableDates = Cuti::getDisableDates(session('user')->id);
     }
 
     public function changeJenis($jenis)
@@ -40,7 +42,8 @@ class Modal extends Component
 
         $this->emit('rerenderDatePicker', $this->jatahCutiView);
     }
-    public function changeTanggal($tanggal) {
+    public function changeTanggal($tanggal)
+    {
         $this->form['tanggal'] = $tanggal;
     }
 
@@ -87,6 +90,12 @@ class Modal extends Component
             "date" => Carbon::now()->format('Y-m-d H:i:s'),
         ];
 
+        $realUser = User::find(session('user')->id);
+        $status = [
+            'pegawai' => 'pending',
+            'kabid' => 'accepted_kabid',
+            'admin' => 'accepted_admin',
+        ];
         $payload = [
             'id_user' => session('user')->id,
             'jenis' => $this->form['jenis'],
@@ -94,7 +103,7 @@ class Modal extends Component
             // 'bukti' => $this->form['bukti']->hashName(),
             'tanggal' => $tanggal,
             'total' => $total,
-            'status' => 'pending',
+            'status' => $status[$realUser->level],
             'tracking' => json_encode([$tracking]),
         ];
         // store file

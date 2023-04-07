@@ -52,7 +52,8 @@
                             @endif
                             @if ($has_cuti)
                             <div class="col-md-6">
-                                <x-cuti.detail-card :data="$cuti" />
+                                {{-- <x-cuti.detail-card :data="$cuti" /> --}}
+                                <livewire:cuti.detail-card />
                             </div>
                             @endif
                             @else
