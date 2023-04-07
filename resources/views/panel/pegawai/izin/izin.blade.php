@@ -79,15 +79,5 @@
     </div>
 </div>
 
-{{--
-<script src="{{ asset('js/izin-page.js') }}"></script>
-<script>
-    $('#jenis').on('change', function() {
-        if($(this).val() === 'Lainnya') {
-            $('#jenis-lainnya').html(`<input name='jenis' class='form-control' placeholder='Pilih alasan' required />`);
-        } else {
-            $('#jenis-lainnya').html('');
-        }
-    })
-</script> --}}
+
 @endsection

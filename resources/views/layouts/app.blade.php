@@ -6,7 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title') - Sistem Absensi</title>
-    @vite('resources/css/app.css')
+    {{-- @vite('resources/css/app.css') --}}
     @livewireStyles
     <style>
         .btn-flat {
@@ -168,7 +168,7 @@
         <div class="data-container" data-errors="{{ json_encode($errors->all()) }}"></div>
         {{-- end data container --}}
 
-        @vite('resources/js/app.js')
+        {{-- @vite('resources/js/app.js') --}}
         @livewireScripts
         @include('layouts.load-assets')
     </body>

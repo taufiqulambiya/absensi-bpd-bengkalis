@@ -47,7 +47,6 @@ $jss = [
 ];
 ?>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/loadjs/4.2.0/loadjs.min.js"></script>
 <script>
     const baseURL = `{{ URL::to('/') }}`;
     const dangerConfirmator = ({
@@ -81,21 +80,27 @@ $jss = [
 
     const cssArr = JSON.parse(css);
     const jsArr = JSON.parse(js);
-
-    cssArr.forEach((css) => {
-        loadjs(css, {
-            async: false,
+    
+    function loadCss(_css) {
+        return new Promise((resolve, reject) => {
+            const link = document.createElement('link');
+            link.rel = 'stylesheet';
+            link.href = _css;
+            link.onload = () => resolve();
+            link.onerror = () => reject();
+            document.head.appendChild(link);
         });
-    });
+    }
 
-    jsArr.forEach((js) => {
-        loadjs(js, {
-            async: false,
-            success: () => {
-                initialize();
-            },
+    function loadJs(_js) {
+        return new Promise((resolve, reject) => {
+            const script = document.createElement('script');
+            script.src = _js;
+            script.onload = () => resolve();
+            script.onerror = () => reject();
+            document.head.appendChild(script);
         });
-    });
+    }
 
     function initialize() {
         $('.preloader').fadeOut();
@@ -124,4 +129,45 @@ $jss = [
             }
         });
     }
+
+    function loadAllSequently() {
+        const hosting = 'https://absensi-bpdbengkalis.my.id/';
+        const assetPath = 'public/';
+        const newCssArr = cssArr.map((css) => {
+            if (css.includes(hosting)) {
+                return css.replace(hosting, `${hosting}${assetPath}`);
+            }
+            return css;
+        });
+        const newJsArr = jsArr.map((js) => {
+            if (js.includes(hosting)) {
+                return js.replace(hosting, `${hosting}${assetPath}`);
+            }
+            return js;
+        });
+
+
+        // newCssArr.reduce((promise, css) => {
+        //     return promise.then(() => loadCss(css));
+        // }, Promise.resolve()).then(() => {
+        //     newJsArr.reduce((promise, js) => {
+        //         return promise.then(() => loadJs(js));
+        //     }, Promise.resolve()).then(() => {
+        //         initialize();
+        //     });
+        // });
+        // updates: keep loading next css if previous css failed to load
+        newCssArr.reduce((promise, css) => {
+            return promise.then(() => loadCss(css).catch(() => {}));
+        }, Promise.resolve()).then(() => {
+            newJsArr.reduce((promise, js) => {
+                return promise.then(() => loadJs(js).catch(() => {}));
+            }, Promise.resolve()).then(() => {
+                initialize();
+            });
+        });
+    }
+
+    loadAllSequently();
+    
 </script>
