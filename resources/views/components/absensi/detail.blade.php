@@ -1,7 +1,7 @@
 
 <div class="card mb-3" id="detail-absensi">
     <div class="card-header bg-{{ $type == 'in' ? 'primary' : 'success' }} text-white">
-        <h4 class="card-title text-center">{{$switch_data[$type]['title']}}</h4>
+        <h6 class="card-title text-center">{{$switch_data[$type]['title']}}</h6>
     </div>
     <div class="card-body">
         @if ($data->status == 'dinas')
@@ -13,31 +13,31 @@
             <li class="list-group-item">
                 <div class="row">
                     <div class="col-md-6">
-                        <h4>{{$switch_data[$type]['title']}} <span class="float-right">:</span></h4>
+                        <h6>{{$switch_data[$type]['title']}} <span class="float-right">:</span></h6>
                     </div>
                     <div class="col-md-6">
-                        <h4 class="text-right">{{ $switch_data[$type]['waktu'] }}</h4>
-                    </div>
-                </div>
-            </li>
-            <li class="list-group-item">
-                <div class="row">
-                    <div class="col-md-6">
-                        <h4>Jam Absen <span class="float-right">:</span></h4>
-                    </div>
-                    <div class="col-md-6">
-                        <h4 class="text-right">{{ $data->formatted_shift }}</h4>
+                        <h6 class="text-right">{{ $switch_data[$type]['waktu'] }}</h6>
                     </div>
                 </div>
             </li>
             <li class="list-group-item">
                 <div class="row">
                     <div class="col-md-6">
-                        <h4>Tanggal <span class="float-right">:</span></h4>
+                        <h6>Jam Absen <span class="float-right">:</span></h6>
                     </div>
                     <div class="col-md-6">
-                        <h4 class="text-right">{{ $data->formatted_tanggal }}
-                        </h4>
+                        <h6 class="text-right">{{ $data->formatted_shift }}</h6>
+                    </div>
+                </div>
+            </li>
+            <li class="list-group-item">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Tanggal <span class="float-right">:</span></h6>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="text-right">{{ $data->formatted_tanggal }}
+                        </h6>
                     </div>
                 </div>
             </li>
@@ -45,20 +45,20 @@
             <li class="list-group-item">
                 <div class="row">
                     <div class="col-md-6">
-                        <h4>Lokasi Absen <span class="float-right">:</span></h4>
+                        <h6>Lokasi Absen <span class="float-right">:</span></h6>
                     </div>
                     <div class="col-md-6">
-                        <h4 class="text-right">-- ABSENSI TERISI KARENA DINAS LUAR --</h4>
+                        <h6 class="text-right">-- ABSENSI TERISI KARENA DINAS LUAR --</h6>
                     </div>
                 </div>
             </li>
             <li class="list-group-item">
                 <div class="row">
                     <div class="col-md-6">
-                        <h4>Jarak ke Kantor <span class="float-right">:</span></h4>
+                        <h6>Jarak ke Kantor <span class="float-right">:</span></h6>
                     </div>
                     <div class="col-md-6">
-                        <h4 class="text-right">-- ABSENSI TERISI KARENA DINAS LUAR --</h4>
+                        <h6 class="text-right">-- ABSENSI TERISI KARENA DINAS LUAR --</h6>
                     </div>
                 </div>
             </li>
@@ -66,27 +66,27 @@
             <li class="list-group-item">
                 <div class="row">
                     <div class="col-md-6">
-                        <h4>Lokasi Absen <span class="float-right">:</span></h4>
+                        <h6>Lokasi Absen <span class="float-right">:</span></h6>
                     </div>
                     <div class="col-md-6">
-                        <h4 class="text-right">{{ $switch_data[$type]['lokasi'] }}</h4>
-                    </div>
-                </div>
-            </li>
-            <li class="list-group-item">
-                <div class="row">
-                    <div class="col-md-6">
-                        <h4>Jarak ke Kantor <span class="float-right">:</span></h4>
-                    </div>
-                    <div class="col-md-6">
-                        <h4 class="text-right">{{ $switch_data[$type]['jarak'] }}</h4>
+                        <h6 class="text-right">{{ $switch_data[$type]['lokasi'] }}</h6>
                     </div>
                 </div>
             </li>
             <li class="list-group-item">
                 <div class="row">
                     <div class="col-md-6">
-                        <h4>Dokumentasi <span class="float-right">:</span></h4>
+                        <h6>Jarak ke Kantor <span class="float-right">:</span></h6>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="text-right">{{ $switch_data[$type]['jarak'] }}</h6>
+                    </div>
+                </div>
+            </li>
+            <li class="list-group-item">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Dokumentasi <span class="float-right">:</span></h6>
                     </div>
                     <div class="col-md-6">
                         @php

@@ -93,7 +93,7 @@
                 <tr>
                     <td>Bidang</td>
                     <td>:</td>
-                    <td>{{ $user->bidangs->nama }}</td>
+                    <td>{{ $user->bidangs->nama ?? '-' }}</td>
                 </tr>
             </table>
 

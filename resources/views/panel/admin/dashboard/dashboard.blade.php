@@ -133,7 +133,7 @@
                         </div>
                     </div> --}}
                     <x-dashboard.overview
-                        :bg-class="'bg-dongker'"
+                        :bg-class="'bg-blue'"
                         :text-class="'text-white'"
                         :icon-class="'fas fa-clock'"
                         :title="'Jam Kerja'"

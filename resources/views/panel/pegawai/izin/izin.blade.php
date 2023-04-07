@@ -78,6 +78,4 @@
         <!-- /footer content -->
     </div>
 </div>
-
-
 @endsection

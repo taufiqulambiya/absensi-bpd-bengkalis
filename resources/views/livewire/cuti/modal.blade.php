@@ -7,9 +7,9 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-
+            
             <div class="modal-body">
-                @csrf
+                <div data-disable-dates='<?= json_encode($disableDates)?>'></div>
                 @if (count($disableDates) > 0)
                 <div class="not-allowed mb-3">
                     <span class="d-block mb-2 text-danger">Harap pilih selain dari tanggal berikut:</span>

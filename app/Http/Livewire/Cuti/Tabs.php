@@ -31,9 +31,7 @@ class Tabs extends Component
         $this->active_tab = $tab;
         $this->dataCuti = Cuti::getByStatusAndRole($tab, $this->filter);
 
-        if (count($this->dataCuti) > 0) {
-            $this->emit('initDataTable');
-        }
+        $this->emit('initDataTable');
     }
 
     public function edit($id)
@@ -84,7 +82,7 @@ class Tabs extends Component
         $cuti->save();
 
         $this->dataCuti = Cuti::getByStatusAndRole($this->active_tab, $this->filter);
-        $this->emit('successAccCuti');
+        $this->emit('success', 'Cuti berhasil diterima', true);
     }
 
     public function rejectCuti($id)
@@ -105,7 +103,7 @@ class Tabs extends Component
         $cuti->save();
 
         $this->dataCuti = Cuti::getByStatusAndRole($this->active_tab, $this->filter);
-        $this->emit('successRejectCuti');
+        $this->emit('success', 'Cuti berhasil ditolak', true);
     }
 
     public function deleteCuti($id)
@@ -114,16 +112,13 @@ class Tabs extends Component
         $cuti->delete();
 
         $this->dataCuti = Cuti::getByStatusAndRole($this->active_tab, $this->filter);
-        $this->emit('successDeleteCuti');
-        $this->emit('rerenderJatahCuti');
+        $this->emit('success', 'Cuti berhasil dihapus', true);
     }
 
     public function mount()
     {
         $this->active_tab = session('activeTabCuti') ?? 'pending';
         $this->dataCuti = Cuti::getByStatusAndRole($this->active_tab);
-        if (count($this->dataCuti) > 0) {
-            $this->emit('initDataTable');
-        }
+        $this->emit('initDataTable');
     }
 }

@@ -90,10 +90,10 @@ class Modal extends Component
         if ($this->isEdit) {
             $item = Izin::find($this->form['id']);
             $item->update($payload);
-            $this->emit('success', 'Pengajuan izin berhasil diubah');
+            $this->emit('success', 'Pengajuan izin berhasil diubah', true);
         } else {
             Izin::create($payload);
-            $this->emit('success', 'Pengajuan izin berhasil dibuat');
+            $this->emit('success', 'Pengajuan izin berhasil dibuat', true);
         }
 
     }

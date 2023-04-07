@@ -102,22 +102,4 @@
         <!-- /footer content -->
     </div>
 </div>
-
-<script src="{{ asset('js/izin-page.js') }}"></script>
-<script>
-    $('.btn-delete').each(function() {
-        const id = $(this).data('id');
-        $(this).click(function() {
-            const formURL = baseURL+'/panel/izin/'+id;
-            $('#form-delete').attr('action', formURL);
-        })
-    })
-
-    $('.btn-print').each(function(){
-        const item = $(this).data('item');
-        $(this).click(function(){
-            izin.printPerItem(item);
-        })
-    });
-</script>
 @endsection

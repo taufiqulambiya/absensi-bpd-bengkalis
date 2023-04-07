@@ -62,7 +62,11 @@ export default class AbsensiPegawai {
             longitude: 101.3956453,
         };
 
-        this.initLivewire();
+        /* The above code is likely a part of a larger JavaScript codebase. It is calling a function
+        called `initLivewire()` which is likely defined elsewhere in the code. The purpose of this
+        function is not clear without more context, but it is likely initializing some aspect of a
+        Livewire component or feature. */
+        // this.initLivewire();
     }
 
     initLivewire() {

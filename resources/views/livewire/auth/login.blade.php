@@ -5,7 +5,7 @@
             <p class="text-center">Masuk Untuk Memulai Sistem</p>
 
             {{-- for development --}}
-            {{-- <div class="form-group">
+            <div class="form-group">
                 <label for="">Quick Fill</label>
                 <select name="quick-fill" id="quick-fill" wire:change="quickFill($event.target.value)"
                     class="quick-fill form-control">
@@ -14,7 +14,7 @@
                     <option value="{{ $item->nip }}">{{ $item->nip }} - {{ $item->nama }}</option>
                     @endforeach
                 </select>
-            </div> --}}
+            </div>
             {{-- for development --}}
 
             <form id="form-login" wire:submit.prevent="submit" method="POST">

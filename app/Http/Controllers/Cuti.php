@@ -71,7 +71,7 @@ class Cuti extends BaseController
     public function printById($id) {
         $cuti = ModelsCuti::find($id) ?? abort(404);
         $user = User::with('bidangs')->find($cuti->id_user);
-        
+
         $tanggal = explode(',', $cuti->tanggal);
         $tanggal = array_map(function ($x) {
             return Carbon::parse($x)->format('d/m/Y');

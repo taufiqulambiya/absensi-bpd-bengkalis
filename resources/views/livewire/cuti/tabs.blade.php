@@ -74,9 +74,9 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @if ($dataCuti->count() == 0)
+                                {{-- @if ($dataCuti->count() == 0)
                                 <tr>
-                                    <td colspan="{{ $level == 'pegawai' ? 8 : 11 }}"
+                                    <td colspan="{{ $level == 'pegawai' ? 9 : 11 }}"
                                      class=" text-center">
                                         <div wire:loading>
                                             <div class="spinner-border text-primary" role="status">
@@ -88,7 +88,7 @@
                                         </div>
                                     </td>
                                 </tr>
-                                @endif
+                                @endif --}}
 
                                 @foreach ($dataCuti as $item)
                                 <tr wire:key="cuti-{{ $item->id }}">
@@ -137,7 +137,7 @@
                                         @endif
                                         @if (in_array('delete', $item->actions))
                                         <button class="btn btn-danger" title="Batalkan pengajuan"
-                                            wire:click="$emit('delete', {{ $item->id }})">
+                                            wire:click="$emit('cuti:delete', {{ $item->id }})">
                                             <span class="fas fa-times"></span>
                                         </button>
                                         @endif
@@ -149,13 +149,13 @@
                                         @endif
                                         @if (in_array('accept', $item->actions))
                                         <button class="btn btn-success btn-acc" title="Setujui"
-                                            wire:click="$emit('acc', {{ $item->id }})">
+                                            wire:click="$emit('cuti:acc', {{ $item->id }})">
                                             <span class="fas fa-check"></span>
                                         </button>
                                         @endif
                                         @if (in_array('reject', $item->actions))
                                         <button class="btn btn-danger btn-rej" title="Tolak"
-                                            wire:click="$emit('rej', {{ $item->id }})">
+                                            wire:click="$emit('cuti:reject', {{ $item->id }})">
                                             <span class="fas fa-ban"></span>
                                         </button>
                                         @endif

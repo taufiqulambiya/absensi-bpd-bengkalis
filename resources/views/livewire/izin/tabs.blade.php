@@ -56,11 +56,11 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @if (count($data) == 0)
+                        {{-- @if (count($data) == 0)
                         <tr>
                             <td colspan="11" class="text-center">Tidak ada data</td>
                         </tr>
-                        @endif
+                        @endif --}}
                         @foreach ($data as $item)
                         <tr>
                             <th scope="row">{{ $loop->iteration }}</th>
@@ -92,18 +92,18 @@
                                 </button>
                                 @endif
                                 @if (in_array('delete', $item->actions))
-                                <button class="btn btn-danger" wire:click="$emit('deleteIzin', {{ $item->id }})"
+                                <button class="btn btn-danger" wire:click="$emit('izin:delete', {{ $item->id }})"
                                     title="Batalkan pengajuan">
                                     <span class="fas fa-times"></span>
                                 </button>
                                 @endif
                                 @if (in_array('accept', $item->actions))
-                                <button class="btn btn-success acc-izin" wire:click="$emit('accIzin', {{$item->id}})" title="Setujui">
+                                <button class="btn btn-success acc-izin" wire:click="$emit('izin:acc', {{$item->id}})" title="Setujui">
                                     <span class="fas fa-check"></span>
                                 </button>
                                 @endif
                                 @if (in_array('reject', $item->actions))
-                                <button class="btn btn-danger reject-izin" wire:click="$emit('rejectIzin', {{$item->id}})" title="Tolak">
+                                <button class="btn btn-danger reject-izin" wire:click="$emit('izin:reject', {{$item->id}})" title="Tolak">
                                     <span class="fas fa-ban"></span>
                                 </button>
                                 @endif

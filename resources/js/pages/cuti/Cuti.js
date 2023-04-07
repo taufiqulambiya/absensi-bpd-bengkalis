@@ -1,6 +1,7 @@
 import moment from "moment";
 import Swal from "sweetalert2";
 import { addCutiScheme } from "../../scheme/add-cuti";
+import $ from "jquery";
 
 const dataTableOptions = {
     language: {
@@ -33,8 +34,8 @@ class Cuti {
         this.data = {};
 
         // this.jatahCuti = 0;
-        this.initLivewire();
-        this.init();
+        // this.initLivewire();
+        // this.init();
     }
 
     initLivewire() {

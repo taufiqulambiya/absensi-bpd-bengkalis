@@ -60,26 +60,4 @@
         <!-- /footer content -->
     </div>
 </div>
-
-@if (false)
-<script>
-    let jatahCuti = `{{ $jatah_cuti_tahunan }}`;
-</script>
-<script src="{{ asset('js/cuti.js') }}"></script>
-<script>
-    $('.btn-acc').each(function() {
-        $(this).click(function() {
-            const id = $(this).data('id');
-            cuti.acc(id, 'accepted_kabid');
-        })
-    });
-
-    $('.btn-reject').each(function() {
-        $(this).click(function() {
-            const id = $(this).data('id');
-            cuti.reject(id);
-        })
-    });
-</script>
-@endif
 @endsection

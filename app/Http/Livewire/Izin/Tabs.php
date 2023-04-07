@@ -21,9 +21,9 @@ class Tabs extends Component
         $this->data = Izin::getByStatus($this->activeTab);
         session(['activeTabIzin' => $tab]);
 
-        if (count($this->data) > 0) {
-            $this->emit('initDataTable');
-        }
+        // if (count($this->data) > 0) {
+        $this->emit('initDataTable');
+        // }
     }
 
     public function render()
@@ -75,33 +75,51 @@ class Tabs extends Component
         // update data
         $this->data = Izin::getByStatus($this->activeTab);
         // emit success message
-        $this->emit('success', 'Data berhasil dihapus');
+        $this->emit('success', 'Data berhasil dihapus', true);
     }
 
-    public function procceedAccIzin($id) {
-        $item = Izin::find($id);
+    private function getTracking($tracking, $type = 'acc') {
         $level = session('user')->level;
-
         $switch = [
-            'kabid' => 'accepted_kabid',
-            'admin' => 'accepted_admin',
-            'atasan' => 'accepted_pimpinan',
+            'kabid' => $type == 'acc' ? 'accepted_kabid' : 'rejected',
+            'admin' => $type == 'acc' ? 'accepted_admin' : 'rejected',
+            'atasan' => $type == 'acc' ? 'accepted_atasan' : 'rejected',
         ];
         $switchMessage = [
-            'kabid' => 'Diterima oleh Kabid',
-            'admin' => 'Diterima oleh Admin',
-            'atasan' => 'Diterima oleh Atasan',
+            'kabid' => $type == 'acc' ? 'Disetujui oleh Kabid' : 'Ditolak oleh Kabid',
+            'admin' => $type == 'acc' ? 'Disetujui oleh Admin' : 'Ditolak oleh Admin',
+            'atasan' => $type == 'acc' ? 'Disetujui oleh Pimpinan' : 'Ditolak oleh Pimpinan',
         ];
-        $tracking = json_decode($item->tracking);
+        $tracking = json_decode($tracking);
         array_push($tracking, [
             'date' => date('Y-m-d H:i:s'),
             'status' => $switchMessage[$level],
         ]);
-        $item->tracking = json_encode($tracking);
-        $item->status = $switch[$level];
+
+        return [
+            'tracking' => json_encode($tracking),
+            'status' => $switch[$level],
+        ];
+    }
+
+    public function procceedAccIzin($id) {
+        $item = Izin::find($id);
+        
+        $item->tracking = $this->getTracking($item->tracking)['tracking'];
+        $item->status = $this->getTracking($item->tracking)['status'];
         $item->save();
         $this->data = Izin::getByStatus($this->activeTab);
-        $this->emit('success', 'Izin berhasil disetujui');
+        $this->emit('success', 'Izin berhasil disetujui', true);
+    }
+
+    public function procceedRejectIzin($id) {
+        $item = Izin::find($id);
+        
+        $item->tracking = $this->getTracking($item->tracking, 'reject')['tracking'];
+        $item->status = $this->getTracking($item->tracking, 'reject')['status'];
+        $item->save();
+        $this->data = Izin::getByStatus($this->activeTab);
+        $this->emit('success', 'Izin berhasil ditolak', true);
     }
 
     public function closeInfo() {

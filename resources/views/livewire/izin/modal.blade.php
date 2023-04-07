@@ -31,8 +31,8 @@
                             <option value="Sakit">Sakit</option>
                             <option value="Urusan Keluarga">Urusan Keluarga</option>
                             <option value="Urusan Pribadi">Urusan Pribadi</option>
-                            <option value="Hari raya keagamaan">Hari raya keagamaan</option>
-                            <option value="Berdukacita">Berdukacita</option>
+                            {{-- <option value="Hari raya keagamaan">Hari raya keagamaan</option> --}}
+                            {{-- <option value="Berdukacita">Berdukacita</option> --}}
                             <option value="Lainnya">Lainnya</option>
                         </select>
                         @if ($form['jenis'] == 'Lainnya')

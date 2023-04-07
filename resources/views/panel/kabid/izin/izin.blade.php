@@ -55,22 +55,11 @@
         <!-- footer content -->
         <footer>
             <div class="pull-right">
-                Sistem Informasi Absensi Kab. Bengkalis &copy 2022
+                Sistem Informasi Absensi Kab. Bengkalis &copy; {{ date('Y') }}
             </div>
             <div class="clearfix"></div>
         </footer>
         <!-- /footer content -->
     </div>
 </div>
-
-{{-- <script src="{{ asset('js/izin-page.js') }}"></script>
-<script>
-    $('.btn-delete').each(function() {
-        const id = $(this).data('id');
-        $(this).click(function() {
-            const formURL = baseURL+'/panel/izin/'+id;
-            $('#form-delete').attr('action', formURL);
-        })
-    })
-</script> --}}
 @endsection

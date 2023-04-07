@@ -30,6 +30,11 @@ class Settings extends Controller
             ModelsSettings::create($init);
             return redirect()->route('settings.index');
         }
+
+        $json = request()->get('json');
+        if ($json) {
+            return response()->json($data);
+        }
         return view('panel.admin.settings.settings', compact('data'));
     }
 

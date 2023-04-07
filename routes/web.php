@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Absensi;
+use App\Http\Controllers\Assets;
 use App\Http\Controllers\Auth;
 use App\Http\Controllers\BaseController;
 use App\Http\Controllers\Dashboard;
@@ -30,6 +31,8 @@ use Illuminate\Support\Facades\Storage;
 | contains the "web" middleware group. Now create something great!
 |
 */
+
+Route::get('/get-assets', [Assets::class, 'getAssets']);
 
 Route::get('/migrate', function () {
     Artisan::call('migrate');
