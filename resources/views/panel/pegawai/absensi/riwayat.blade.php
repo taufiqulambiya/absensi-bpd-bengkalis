@@ -58,87 +58,71 @@
                                                 </a>
                                             </div>
                                             <div class="col-12">
-                                                <div class="table-responsive">
-                                                    <table class="datatable table table-striped table-bordered">
-                                                        <thead>
-                                                            <tr>
-                                                                <th>#</th>
-                                                                <th>NIP</th>
-                                                                <th>Nama</th>
-                                                                <th>Tanggal</th>
-                                                                <th>Waktu Masuk</th>
-                                                                <th>Waktu Keluar</th>
-                                                                <th>Jam Absen</th>
-                                                                <th>Total Jam</th>
-                                                                <th>Dokumentasi</th>
-                                                                <th>Status</th>
-                                                                <th>Aksi</th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                            @php
-                                                                $user = $absensi;
-                                                            @endphp
-                                                            @foreach ($user->absensi as $a)
-                                                            <tr>
-                                                                <td scope="row">{{ $loop->iteration }}</td>
-                                                                <td>{{ $user->nip }}</td>
-                                                                <td>{{ $user->nama }}</td>
-                                                                <td>{{ $a->formatted_tanggal }}</td>
-                                                                <td>{{ $a->formatted_waktu_masuk }}</td>
-                                                                <td>{{ $a->formatted_waktu_keluar }}</td>
-                                                                <td>{{ $a->formatted_shift }}</td>
-                                                                <td>{{ $a->total_jam }}</td>
-                                                                <td>
-                                                                    {{-- check if file is exist in storage --}}
-                                                                    @if ($a->dok_masuk &&
-                                                                    Storage::exists('public/uploads/'.$a->dok_masuk))
-                                                                    <a href="{{ Storage::url('public/uploads/'.$a->dok_masuk) }}"
-                                                                        target="_blank" class="d-block">Dok. Masuk</a>
-                                                                    @endif
-                                                                    @if ($a->dok_keluar
-                                                                    &&Storage::exists('public/uploads/'.$a->dok_keluar))
-                                                                    <a href="{{ Storage::url('public/uploads/'.$a->dok_keluar) }}"
-                                                                        target="_blank" class="d-block">Dok. Keluar</a>
-                                                                    @endif
+                                                <table class="datatable table table-striped table-bordered">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>#</th>
+                                                            <th>NIP</th>
+                                                            <th>Nama</th>
+                                                            <th>Tanggal</th>
+                                                            <th>Waktu Masuk</th>
+                                                            <th>Waktu Keluar</th>
+                                                            <th>Jam Absen</th>
+                                                            <th>Total Jam</th>
+                                                            <th>Dokumentasi</th>
+                                                            <th>Status</th>
+                                                            <th>Aksi</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        @php
+                                                        $user = $absensi;
+                                                        @endphp
+                                                        @foreach ($user->absensi as $a)
+                                                        <tr>
+                                                            <td scope="row">{{ $loop->iteration }}</td>
+                                                            <td>{{ $user->nip }}</td>
+                                                            <td>{{ $user->nama }}</td>
+                                                            <td>{{ $a->formatted_tanggal }}</td>
+                                                            <td>{{ $a->formatted_waktu_masuk }}</td>
+                                                            <td>{{ $a->formatted_waktu_keluar }}</td>
+                                                            <td>{{ $a->formatted_shift }}</td>
+                                                            <td>{{ $a->total_jam }}</td>
+                                                            <td>
+                                                                {{-- check if file is exist in storage --}}
+                                                                @if ($a->dok_masuk &&
+                                                                Storage::exists('public/uploads/'.$a->dok_masuk))
+                                                                <a href="{{ Storage::url('public/uploads/'.$a->dok_masuk) }}"
+                                                                    target="_blank" class="d-block">Dok. Masuk</a>
+                                                                @endif
+                                                                @if ($a->dok_keluar
+                                                                &&Storage::exists('public/uploads/'.$a->dok_keluar))
+                                                                <a href="{{ Storage::url('public/uploads/'.$a->dok_keluar) }}"
+                                                                    target="_blank" class="d-block">Dok. Keluar</a>
+                                                                @endif
 
-                                                                    {{-- @if ($a->dok_masuk)
-                                                                    <a href="{{ Storage::url('public/uploads/'.$a->dok_masuk) }}"
-                                                                        target="_blank" class="d-block">Dok. Masuk</a>
-                                                                    @endif
-                                                                    @if ($a->dok_keluar)
-                                                                    <a href="{{ Storage::url('public/uploads/'.$a->dok_keluar) }}"
-                                                                        target="_blank" class="d-block">Dok. Keluar</a>
-                                                                    @endif --}}
-                                                                </td>
-                                                                <td>{{ strtoupper($a->status) }}</td>
-                                                                <td>
-                                                                    {{-- <button
-                                                                        class="btn btn-success btn-print-detail"
-                                                                        data-id="{{ $a->id }}"><i class="fa fa-print"
-                                                                            aria-hidden="true"></i></button> --}}
-                                                                    <a href="?print=id&&id={{$a->id}}"
-                                                                        target="_blank"
-                                                                        class="btn btn-success"><i class="fa fa-print"
-                                                                            aria-hidden="true"></i></a>
-                                                                </td>
-                                                            </tr>
-                                                            @endforeach
-                                                        </tbody>
-                                                    </table>
-                                                </div>
-                                                <nav>
-                                                    {{-- menampilkan total dari --}}
-                                                    <div class="mb-3">
-                                                        Menampilkan {{$absensiPaginate->firstItem()}} sampai
-                                                        {{$absensiPaginate->lastItem()}} dari
-                                                        {{$absensiPaginate->total()}} data
-                                                    </div>
-
-                                                    <ul class="pagination">
-                                                        {{$absensiPaginate->links()}}
-                                                    </ul>
-                                                </nav>
+                                                                {{-- @if ($a->dok_masuk)
+                                                                <a href="{{ Storage::url('public/uploads/'.$a->dok_masuk) }}"
+                                                                    target="_blank" class="d-block">Dok. Masuk</a>
+                                                                @endif
+                                                                @if ($a->dok_keluar)
+                                                                <a href="{{ Storage::url('public/uploads/'.$a->dok_keluar) }}"
+                                                                    target="_blank" class="d-block">Dok. Keluar</a>
+                                                                @endif --}}
+                                                            </td>
+                                                            <td>{{ strtoupper($a->status) }}</td>
+                                                            <td>
+                                                                {{-- <button class="btn btn-success btn-print-detail"
+                                                                    data-id="{{ $a->id }}"><i class="fa fa-print"
+                                                                        aria-hidden="true"></i></button> --}}
+                                                                <a href="?print=id&&id={{$a->id}}" target="_blank"
+                                                                    class="btn btn-success"><i class="fa fa-print"
+                                                                        aria-hidden="true"></i></a>
+                                                            </td>
+                                                        </tr>
+                                                        @endforeach
+                                                    </tbody>
+                                                </table>
                                             </div>
                                         </div>
                                     </div>

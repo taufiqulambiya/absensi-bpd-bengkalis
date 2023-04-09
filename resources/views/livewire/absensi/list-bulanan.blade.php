@@ -4,15 +4,15 @@
             margin-right: 10px;
             width: 100%;
         }
+
         .cursor-pointer {
             cursor: pointer;
         }
-
     </style>
     <div class="row">
-        <div class="col-6">
+        <div class="col-md-6">
             <div class="d-flex">
-                <div class="form-group" style="width: 200px">
+                <div class="form-group" style="flex: 1">
                     <label for="bulan">Bulan</label>
                     <select class="form-control" id="bulan" wire:model="filter.bulan">
                         @foreach ($monthIndo as $idx => $item)
@@ -20,7 +20,7 @@
                         @endforeach
                     </select>
                 </div>
-                <div class="form-group" style="width: 200px">
+                <div class="form-group" style="flex: 1">
                     <label for="tahun">Tahun</label>
                     <select class="form-control" id="tahun" wire:model="filter.tahun">
                         @foreach ($years as $item)
@@ -46,18 +46,31 @@
         </div>
         @endif
         <div class="col-12">
-            <a href="?print=all&month={{$filter['bulan']+1}}&year={{$filter['tahun']}}&mode=bulanan" target="_blank" class="btn btn-success">
+            <a href="?print=all&month={{$filter['bulan']+1}}&year={{$filter['tahun']}}&mode=bulanan" target="_blank"
+                class="btn btn-success">
                 <i class="fa fa-print" aria-hidden="true"></i> Cetak
             </a>
             <hr />
         </div>
+        <div class="col-12">
+            <div class="alert alert-secondary" role="alert">
+                <p class="mb-0">Keterangan warna:
+                    <span class="badge badge-success">Hadir</span>
+                    <span class="badge badge-danger">Tidak Hadir</span>
+                    <span class="badge badge-warning">Izin</span>
+                    <span class="badge badge-info">Cuti</span>
+                    <span class="badge badge-primary">Dinas Luar</span>
+                    <span class="badge badge-secondary">Libur</span>
+                </p>
+            </div>
+        </div>
         <div class="col-12 pb-3">
             <h4>{{$monthIndo[$filter['bulan']]}} {{$filter['tahun']}}</h4>
             <div class="table-responsive">
-                <table class="table table-bordered table-striped">
+                <table class="table table-bordered table-striped no-tabledata">
                     <thead>
                         <tr>
-                            <th rowspan="2">Pegawai/Tanggal</th>
+                            <th style="position: sticky; left: 0; background: white; z-index: 1">Nama</th>
                             @foreach ($dates as $item)
                             <th>{{ $item }}</th>
                             @endforeach
@@ -66,9 +79,10 @@
                     <tbody>
                         @foreach ($data as $item)
                         <tr>
-                            <td>{{$item->nama}}</td>
+                            <td style="position: sticky; left: 0; background: white; z-index: 1">{{$item->nama}}</td>
                             @foreach ($item->absensi as $a)
-                            <td class="{{$a->td_class}}" @if (isset($a->clickable)) wire:click="detail({{$a->id}})" @endif>
+                            <td class="{{$a->td_class}}" @if (isset($a->clickable)) wire:click="detail({{$a->id}})"
+                                @endif>
                                 {{$a->show_text}}
                             </td>
                             @endforeach

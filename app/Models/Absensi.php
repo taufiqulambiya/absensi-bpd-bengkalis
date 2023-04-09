@@ -222,41 +222,51 @@ class Absensi extends Model
                 $d = DinasLuar::where('id_user', $x->id)->where('mulai', '<=', $date)->where('selesai', '>=', $date)->first();
                 $x->dinas_luar->push($d);
 
-                if ($i) {
+                $dt = Carbon::parse($date);
+                $isWeekend = $dt->isWeekend();
+
+                $currentDate = Carbon::now()->format('Y-m-d');
+                $isAfterOrEq = Carbon::parse($date)->isAfter($currentDate) || Carbon::parse($date)->eq($currentDate);
+
+                if($isWeekend) {
+                    $a = (object) [
+                        'status' => 'weekend',
+                        'td_class' => $isAfterOrEq ? '' : 'bg-secondary',
+                        'show_text' => '',
+                    ];
+                } elseif ($i) {
                     $a = (object) [
                         'status' => 'izin',
-                        'td_class' => 'bg-info text-white',
+                        'td_class' => 'bg-warning text-white',
                         'izin' => $i,
-                        'show_text' => 'Izin',
+                        'show_text' => '',
                     ];
                 } else if ($c) {
                     $a = (object) [
                         'status' => 'cuti',
                         'td_class' => 'bg-info text-white',
                         'cuti' => $c,
-                        'show_text' => 'Cuti',
+                        'show_text' => '',
                     ];
                 } else if ($d) {
                     $a = (object) [
                         'status' => 'dinas_luar',
-                        'td_class' => 'bg-info text-white',
+                        'td_class' => 'bg-primary text-white',
                         'dinas_luar' => $d,
-                        'show_text' => 'Dinas Luar',
+                        'show_text' => '',
                     ];
                 } else if ($a) {
                     $hasOut = $a->waktu_keluar != null && Carbon::parse($a->waktu_keluar)->format('H:i') != '00:00';
                     $a->status = $hasOut ? 'hadir' : 'belum_absen_keluar';
-                    $a->td_class = $hasOut ? 'bg-success text-white cursor-pointer' : 'bg-primary text-white cursor-pointer';
+                    $a->td_class = $hasOut ? 'bg-success text-white cursor-pointer' : 'bg-success text-white cursor-pointer';
                     $format_waktu_masuk = Carbon::parse($a->waktu_masuk)->format('H:i \W\I\B');
                     $format_waktu_keluar = Carbon::parse($a->waktu_keluar)->format('H:i \W\I\B');
                     $a->show_text = $hasOut ? $format_waktu_keluar : $format_waktu_masuk;
                     $a->clickable = true;
                 } else {
-                    $currentDate = Carbon::now()->format('Y-m-d');
-                    $isAfterOrEq = Carbon::parse($date)->isAfter($currentDate) || Carbon::parse($date)->eq($currentDate);
                     $a = (object) [
                         'status' => $isAfterOrEq ? 'belum_absen' : 'tidak_hadir',
-                        'td_class' => $isAfterOrEq ? '' : 'bg-secondary',
+                        'td_class' => $isAfterOrEq ? '' : 'bg-danger',
                         'show_text' => '',
                     ];
                 }
@@ -309,6 +319,10 @@ class Absensi extends Model
         if ($data->dinas_luar->count() > 0) {
             return 'dinas_luar';
         }
+        $d = Carbon::parse($date);
+        if ($d->isWeekend()) {
+            return 'libur';
+        }
 
         return 'tidak_hadir';
     }
@@ -337,6 +351,10 @@ class Absensi extends Model
             return '<span class="badge badge-success">Dinas Luar</span>';
         }
 
+        $d = Carbon::parse($date);
+        if ($d->isWeekend()) {
+            return '<span class="badge badge-secondary">Libur</span>';
+        }
 
         return '<span class="badge badge-danger">Tidak Hadir</span>';
     }

@@ -11,7 +11,7 @@
             <div class="modal-body">
                 <form action="" method="POST" id="form-submit" enctype="multipart/form-data">
                     @csrf
-                    <div class="border p-3 mb-3">
+                    <div class="mb-3">
                         <div class="form-group">
                             <label for="id_user">Pegawai</label>
                             <select class="form-control" name="id_user" id="id_user" required wire:model="form.id_user"
@@ -24,32 +24,29 @@
                             @error ('form.id_user') <span class="text-danger">{{ $message }}</span> @enderror
                         </div>
                         @if ($selectedPegawai)
-                        <div id="pegawai-info">
-                            <div class="row">
-                                <div class="form-group col-4">
-                                    <label for="">NIP</label>
-                                    <input type="text" class="form-control" id="pegawai-nip" readonly
-                                        aria-describedby="helpId" placeholder="NIP..."
-                                        value="{{ $selectedPegawai->nip }}">
-                                </div>
-                                <div class="form-group col-4">
-                                    <label for="">Golongan</label>
-                                    <input type="text" class="form-control" id="pegawai-golongan" readonly
-                                        aria-describedby="helpId" placeholder="Golongan..."
-                                        value="{{ $selectedPegawai->golongan }}">
-                                </div>
-                                <div class="form-group col-4">
-                                    <label for="">Jabatan</label>
-                                    <input type="text" class="form-control" id="pegawai-jabatan" readonly
-                                        aria-describedby="helpId" placeholder="Jabatan..."
-                                        value="{{ $selectedPegawai->jabatan }} - {{ $selectedPegawai->bidangs->nama }}">
-                                </div>
+                        <div class="d-flex" style="gap: 1rem">
+                            <div class="form-group">
+                                <label for="">NIP</label>
+                                <input type="text" class="form-control" id="pegawai-nip" readonly
+                                    aria-describedby="helpId" placeholder="NIP..." value="{{ $selectedPegawai->nip }}">
+                            </div>
+                            <div class="form-group">
+                                <label for="">Golongan</label>
+                                <input type="text" class="form-control" id="pegawai-golongan" readonly
+                                    aria-describedby="helpId" placeholder="Golongan..."
+                                    value="{{ $selectedPegawai->golongan }}">
+                            </div>
+                            <div class="form-group">
+                                <label for="">Jabatan</label>
+                                <input type="text" class="form-control" id="pegawai-jabatan" readonly
+                                    aria-describedby="helpId" placeholder="Jabatan..."
+                                    value="{{ $selectedPegawai->jabatan }} - {{ $selectedPegawai->bidangs->nama ?? '' }}">
                             </div>
                         </div>
                         @endif
                     </div>
-                    <div class="border p-3 mb-3">
-                        <div class="row">
+                    <div class="form-group mb-3">
+                        {{-- <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="mulai">Tanggal Mulai</label>
@@ -70,6 +67,23 @@
                             </div>
                             <div class="col-12">
                                 <div id="disable-dates"></div>
+                            </div>
+                        </div> --}}
+                        <label for="tanggal">Tanggal</label>
+                        <div class="d-flex align-items-center">
+                            <div style="flex: 1">
+                                <input type="date" class="form-control" min="{{ date('Y-m-d', strtotime('+1day')) }}"
+                                    name="mulai" id="mulai" aria-describedby="mulaiId" placeholder="Tanggal..."
+                                    required wire:model="form.mulai">
+                                @error ('form.mulai') <span class="text-danger">{{ $message }}</span> @enderror
+                            </div>
+                            <div class="ml-2">s/d</div>
+                            <div class="ml-2" style="flex: 1">
+                                <input type="date" class="form-control" min="{{ date('Y-m-d', strtotime('+1day')) }}"
+                                    name="selesai" id="selesai" aria-describedby="selesaiId"
+                                    placeholder="Tanggal..." required wire:model="form.selesai">
+                                @error ('form.selesai') <span class="text-danger">{{ $message }}</span>
+                                @enderror
                             </div>
                         </div>
                     </div>

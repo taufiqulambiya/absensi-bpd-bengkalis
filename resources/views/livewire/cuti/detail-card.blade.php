@@ -9,14 +9,14 @@
             <ul class="list-group">
                 <li class="list-group-item">
                     <div class="row">
-                        <div class="col-4">Tanggal</div>
-                        <div class="col-8">
-                            <div class="chips">
-                                @foreach ($cuti->tanggal as $item)
-                                <span class="chip">{{ $item }}</span>
-                                @endforeach
-                            </div>
-                        </div>
+                        <div class="col-4">Tanggal Mulai</div>
+                        <div class="col-8">{{ $cuti->mulai_formatted }}</div>
+                    </div>
+                </li>
+                <li class="list-group-item">
+                    <div class="row">
+                        <div class="col-4">Tanggal Selesai</div>
+                        <div class="col-8">{{ $cuti->selesai_formatted }}</div>
                     </div>
                 </li>
                 <li class="list-group-item">

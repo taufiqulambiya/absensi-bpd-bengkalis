@@ -96,7 +96,7 @@
                     <tbody>
                         @foreach ($item['absensi'] as $absensi)
                         <tr>
-                            <td>{{ $absensi->tanggal }}</td>
+                            <td>{{ $absensi->formatted_tanggal }}</td>
                             <td>{{ $absensi->formatted_jam_kerja }}</td>
                             <td>
                                 <div>{{ $absensi->formatted_waktu_masuk }}</div>

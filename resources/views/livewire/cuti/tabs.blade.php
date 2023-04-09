@@ -64,7 +64,9 @@
                                     <th>Nama</th>
                                     <th>NIP</th>
                                     @endif
-                                    <th>Tanggal</th>
+                                    {{-- <th>Tanggal</th> --}}
+                                    <th>Mulai</th>
+                                    <th>Selesai</th>
                                     <th>Total</th>
                                     <th>Jenis Cuti</th>
                                     <th>Keterangan</th>
@@ -76,8 +78,7 @@
                             <tbody>
                                 {{-- @if ($dataCuti->count() == 0)
                                 <tr>
-                                    <td colspan="{{ $level == 'pegawai' ? 9 : 11 }}"
-                                     class=" text-center">
+                                    <td colspan="{{ $level == 'pegawai' ? 9 : 11 }}" class=" text-center">
                                         <div wire:loading>
                                             <div class="spinner-border text-primary" role="status">
                                                 <span class="sr-only">Loading...</span>
@@ -97,14 +98,16 @@
                                     <td>{{ $item->user->nama }}</td>
                                     <td>{{ $item->user->nip }}</td>
                                     @endif
-                                    <td>
+                                    {{-- <td>
                                         <div class="chips in-table" style="gap: 4px">
                                             @foreach ($item->tanggal_arr as $tgl)
                                             <span class="chip">{{
                                                 $tgl }}</span>
                                             @endforeach
                                         </div>
-                                    </td>
+                                    </td> --}}
+                                    <td>{{$item->mulai_formatted}}</td>
+                                    <td>{{$item->selesai_formatted}}</td>
                                     <td>{{ $item->total }} Hari</td>
                                     <td>{{ $item->jenis }}</td>
                                     <td>{{ $item->keterangan }}</td>
@@ -131,7 +134,7 @@
                                         @if (in_array('edit', $item->actions))
                                         <button class="btn btn-info btn-edit" data-toggle="modal"
                                             data-target="#modal-form" title="Ubah pengajuan"
-                                            wire:click="edit({{ $item->id }})">
+                                            wire:click="$emit('setEditModal', {{$item->id}})">
                                             <span class="fas fa-pencil"></span>
                                         </button>
                                         @endif

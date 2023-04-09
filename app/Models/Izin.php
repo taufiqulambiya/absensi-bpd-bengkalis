@@ -35,6 +35,11 @@ class Izin extends Model
         return $data;
     }
 
+    static function hasIzinAktif($user_id)
+    {
+        return Izin::getIzinAktif($user_id) != null;
+    }
+
     static function lastPengajuan($user_id)
     {
         $data = Izin::where('id_user', $user_id)
@@ -137,7 +142,19 @@ class Izin extends Model
                 $item->status_color = formatStatusCutiColor($item->status);
                 $item->formatted_tgl_mulai = date('d/m/Y', strtotime($item->tgl_mulai));
                 $item->formatted_tgl_selesai = date('d/m/Y', strtotime($item->tgl_selesai));
-                $item->formatted_durasi = Carbon::parse($item->tgl_mulai)->diffInDays(Carbon::parse($item->tgl_selesai)) + 1 . ' hari';
+                // $item->formatted_durasi = Carbon::parse($item->tgl_mulai)->diffInDays(Carbon::parse($item->tgl_selesai)) + 1 . ' hari';
+                $start = Carbon::parse($item->tgl_mulai);
+                $end = Carbon::parse($item->tgl_selesai);
+                $total = $start->diffInDays($end);
+                $weekends = 0;
+                for ($i = 0; $i <= $total; $i++) {
+                    $d = $start->addDays($i);
+                    if ($d->isWeekend()) {
+                        $weekends++;
+                    }
+                }
+                $item->formatted_durasi = $total - $weekends . ' hari';
+
                 return $item;
             });
 
@@ -157,7 +174,8 @@ class Izin extends Model
             ->get();
         $cuti = Cuti::where('id_user', $user_id)
             ->where('status', 'accepted_pimpinan')
-            ->where('tanggal', 'like', date('Y-m-d') . '%')
+            // ->where('tanggal', 'like', date('Y-m-d') . '%')
+            ->where('mulai', '>=', date('Y-m-d'))
             ->get();
         $dinas = DinasLuar::where('id_user', $user_id)
             ->where('mulai', '>=', date('Y-m-d'))
@@ -177,9 +195,9 @@ class Izin extends Model
             }
         }
         foreach ($cuti as $key => $value) {
-            $tgls = explode(',', $value->tanggal);
-            foreach ($tgls as $tgl) {
-                $dates[] = $tgl;
+            $period = CarbonPeriod::create($value->mulai, $value->selesai);
+            foreach ($period as $date) {
+                $dates[] = $date->format('Y-m-d');
             }
         }
         foreach ($dinas as $key => $value) {
@@ -188,6 +206,8 @@ class Izin extends Model
                 $dates[] = $date->format('Y-m-d');
             }
         }
+        $dates = array_unique($dates);
+        sort($dates);
         return $dates;
     }
 

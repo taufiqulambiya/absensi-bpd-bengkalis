@@ -31,7 +31,6 @@
                                 <h2>Konten @yield('title')</h2>
                                 <div class="clearfix"></div>
                             </div>
-                            @if ($has_izin || $has_cuti || $has_dinas)
                             @if ($has_dinas)
                             <div class="row">
                                 <div class="col-md-6">
@@ -44,20 +43,16 @@
                                 <div class="col-md-6"></div>
                                 <x-dinas-luar.aktif />
                             </div>
-                            @endif
-                            @if ($has_izin)
+                            @elseif ($has_izin)
                             <div class="col-md-6">
                                 <x-izin.detail-card :data="$izin" />
                             </div>
-                            @endif
-                            @if ($has_cuti)
+                            @elseif ($has_cuti)
                             <div class="col-md-6">
                                 {{-- <x-cuti.detail-card :data="$cuti" /> --}}
                                 <livewire:cuti.detail-card />
                             </div>
                             @endif
-                            @else
-
                             @if ($jam_kerja AND $jam_kerja['is_absen_time'])
                             {{-- JIKA ADA JAM KERJA --}}
                             <div class="row">
@@ -136,8 +131,6 @@
                             </div>
                             @endif
 
-
-                            @endif
                         </div>
                     </div>
                 </div>

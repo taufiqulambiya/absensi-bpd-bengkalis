@@ -29,6 +29,7 @@ class Tabs extends Component
         $this->tab = $tab;
         $this->data = DinasLuar::getByTab($this->tab);
         session(['activeTabDinas' => $tab]);
+        $this->emit('initDataTable');
     }
 
     public function print($id) {

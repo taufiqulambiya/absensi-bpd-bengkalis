@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Carbon\Carbon;
+use Carbon\CarbonPeriod;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Settings;
@@ -23,9 +24,9 @@ class Cuti extends Model
     {
         $data = Cuti::where('id_user', $user_id)
             ->where('status', 'accepted_pimpinan')
-            ->where('tanggal', 'like', '%' . date('Y-m-d') . '%')
-            ->get()
-            ->last();
+            // ->where('tanggal', 'like', '%' . date('Y-m-d') . '%')
+            ->orderBy('id', 'desc')
+            ->first();
         return $data;
     }
 
@@ -61,38 +62,40 @@ class Cuti extends Model
         $current_date = date('Y-m-d');
         $data = Cuti::where('id_user', $user_id)
             ->whereNotIn('status', ['accepted_pimpinan', 'rejected'])
+            ->where('mulai', '>=', $current_date)
             ->get()
-            ->filter(function ($item) use ($current_date) {
-                $item->tanggal = explode(',', $item->tanggal);
-                // filter date bigger than current date
-                $min = min(array_map(function ($item) {
-                    return strtotime($item);
-                }, $item->tanggal));
-                return $min > strtotime($current_date);
-            })
-            ->count();
+            ->count() > 0;
         return $data;
     }
 
-    static function getDisableDates($user_id) {
-        return Cuti::where('id_user', $user_id)
+    static function getDisableDates($user_id)
+    {
+        $incoming = Cuti::where('id_user', $user_id)
             ->where('status', 'accepted_pimpinan')
-            ->get()
-            ->map(function ($item) {
-                $item->tanggal = explode(',', $item->tanggal);
-                return $item;
-            })
-            ->map(function ($item) {
-                return array_map(function ($item) {
-                    return Carbon::parse($item)->format('m/d/Y');
-                }, $item->tanggal);
-            })
-            ->flatten()
-            ->filter(function ($item) {
-                return strtotime($item) > strtotime(date('m/d/Y'));
-            })
-            ->unique()
-            ->toArray();
+            // ->map(function ($item) {
+            //     $item->tanggal = explode(',', $item->tanggal);
+            //     return $item;
+            // })
+            // ->map(function ($item) {
+            //     return array_map(function ($item) {
+            //         return Carbon::parse($item)->format('m/d/Y');
+            //     }, $item->tanggal);
+            // })
+            // ->filter(function ($item) {
+            //     return strtotime($item) > strtotime(date('m/d/Y'));
+            // })
+            ->where('mulai', '>=', date('Y-m-d'))->get();
+        $disableDates = [];
+        foreach ($incoming as $item) {
+            $mulai = Carbon::parse($item->mulai);
+            $selesai = Carbon::parse($item->selesai);
+            $period = CarbonPeriod::create($mulai, $selesai);
+            foreach ($period as $date) {
+                $disableDates[] = $date->format('d/m/Y');
+            }
+        }
+
+        return $disableDates;
     }
 
     static function getPengajuanCutiAktif($user_id)
@@ -102,7 +105,9 @@ class Cuti extends Model
             ->whereNotIn('status', ['accepted_pimpinan', 'rejected'])
             ->get()
             ->map(function ($item) {
-                $item->tanggal = explode(',', $item->tanggal);
+                // $item->tanggal = explode(',', $item->tanggal);
+                $item->mulai_formatted = Carbon::parse($item->mulai)->format('d/m/Y');
+                $item->selesai_formatted = Carbon::parse($item->selesai)->format('d/m/Y');
                 $item->status_text = formatStatusCuti($item->status);
                 $item->status_color = formatStatusCutiColor($item->status);
                 return $item;
@@ -112,17 +117,63 @@ class Cuti extends Model
 
     static function getCutiAktif($user_id)
     {
+        $current_date = date('Y-m-d');
         $data = Cuti::where('id_user', $user_id)
             ->where('status', 'accepted_pimpinan')
-            ->where('tanggal', 'like', '%' . date('Y-m-d') . '%')
+            // ->where('tanggal', 'like', '%' . date('Y-m-d') . '%')
+            ->where('mulai', '<=', $current_date)
+            ->where('selesai', '>=', $current_date)
             ->get()
             ->map(function ($item) {
-                $item->tanggal = explode(',', $item->tanggal);
-                $item->total_formatted = count($item->tanggal) . ' hari';
+                // $item->tanggal = explode(',', $item->tanggal);
+                // $item->total_formatted = count($item->tanggal) . ' hari';
+                $item->mulai_formatted = Carbon::parse($item->mulai)->format('d/m/Y');
+                $item->selesai_formatted = Carbon::parse($item->selesai)->format('d/m/Y');
                 $item->status_text = formatStatusCuti($item->status);
                 $item->status_color = formatStatusCutiColor($item->status);
+
                 return $item;
             });
+        return $data;
+    }
+    static function hasCutiAktif($user_id)
+    {
+        return self::getCutiAktif($user_id)->count() > 0;
+    }
+
+    static function getAktif($user_id)
+    {
+        $current_date = date('Y-m-d');
+        $data = Cuti::where('id_user', $user_id)
+            ->where('status', 'accepted_pimpinan')
+            // ->where('tanggal', 'like', '%' . date('Y-m-d') . '%')
+            ->where('mulai', '<=', $current_date)
+            ->where('selesai', '>=', $current_date)
+            ->get()
+            ->map(function ($item) {
+                // $item->tanggal = explode(',', $item->tanggal);
+                // $item->total_formatted = count($item->tanggal) . ' hari';
+                $item->mulai_formatted = Carbon::parse($item->mulai)->format('d/m/Y');
+                $item->selesai_formatted = Carbon::parse($item->selesai)->format('d/m/Y');
+                $mulai = Carbon::parse($item->mulai);
+                $selesai = Carbon::parse($item->selesai);
+                $diff = $mulai->diffInDays($selesai);
+                $weekends = 0;
+                for ($i = 0; $i <= $diff; $i++) {
+                    $date = $mulai->copy()->addDays($i);
+                    if ($date->isWeekend()) {
+                        $weekends++;
+                    }
+                }
+                $item->total_formatted = $diff - $weekends . ' hari kerja';
+
+
+                $item->status_text = formatStatusCuti($item->status);
+                $item->status_color = formatStatusCutiColor($item->status);
+
+                return $item;
+            })
+            ->last();
         return $data;
     }
 
@@ -139,12 +190,15 @@ class Cuti extends Model
 
         $cuti = Cuti::where('id_user', $user_id)
             ->where('status', 'accepted_pimpinan')
-            ->where('tanggal', 'like', '%' . date('Y') . '%')
+            // ->where('tanggal', 'like', '%' . date('Y') . '%')
+            // get cuti by year
+            ->where('mulai', 'like', '%' . date('Y') . '%')
             ->get();
 
         foreach ($cuti as $c) {
-            $dates = explode(',', $c->tanggal);
-            $jatah[$c->jenis] -= count($dates);
+            // $dates = explode(',', $c->tanggal);
+            // $jatah[$c->jenis] -= count($dates);
+            $jatah[$c->jenis] -= $c->total;
         }
 
         return $jatah;
@@ -209,6 +263,45 @@ class Cuti extends Model
             },
         ];
 
+        $newDateCond = [
+            'pegawai.pending' => [
+                ['mulai', '>=', date('Y-m-d')],
+                ['selesai', '>=', date('Y-m-d')],
+            ],
+            'pegawai.missed' => [
+                ['mulai', '<', date('Y-m-d')],
+                ['selesai', '<', date('Y-m-d')],
+            ],
+            'pegawai.done' => [],
+            'kabid.pending' => [
+                ['mulai', '>=', date('Y-m-d')],
+                ['selesai', '>=', date('Y-m-d')],
+            ],
+            'kabid.missed' => [
+                ['mulai', '<', date('Y-m-d')],
+                ['selesai', '<', date('Y-m-d')],
+            ],
+            'kabid.done' => [],
+            'admin.pending' => [
+                ['mulai', '>=', date('Y-m-d')],
+                ['selesai', '>=', date('Y-m-d')],
+            ],
+            'admin.missed' => [
+                ['mulai', '<', date('Y-m-d')],
+                ['selesai', '<', date('Y-m-d')],
+            ],
+            'admin.done' => [],
+            'atasan.pending' => [
+                ['mulai', '>=', date('Y-m-d')],
+                ['selesai', '>=', date('Y-m-d')],
+            ],
+            'atasan.missed' => [
+                ['mulai', '<', date('Y-m-d')],
+                ['selesai', '<', date('Y-m-d')],
+            ],
+            'atasan.done' => [],
+        ];
+
         $actions = [
             'pegawai.pending' => ['edit', 'delete', 'track'],
             'pegawai.missed' => ['delete', 'track'],
@@ -226,8 +319,8 @@ class Cuti extends Model
 
         $status = $role . '.' . $status;
 
-        $query = Cuti::with('user')->whereIn('status', $statusCond[$status]);
-        // ->where('tanggal', $dateCond[$status][0], $dateCond[$status][1]);
+        $query = Cuti::with('user')->whereIn('status', $statusCond[$status])
+            ->where($newDateCond[$status]);
 
 
         if ($role == 'pegawai') {
@@ -240,37 +333,49 @@ class Cuti extends Model
             });
         }
 
-        $data = $query->get()
-            ->map(function ($item) use ($actions, $status) {
-                $item->tanggal_arr = explode(',', $item->tanggal);
-                $item->status_text = formatStatusCuti($item->status);
-                $item->status_color = formatStatusCutiColor($item->status);
+        // $data = $query->get()
+        //     ->map(function ($item) use ($actions, $status) {
+        //         $item->tanggal_arr = explode(',', $item->tanggal);
+        //         $item->status_text = formatStatusCuti($item->status);
+        //         $item->status_color = formatStatusCutiColor($item->status);
 
-                $item->actions = $actions[$status];
+        //         $item->actions = $actions[$status];
 
-                return $item;
-            });
+        //         return $item;
+        //     });
 
-        $data = $data->filter(function ($item) use ($dateCond, $status) {
-            $exploded = explode(',', $item->tanggal);
-            $date = $exploded[0];
-            $date = date('Y-m-d', strtotime($date));
-            return $dateCond[$status]($date);
-        });
+        // $data = $data->filter(function ($item) use ($dateCond, $status) {
+        //     $exploded = explode(',', $item->tanggal);
+        //     $date = $exploded[0];
+        //     $date = date('Y-m-d', strtotime($date));
+        //     return $dateCond[$status]($date);
+        // });
 
         if (isset($filter['date_start']) && isset($filter['date_end'])) {
             $doQuery = $filter['date_start'] != '' && $filter['date_end'] != '';
             if ($doQuery) {
-                $data = $data->filter(function ($item) use ($filter) {
-                    $exploded = explode(',', $item->tanggal);
-                    $date = $exploded[0];
-                    $date = date('Y-m-d', strtotime($date));
-                    $date_start = date('Y-m-d', strtotime($filter['date_start']));
-                    $date_end = date('Y-m-d', strtotime($filter['date_end']));
-                    return $date >= $date_start && $date <= $date_end;
-                });
+                // $data = $data->filter(function ($item) use ($filter) {
+                //     $exploded = explode(',', $item->tanggal);
+                //     $date = $exploded[0];
+                //     $date = date('Y-m-d', strtotime($date));
+                //     $date_start = date('Y-m-d', strtotime($filter['date_start']));
+                //     $date_end = date('Y-m-d', strtotime($filter['date_end']));
+                //     return $date >= $date_start && $date <= $date_end;
+                // });
+                $query->whereBetween('mulai', [$filter['date_start'], $filter['date_end']]);
             }
         }
+
+        $data = $query->get()
+            ->map(function ($item) use ($actions, $status) {
+                $item->mulai_formatted = date('d/m/Y', strtotime($item->mulai));
+                $item->selesai_formatted = date('d/m/Y', strtotime($item->selesai));
+
+                $item->status_text = formatStatusCuti($item->status);
+                $item->status_color = formatStatusCutiColor($item->status);
+                $item->actions = $actions[$status];
+                return $item;
+            });
         return $data;
     }
 }

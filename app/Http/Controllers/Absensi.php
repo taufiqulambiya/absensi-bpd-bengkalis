@@ -36,32 +36,103 @@ class Absensi extends BaseController
         }
 
         if ($user_level == 'pegawai') {
-            $cuti = Cuti::lastPengajuan(session('user')->id);
-            $izin = Izin::lastPengajuan(session('user')->id);
-            $dinas_luar = DinasLuar::lastPengajuan(session('user')->id);
+            // $cuti = Cuti::lastPengajuan(session('user')->id);
+            // $izin = Izin::lastPengajuan(session('user')->id);
+            // $dinas_luar = DinasLuar::lastPengajuan(session('user')->id);
 
-            $has_cuti = $cuti != null;
-            $has_izin = $izin != null;
-            $has_dinas = $dinas_luar != null;
+            // $has_cuti = $cuti != null;
+            // $has_izin = $izin != null;
+            // $has_dinas = $dinas_luar != null;
 
-            $jam_kerja = JamKerja::getAktif();
+            // $jam_kerja = JamKerja::getAktif();
 
-            $missed_out = ModelsAbsensi::getMissedOut(session('user')->id);
-            $has_missed_out = $missed_out != null;
+            // $missed_out = ModelsAbsensi::getMissedOut(session('user')->id);
+            // $has_missed_out = $missed_out != null;
 
-            $current_absensi = ModelsAbsensi::getCurrentAbsensi(session('user')->id);
+            // $current_absensi = ModelsAbsensi::getCurrentAbsensi(session('user')->id);
 
-            $setting = Settings::first();
+            // $setting = Settings::first();
 
-            $data = compact('setting', 'jam_kerja', 'has_cuti', 'has_izin', 'has_dinas', 'has_missed_out', 'current_absensi', 'cuti', 'izin', 'dinas_luar', 'missed_out');
+            // $hide_record_in = $has_cuti || $has_izin || $has_dinas || $has_missed_out;
+            // $hide_record_out = $has_cuti || $has_izin || $has_dinas;
+            // $hide_record = $hide_record_in && $hide_record_out && empty($jam_kerja);
+
+            // $data = compact('setting', 'jam_kerja', 'has_cuti', 'has_izin', 'has_dinas', 'has_missed_out', 'current_absensi', 'cuti', 'izin', 'dinas_luar', 'missed_out', 'hide_record_in', 'hide_record_out', 'hide_record');
+            // dd($data);
+
+            /**
+             * rules:
+             * 1. jika pada tanggal saat ini terdapat cuti, maka tidak bisa melakukan absensi
+             * 2. jika pada tanggal saat ini terdapat izin, maka tidak bisa melakukan absensi
+             * 3. jika pada tanggal saat ini terdapat dinas luar, maka tidak bisa melakukan absensi
+             * 4. jika bukan pada jam kerja, maka tidak bisa melakukan absensi
+             * 5. jika pada tanggal yang lewat dari hari ini sudah melakukan absensi mask namun belum melakukan absensi pulang, maka harus melakukan absensi pulang, tanggal tercatat adalah tanggal yang lewat
+             */
+            $cutiAktif = Cuti::getAktif($user->id);
+            $hasCutiAktif = $cutiAktif != null;
+            $izinAktif = Izin::getIzinAktif($user->id);
+            $hasIzinAktif = Izin::hasIzinAktif($user->id);
+            $dinasLuarAktif = DinasLuar::getAktif($user->id);
+            $hasDinasLuarAktif = DinasLuar::hasAktif($user->id);
+
+            $jamKerja = JamKerja::getAktif();
+            $hasJamKerja = $jamKerja != null;
+
+            $reason = [
+                [
+                    'name' => 'Cuti',
+                    'value' => 'cuti',
+                    'has' => $hasCutiAktif,
+                    'data' => $cutiAktif,
+                    'livewire' => 'cuti.detail-card',
+                ],
+                [
+                    'name' => 'Izin',
+                    'value' => 'izin',
+                    'has' => $hasIzinAktif,
+                    'data' => $izinAktif,
+                    'livewire' => 'izin.detail-card',
+                ],
+                [
+                    'name' => 'Dinas Luar',
+                    'value' => 'dinas_luar',
+                    'has' => $hasDinasLuarAktif,
+                    'data' => $dinasLuarAktif,
+                    'livewire' => 'dinas-luar.detail-card',
+                ],
+                [
+                    'name' => 'Jam Kerja',
+                    'value' => 'jam_kerja',
+                    'has' => !$hasJamKerja,
+                    'data' => $jamKerja,
+                ]
+            ];
+            $disableRecord = false;
+            $disableRecordReason = [];
+            foreach ($reason as $r) {
+                if ($r['has']) {
+                    $disableRecord = true;
+                    $disableRecordReason[] = $r;
+                    break;
+                }
+            }
+
+            $currentAbsensi = ModelsAbsensi::getCurrentAbsensi($user->id);
+            $hasCurrentAbsensi = $currentAbsensi != null;
+
+            $missedOut = ModelsAbsensi::getMissedOut($user->id);
+            $hasMissedOut = $missedOut != null;
+
+            $data = compact('user', 'reason', 'disableRecord', 'disableRecordReason', 'currentAbsensi', 'hasCurrentAbsensi', 'jamKerja', 'missedOut', 'hasMissedOut');
         }
 
-        return view('panel.pegawai.absensi.absensi', $data);
+        return view('panel.pegawai.absensi.absensi-v2', $data);
     }
 
-    public function print() {
+    public function print()
+    {
         // print all harian
-        
+
     }
 
     public function store(Request $request)
@@ -191,20 +262,19 @@ class Absensi extends BaseController
         }
 
         if (!empty($print)) {
-
             if ($print == 'id') {
                 $idAbsensi = request('id');
                 $data['absensi'] = ModelsAbsensi::getRiwayatById($idAbsensi) ?? abort(404);
                 $absensi = $data['absensi'];
                 $absensi->dok_masuk = $this->getImageEncoded($absensi->dok_masuk);
                 $absensi->dok_keluar = $this->getImageEncoded($absensi->dok_keluar);
+            } else {
+                $data['absensi'] = $data['absensi']->absensi;
             }
-            $user = $data['absensi']->first()->user;
+            $user = $data['absensi']->first()->user ?? $data['absensi']->first();
             $data['user'] = $user;
 
-            // dump($data['absensi']);
             $pdf = PDF::loadView("panel.pegawai.absensi.print.riwayat-$print", $data);
-
             if ($print == 'all') {
                 $pdf->setPaper('A4', 'landscape');
             }

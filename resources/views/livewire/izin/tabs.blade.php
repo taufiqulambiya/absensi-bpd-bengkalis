@@ -48,7 +48,7 @@
                             <th>Jenis Izin</th>
                             <th>Mulai</th>
                             <th>Hingga</th>
-                            <th>Durasi</th>
+                            <th>Durasi (Hari Kerja)</th>
                             <th>Keterangan</th>
                             <th>Bukti</th>
                             <th>Status</th>

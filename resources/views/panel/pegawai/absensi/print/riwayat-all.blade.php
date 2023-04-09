@@ -34,6 +34,7 @@
             margin-bottom: 1rem;
             color: #212529;
             border-collapse: collapse;
+            table-layout: fixed;
         }
 
         .table-bordered {
@@ -44,7 +45,8 @@
         .table-bordered td {
             border: 1px solid #dee2e6;
             text-align: center;
-            font-size: 0.8rem;
+            font-size: 1rem;
+            padding: 0.5rem;
         }
     </style>
 </head>

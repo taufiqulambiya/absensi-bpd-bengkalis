@@ -139,3 +139,7 @@ function formatStatusCutiColor($status)
             return 'secondary';
     }
 }
+
+function rangeCheck($start, $end, $range) {
+    return ($start >= $range[0] && $start <= $range[1]) || ($end >= $range[0] && $end <= $range[1]);
+}

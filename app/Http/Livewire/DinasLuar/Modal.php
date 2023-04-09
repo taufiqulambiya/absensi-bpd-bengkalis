@@ -35,7 +35,7 @@ class Modal extends Component
 
     public function mount()
     {
-        $this->users = User::with('bidangs')->where('level', 'pegawai')->get();
+        $this->users = User::with('bidangs')->whereNot('level', 'atasan')->get();
     }
 
     public function getPegawaiInfo($id)
@@ -47,6 +47,7 @@ class Modal extends Component
 
     public function submit()
     {
+        // dd($this->form);
         $this->validate(
             [
                 'form.id_user' => 'required',
@@ -70,8 +71,9 @@ class Modal extends Component
         );
 
         $payload = $this->form;
+       
 
-        $isAllowAdd = DinasLuar::checkAllowAdd($payload['id_user'], $payload['mulai'], $payload['selesai']);
+        $isAllowAdd = DinasLuar::checkAllowAdd($payload['id_user'], $payload['mulai'], $payload['selesai'], $payload['id'] ?? null);
         $isAllow = $isAllowAdd['allow'];
         $isAllowMessage = $isAllowAdd['message'];
         
@@ -92,6 +94,10 @@ class Modal extends Component
         $periodCarbon = CarbonPeriod::create($this->form['mulai'], $this->form['selesai']);
         $jamKerja = JamKerja::getAktif();
         foreach ($periodCarbon as $date) {
+            $isWeekend = $date->isWeekend();
+            if ($isWeekend) {
+                continue;
+            }
             $absensis[] = [
                 'id_jam' => $jamKerja->id,
                 'id_user' => $this->form['id_user'],
@@ -117,11 +123,11 @@ class Modal extends Component
             }
             $dinas->update($payload);
             Absensi::insert($absensis);
-            $this->emit('success', 'Dinas luar berhasil diubah');
+            $this->emit('success', 'Dinas luar berhasil diubah', true);
         } else {
             DinasLuar::insert($payload);
             Absensi::insert($absensis);
-            $this->emit('success', 'Dinas luar berhasil ditambahkan');
+            $this->emit('success', 'Dinas luar berhasil ditambahkan', true);
         }
 
 

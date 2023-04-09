@@ -27,7 +27,7 @@ class Cuti extends BaseController
             $cutiAktif = ModelsCuti::getCutiAktif($user->id);
             $hasCuti = $cutiAktif->count() > 0;
 
-            $disableDates = ModelsCuti::getNotAllowedDates($user->id);
+            $disableDates = ModelsCuti::getDisableDates($user->id);
 
             $status = request()->get('view') ?? 'pending';
             $dataCuti = ModelsCuti::getByStatusAndRole($status, $user->level);

@@ -7,17 +7,19 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            
+
             <div class="modal-body">
                 <div data-disable-dates='<?= json_encode($disableDates)?>'></div>
                 @if (count($disableDates) > 0)
-                <div class="not-allowed mb-3">
-                    <span class="d-block mb-2 text-danger">Harap pilih selain dari tanggal berikut:</span>
+                <div class="not-allowed mb-3 p-3 border">
+                    <div class="text-secondary">Tanggal yang tidak dapat dipilih:</div>
+                    <div class="text-danger">{{join(', ', $disableDates)}}</div>
+                    {{-- <span class="d-block mb-2 text-danger">Harap pilih selain dari tanggal berikut:</span>
                     <div class="chips" style="gap: 4px">
                         @foreach ($disableDates as $item)
                         <span class="chip">{{$item}}</span>
                         @endforeach
-                    </div>
+                    </div> --}}
                 </div>
                 @endif
                 <div class="form-group">
@@ -38,24 +40,39 @@
                     </select>
                     {{-- <span class="d-block font-weight-bold">Jatah tersisa : <span id="jcf-value">{{
                             $jatahCuti['tahunan'] }}</span></span> --}}
-                    <span class="d-block font-weight-bold">Jatah tersisa : <span id="jatah-cuti-value">{{ $jatahCutiView
+                    <span class="d-block font-weight-bold">Jatah tersisa : <span id="jatah-cuti-value">{{ $jatahCutiValue
                             }}</span></span>
                     @error('form.jenis') <span class="error text-danger">{{ $message }}</span> @enderror
                 </div>
-                <div class="p-2 form-group">
+                {{-- <div class="p-2 form-group">
                     <label for="ctmdp">Pilih Tanggal</label>
                     <div id="ctmdp" wire:ignore></div>
                     <input type="hidden" id="tanggal" name="tanggal" wire:model="form.tanggal">
                     @error('form.tanggal') <span class="error text-danger">{{ $message }}</span> @enderror
-                </div>
-                {{-- <div class="form-group">
-                    <label for="tanggal">Tanggal</label>
-                    <input type="date" class="form-control" id="tanggal-selector" aria-describedby="tanggal"
-                        min="{{ date('Y-m-d', strtotime('+1day')) }}" max="{{ date('Y-m-d', strtotime('12/31')) }}"
-                        placeholder="">
-                    <div class="d-flex flex-wrap chips mt-3" id="tanggal-list" style="gap: 4px">
-                    </div>
                 </div> --}}
+                {{-- updates: now tanggal is date range --}}
+                <div class="form-group">
+                    <label for="tanggal">Tanggal</label>
+                    <div class="d-flex">
+                        <div style="flex: 1">
+                            <input type="date" class="form-control" id="mulai" name="mulai" required wire:model="form.mulai" min="{{ date('Y-m-d') }}">
+                            @error('form.mulai') <span class="error text-danger">{{ $message }}</span> @enderror
+                        </div>
+                        <span class="ml-2 mt-2">s/d</span>
+                        <div style="flex: 1">
+                            <input type="date" class="form-control" id="selesai" name="selesai" required wire:model="form.selesai" min="{{ date('Y-m-d') }}">
+                            @error('form.selesai') <span class="error text-danger">{{ $message }}</span> @enderror
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="total">Total</label>
+                    <input type="number" name="total" class="form-control" id="total" wire:model="form.total" readonly>
+                    <div class="text-secondary text-sm">
+                        <span class="text-danger">*</span> Total hari dihitung tidak termasuk hari Sabtu dan Minggu.
+                    </div>
+                    @error('form.total') <span class="error text-danger">{{ $message }}</span> @enderror
+                </div>
                 <div class="form-group">
                     <label for="keterangan">Keterangan</label>
                     <input type="text" name="keterangan" class="form-control" id="keterangan" required

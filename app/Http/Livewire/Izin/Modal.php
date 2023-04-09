@@ -21,7 +21,7 @@ class Modal extends Component
     ];
     public $isEdit = false;
     public $disableDates = [];
-
+    public $disableDateFormatted = [];
     protected $listeners = ['updateEditModal'];
 
     public function submit() {
@@ -55,8 +55,8 @@ class Modal extends Component
         $tgl_selesai = $this->form['tgl_selesai'];
         $isInRange = Izin::isInRange($tgl_mulai, $tgl_selesai, $disableDates);
         if ($isInRange) {
-            $this->addError('form.tgl_mulai', 'Tanggal mulai dan tanggal selesai harus berada di luar tanggal izin yang sudah diajukan');
-            $this->addError('form.tgl_selesai', 'Tanggal mulai dan tanggal selesai harus berada di luar tanggal izin yang sudah diajukan');
+            $this->addError('form.tgl_mulai', 'Ups, terdapat Izin, Cuti, atau Dinas Luar pada tanggal tersebut');
+            $this->addError('form.tgl_selesai', 'Ups, terdapat Izin, Cuti, atau Dinas Luar pada tanggal tersebut');
             return;
         }
 
@@ -104,7 +104,17 @@ class Modal extends Component
         }
         $tgl_mulai = $this->form['tgl_mulai'];
         $tgl_selesai = $this->form['tgl_selesai'];
-        $total_hari = Carbon::parse($tgl_mulai)->diffInDays($tgl_selesai) + 1;
+        // $total_hari = Carbon::parse($tgl_mulai)->diffInDays($tgl_selesai) + 1;
+        // updates: total hari doesn't include saturday and sunday
+        $total_hari = Carbon::parse($tgl_mulai)->diffInDays($tgl_selesai);
+        $weekends = 0;
+        for ($i = 0; $i <= $total_hari; $i++) {
+            $date = Carbon::parse($tgl_mulai)->addDays($i);
+            if ($date->isWeekend()) {
+                $weekends++;
+            }
+        }
+        $total_hari = $total_hari - $weekends + 1;
         $this->form['total_hari'] = $total_hari;
     }
 
@@ -116,7 +126,11 @@ class Modal extends Component
     public function mount()
     {
         $user_id = session('user')->id;
-        $this->disableDates = Izin::getDisableDates($user_id);
+        $disableDates = Izin::getDisableDates($user_id);
+        $this->disableDateFormatted = array_map(function ($item) {
+            return date('d/m/Y', strtotime($item));
+        }, $disableDates);
+        $this->disableDates = $disableDates;
     }
 
     public function updateEditModal($data)
@@ -125,7 +139,19 @@ class Modal extends Component
         $this->form['jenis'] = $data['jenis'];
         $this->form['tgl_mulai'] = $data['tgl_mulai'];
         $this->form['tgl_selesai'] = $data['tgl_selesai'];
-        $total_hari = Carbon::parse($data['tgl_mulai'])->diffInDays($data['tgl_selesai']) + 1;
+        // $total_hari = Carbon::parse($data['tgl_mulai'])->diffInDays($data['tgl_selesai']) + 1;
+        // updates: total hari doesn't include saturday and sunday
+        $tgl_mulai = $data['tgl_mulai'];
+        $tgl_selesai = $data['tgl_selesai'];
+        $total_hari = Carbon::parse($tgl_mulai)->diffInDays($tgl_selesai);
+        $weekends = 0;
+        for ($i = 0; $i <= $total_hari; $i++) {
+            $date = Carbon::parse($tgl_mulai)->addDays($i);
+            if ($date->isWeekend()) {
+                $weekends++;
+            }
+        }
+        $total_hari = $total_hari - $weekends + 1;
         $this->form['total_hari'] = $total_hari;
         $this->form['keterangan'] = $data['keterangan'];
         $this->form['id'] = $data['id'];

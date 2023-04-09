@@ -16,9 +16,8 @@ class DetailCard extends Component
 
     public function mount()
     {
-        $cuti = Cuti::getCutiAktif(session('user')->id) ?? null;
-        if ($cuti) {
-            $cuti = $cuti->first();
+        $cuti = Cuti::getAktif(session('user')->id) ?? null;
+        if ($cuti != null) {
             $this->cuti = $cuti;
             $this->isShow = true;
         }

@@ -76,7 +76,7 @@ class Record extends Component
     public function submitRecord()
     {
         $suffix = $this->mode == 'in' ? 'masuk' : 'keluar';
-        
+
         $dokumentasi = $this->form['dok'] ?? null;
         $filename = null;
         if ($dokumentasi) {
@@ -84,7 +84,7 @@ class Record extends Component
             $dokumentasi = str_replace('data:image/png;base64,', '', $dokumentasi);
             $dokumentasi = str_replace(' ', '+', $dokumentasi);
             $dokumentasi = base64_decode($dokumentasi);
-            Storage::disk('public')->put('uploads/'.$filename, $dokumentasi);
+            Storage::disk('public')->put('uploads/' . $filename, $dokumentasi);
         }
 
         $user = session('user');
@@ -100,6 +100,7 @@ class Record extends Component
             "dok_$suffix" => $filename,
             "status" => "hadir",
         ];
+        // dd($payload);
 
         if ($this->mode == 'in') {
             Absensi::create($payload);
@@ -134,17 +135,44 @@ class Record extends Component
         return view('livewire.absensi.record');
     }
 
-    public function mount()
+    public function mount($mode)
     {
-        $this->currentRecord = Absensi::getCurrentAbsensi(session('user')->id);
+        // $this->currentRecord = Absensi::getCurrentAbsensi(session('user')->id);
+
+        // if (!empty($this->missedOut)) {
+        //     $data = $this->missedOut;
+        //     $this->idJam = $data->id_jam;
+
+        //     $jam_kerja = JamKerja::find($data->id_jam);
+        //     $jam_kerja_str = Carbon::parse($jam_kerja->mulai)->format('H:i') . ' - ' . Carbon::parse($jam_kerja->selesai)->format('H:i');
+        //     $this->jamKerja = $jam_kerja_str;
+        // }
+        $currentRecord = Absensi::getCurrentAbsensi(session('user')->id);
+        $this->currentRecord = $currentRecord;
         
-        if (!empty($this->missedOut)) {
-            $data = $this->missedOut;
-            $this->idJam = $data->id_jam;
-            
-            $jam_kerja = JamKerja::find($data->id_jam);
-            $jam_kerja_str = Carbon::parse($jam_kerja->mulai)->format('H:i') . ' - ' . Carbon::parse($jam_kerja->selesai)->format('H:i');
-            $this->jamKerja = $jam_kerja_str;
+        $missedOut = Absensi::getMissedOut(session('user')->id);
+        $this->missedOut = $missedOut;
+
+        if ($missedOut != null && $mode == 'out') {
+            $this->disable_log = false;
+            $jamKerja = JamKerja::find($missedOut->id_jam);
+            $jamKerjaStr = Carbon::parse($jamKerja->mulai)->format('H:i') . ' - ' . Carbon::parse($jamKerja->selesai)->format('H:i');
+            $this->jamKerja = $jamKerjaStr;
+            $this->idJam = $missedOut->id_jam;
+        } else {
+            if ($currentRecord) {
+                $hasOut = $currentRecord->has_out;
+                if (!$hasOut && $mode == 'out') {
+                    $this->disable_log = false;
+                }
+            } else {
+                $this->disable_log = $mode != 'in';
+            }
+            $jamKerja = JamKerja::getAktif();
+            $jamKerjaStr = Carbon::parse($jamKerja->mulai)->format('H:i') . ' - ' . Carbon::parse($jamKerja->selesai)->format('H:i');
+            $this->jamKerja = $jamKerjaStr;
+            $this->idJam = $jamKerja->id;
         }
+        $this->mode = $mode;
     }
 }

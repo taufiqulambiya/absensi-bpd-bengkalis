@@ -13,7 +13,8 @@ class Modal extends Component
     use WithFileUploads;
     public $disableDates;
     public $jatahCuti;
-    public $jatahCutiView;
+    public $jatahCutiValue;
+    public $errorTotal = false;
     // public $jenis;
     // public $keterangan;
     // public $bukti;
@@ -22,43 +23,108 @@ class Modal extends Component
         'jenis' => 'tahunan',
         'keterangan' => '',
         'bukti' => '',
-        'tanggal' => '',
+        // 'tanggal' => '',
+        'mulai' => '',
+        'selesai' => '',
+        'total' => 0,
     ];
 
     public $isEdit = false;
 
-    protected $listeners = ['updateEditModal'];
+    protected $listeners = ['setEditModal', 'setDate', 'resetForm'];
 
     public function mount()
     {
-        $this->jatahCutiView = $this->jatahCuti['tahunan'];
+        $this->jatahCutiValue = $this->jatahCuti['tahunan'];
         $this->disableDates = Cuti::getDisableDates(session('user')->id);
+    }
+    public function updatedFormMulai()
+    {
+        $this->setDate('mulai', $this->form['mulai']);
+    }
+    public function updatedFormSelesai()
+    {
+        $this->setDate('selesai', $this->form['selesai']);
     }
 
     public function changeJenis($jenis)
     {
         $this->form['jenis'] = $jenis;
-        $this->jatahCutiView = $this->jatahCuti[$jenis];
+        $this->jatahCutiValue = $this->jatahCuti[$jenis];
 
-        $this->emit('rerenderDatePicker', $this->jatahCutiView);
+        $this->emit('rerenderDatePicker', $this->jatahCutiValue);
     }
     public function changeTanggal($tanggal)
     {
         $this->form['tanggal'] = $tanggal;
     }
-
-    public function updateEditModal($data)
+    public function setDate($id, $date)
     {
-        $data = (object) $data;
-        $this->emit('fillDatePicker', $data->tanggal);
+        $this->form[$id] = $date;
+        $total = $this->getTotal();
+        $jatahCuti = $this->jatahCutiValue;
+        if ($total > $jatahCuti) {
+            $this->addError('form.total', 'Jatah cuti anda hanya ' . $jatahCuti . ' hari');
+        } else {
+            $this->resetErrorBag('form.total');
+        }
+        $this->form['total'] = $total;
+        $this->errorTotal = $total > $jatahCuti;
+    }
+
+    public function resetForm()
+    {
+        $this->form = [
+            'id' => '',
+            'jenis' => 'tahunan',
+            'keterangan' => '',
+            'bukti' => '',
+            // 'tanggal' => '',
+            'mulai' => '',
+            'selesai' => '',
+            'total' => 0,
+        ];
+        $this->jatahCutiValue = $this->jatahCuti['tahunan'];
+        $this->isEdit = false;
+        $this->resetErrorBag();
+    }
+
+    public function getTotal()
+    {
+        $mulai = Carbon::parse($this->form['mulai']);
+        $selesai = Carbon::parse($this->form['selesai']);
+        $total = $mulai->diffInDays($selesai);
+        $weekends = 0;
+        for ($i = 0; $i <= $total; $i++) {
+            $date = Carbon::parse($mulai)->addDays($i);
+            if ($date->isWeekend()) {
+                $weekends++;
+            }
+        }
+        return $total - $weekends + 1;
+    }
+
+
+    public function setEditModal($id)
+    {
+        $data = Cuti::find($id);
+        // $this->emit('fillDatePicker', $data->tanggal);
 
         $this->form['id'] = $data->id;
-        $this->form['tanggal'] = $data->tanggal;
+        // $this->form['tanggal'] = $data->tanggal;
+        $this->form['mulai'] = $data->mulai;
+        $this->form['selesai'] = $data->selesai;
+        $this->form['total'] = $data->total;
         $this->form['jenis'] = $data->jenis;
-        $this->jatahCutiView = $this->jatahCuti[$data->jenis];
         $this->form['keterangan'] = $data->keterangan;
-        // $this->form['bukti'] = $data->bukti;
         $this->isEdit = true;
+
+        $diff = Carbon::parse($data->mulai)->diffInDays(Carbon::parse($data->selesai));
+        $jatah = $this->jatahCuti[$data->jenis] + $diff;
+        $this->jatahCutiValue = $jatah;
+
+        $this->emit('setDateJS', 'mulai', date('Y-m-d', strtotime($data->mulai)));
+        $this->emit('setDateJS', 'selesai', date('Y-m-d', strtotime($data->selesai)));
     }
 
     public function submit()
@@ -67,23 +133,33 @@ class Modal extends Component
             'form.jenis' => 'required',
             'form.keterangan' => 'required',
             'form.bukti' => $this->isEdit ? '' : 'required|mimes:pdf,jpeg,png,jpg,gif,svg|max:2048',
-            'form.tanggal' => 'required',
+            // 'form.tanggal' => 'required',
+            'form.mulai' => 'required',
+            'form.selesai' => 'required|after_or_equal:form.mulai',
         ], [
                 'form.jenis.required' => 'Jenis cuti harus diisi',
                 'form.keterangan.required' => 'Keterangan harus diisi',
                 'form.bukti.required' => 'Bukti harus diisi',
                 'form.bukti.mimes' => 'Bukti harus berupa file PDF, JPG, JPEG, PNG, GIF, SVG',
                 'form.bukti.max' => 'Bukti maksimal 2MB',
-                'form.tanggal.required' => 'Tanggal harus dipilih',
+                // 'form.tanggal.required' => 'Tanggal harus dipilih',
+                'form.mulai.required' => 'Tanggal mulai harus diisi',
+                'form.selesai.required' => 'Tanggal selesai harus diisi',
+                'form.selesai.after_or_equal' => 'Tanggal selesai harus setelah atau sama dengan tanggal mulai',
             ]);
 
+        if ($this->errorTotal) {
+            $this->addError('form.total', 'Jatah cuti anda hanya ' . $this->jatahCutiValue . ' hari');
+            return;
+        }
+
         // store cuti
-        $tanggal = $this->form['tanggal'];
-        $total = count(explode(',', $tanggal));
-        $tanggal = array_map(function ($date) {
-            return Carbon::createFromFormat('m/d/Y', $date)->format('Y-m-d');
-        }, explode(',', $tanggal));
-        $tanggal = implode(',', $tanggal);
+        // $tanggal = $this->form['tanggal'];
+        // $total = count(explode(',', $tanggal));
+        // $tanggal = array_map(function ($date) {
+        //     return Carbon::createFromFormat('m/d/Y', $date)->format('Y-m-d');
+        // }, explode(',', $tanggal));
+        // $tanggal = implode(',', $tanggal);
 
         $tracking = [
             "status" => $this->isEdit ? "Pengajuan diperbarui" : "Pengajuan dibuat",
@@ -101,11 +177,15 @@ class Modal extends Component
             'jenis' => $this->form['jenis'],
             'keterangan' => $this->form['keterangan'],
             // 'bukti' => $this->form['bukti']->hashName(),
-            'tanggal' => $tanggal,
-            'total' => $total,
+            // 'tanggal' => $tanggal,
+            // 'total' => $total,
+            'mulai' => $this->form['mulai'],
+            'selesai' => $this->form['selesai'],
+            'total' => $this->form['total'],
             'status' => $status[$realUser->level],
             'tracking' => json_encode([$tracking]),
         ];
+
         // store file
         if ($this->form['bukti']) {
             $this->form['bukti']->store('public/cuti');

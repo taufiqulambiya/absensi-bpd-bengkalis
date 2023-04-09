@@ -4,7 +4,7 @@ $filter_status = [
 ['hadir', 'Hadir'],
 ['izin', 'Izin'],
 ['cuti', 'Cuti'],
-['dinas_luar', 'Dinas Luar']
+// ['dinas_luar', 'Dinas Luar']
 ];
 @endphp
 

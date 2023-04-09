@@ -8,14 +8,19 @@
                 </button>
             </div>
 
-            @if (count($disableDates) > 0)
-            <div class="disable-dates m-3 p-2 border" style="max-height: 60px;overflow:scroll;">
-                <span class="d-block text-danger mb-2">Harap pilih range diluar dari tanggal berikut:</span>
-                <div class="chips" style="gap: 4px">
+            @if (count($disableDateFormatted) > 0)
+            <div class="disable-dates m-3 p-3 border">
+                <div class="text-secondary">Tanggal yang tidak dapat dipilih:</div>
+                <div class="text-danger">{{join(', ', $disableDateFormatted)}}</div>
+                {{-- <li>
+                    <a href="#" wire:click="toggleExpand">Lihat {{ $isExpanded ? 'lebih' : 'sedikit' }}...</a>
+                </li>
+                </ul> --}}
+                {{-- <div class="chips" style="gap: 4px">
                     @foreach ($disableDates as $item)
                     <span class="chip">{{$item}}</span>
                     @endforeach
-                </div>
+                </div> --}}
             </div>
             @endif
 
@@ -30,7 +35,7 @@
                             <option value="">-- PILIH JENIS --</option>
                             <option value="Sakit">Sakit</option>
                             <option value="Urusan Keluarga">Urusan Keluarga</option>
-                            <option value="Urusan Pribadi">Urusan Pribadi</option>
+                            {{-- <option value="Urusan Pribadi">Urusan Pribadi</option> --}}
                             {{-- <option value="Hari raya keagamaan">Hari raya keagamaan</option> --}}
                             {{-- <option value="Berdukacita">Berdukacita</option> --}}
                             <option value="Lainnya">Lainnya</option>
@@ -46,25 +51,31 @@
                         <div class="col-6 form-group">
                             <label for="tgl_mulai">Tanggal Mulai</label>
                             <input type="date" name="tgl_mulai" id="tgl_mulai"
-                                min="{{ date('Y-m-d', strtotime('+1 day')) }}" wire:model="form.tgl_mulai" wire:change="calculateTotalDays"
-                                class="form-control">
+                                min="{{ date('Y-m-d', strtotime('+1 day')) }}" wire:model="form.tgl_mulai"
+                                wire:change="calculateTotalDays" class="form-control">
                             @error ('form.tgl_mulai') <span class="text-danger">{{ $message }}</span> @enderror
                         </div>
                         <div class="col-6 form-group">
                             <label for="tgl_selesai">Tanggal Selesai</label>
-                            <input type="date" name="tgl_selesai" id="tgl_selesai" wire:model="form.tgl_selesai" wire:change="calculateTotalDays"
-                                min="{{ date('Y-m-d', strtotime('+1 day')) }}" class="form-control">
+                            <input type="date" name="tgl_selesai" id="tgl_selesai" wire:model="form.tgl_selesai"
+                                wire:change="calculateTotalDays" min="{{ date('Y-m-d', strtotime('+1 day')) }}"
+                                class="form-control">
                             @error ('form.tgl_selesai') <span class="text-danger">{{ $message }}</span> @enderror
                         </div>
                     </div>
                     <div class="form-group">
                         {{-- total hari --}}
                         <label for="total_hari">Total Hari</label>
-                        <input type="number" name="total_hari" id="total_hari" value="{{$form['total_hari']}}" class="form-control" readonly>
+                        <input type="number" name="total_hari" id="total_hari" value="{{$form['total_hari']}}"
+                            class="form-control" readonly>
+                        <div class="text-secondary text-sm">
+                            <span class="text-danger">*</span> Total hari dihitung tidak termasuk hari Sabtu dan Minggu.
+                        </div>
                     </div>
                     <div class="form-group">
                         <label for="keterangan">Keterangan</label>
-                        <input type="text" name="keterangan" class="form-control" id="keterangan" wire:model="form.keterangan" placeholder="Keterangan...">
+                        <input type="text" name="keterangan" class="form-control" id="keterangan"
+                            wire:model="form.keterangan" placeholder="Keterangan...">
                         @error ('form.keterangan') <span class="text-danger">{{ $message }}</span> @enderror
                     </div>
                     <div class="form-group">

@@ -31,11 +31,15 @@ if ($user->level == 'admin') {
 if ($user->level == 'pegawai') {
     $dinas_luar = DB::table('dinas_luar')->where('id_user', $user->id)->where('selesai', '>=', date('Y-m-d'))->get()->count();
 }
+if ($user->level == 'atasan') {
+    $cuti_notif = DB::table('cuti')->where('status', 'accepted_admin')->count();
+    $izin_notif = DB::table('izin')->where('status', 'accepted_admin')->count();
+}
 ?>
 <div class="col-md-3 left_col">
     <div class="left_col scroll-view">
         <div class="navbar nav_title" style="border: 0;">
-            <a href="index.html" class="site_title"><i class="fa fa-clipboard-user"></i> <span>Sistem
+            <a href="{{route('dashboard')}}" class="site_title"><i class="fa fa-clipboard-user"></i> <span>Sistem
                     Absensi!</span></a>
         </div>
 

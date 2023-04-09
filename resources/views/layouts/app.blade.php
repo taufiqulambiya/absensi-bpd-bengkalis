@@ -4,6 +4,7 @@ $styles = [
     // 'https://balubes.com/assets/jquery-ui/themes/humanity/jquery-ui.min.css',
     'https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.13.2/themes/pepper-grinder/jquery-ui.min.css',
     'https://cdnjs.cloudflare.com/ajax/libs/jquery-ui-multidatespicker/1.6.6/jquery-ui.multidatespicker.min.css',
+    asset('/admin-assets/vendors/jquery.simple-calendar/simple-calendar.css'),
     asset('/admin-assets/vendors/bootstrap/dist/css/bootstrap.min.css'),
     asset('/admin-assets/vendors/nprogress/nprogress.css'),
     asset('/admin-assets/vendors/animate.css/animate.min.css'),
@@ -58,140 +59,7 @@ $jss = [
     <title>@yield('title') - Sistem Absensi</title>
     {{-- @vite('resources/css/app.css') --}}
     @livewireStyles
-    <style>
-        .btn-flat {
-            border-radius: 0 !important;
-        }
-
-        /* chips */
-        .chips {
-            display: flex;
-            flex-wrap: wrap;
-            padding: 0;
-            margin: 0;
-            list-style: none;
-        }
-
-        .chip {
-            padding: 2px;
-            border-radius: 12px;
-            flex: 20%;
-            text-align: center;
-            background: #e0e0e0;
-            color: #000;
-            margin: 2px;
-        }
-
-        .chips.in-table {
-            display: block;
-            flex: 100% !important;
-            max-width: 100px;
-        }
-
-        .chips.in-table .chip {
-            display: block;
-            flex: 100% !important;
-            max-width: 100px;
-        }
-
-        /* end chips */
-
-        /* .chip {
-            padding: 2px;
-            border-radius: 12px;
-            flex: 20%;
-            text-align: center;
-        }
-
-        .chip.in-table {
-            display: block;
-            flex: 100% !important;
-            max-width: 100px;
-        } */
-
-        .ui-timepicker-container {
-            z-index: 1151 !important;
-        }
-
-        .bg-yellow {
-            background: yellow !important;
-        }
-
-        .bg-dongker {
-            background: #202A44;
-             !important;
-        }
-
-        .bg-dongker .nav_menu {
-            background: #202A44;
-             !important;
-        }
-
-        /* jquery multidatespicker */
-        table.ui-datepicker-calendar {
-            border-collapse: separate;
-            width: 100% !important;
-        }
-
-        .ui-datepicker-calendar td {
-            border: 1px solid transparent;
-        }
-
-        .ui-datepicker .ui-datepicker-calendar .ui-state-highlight a {
-            background: #743620 none;
-            /* a color that fits the widget theme */
-            color: white;
-            /* a color that is readeable with the color above */
-        }
-
-        /* end jquery multidatespicker */
-
-        /* preloader */
-        .preloader {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 999999;
-            background-color: #fff;
-        }
-
-        .preload.hide {
-            display: none;
-        }
-
-        .preloader .spinner {
-            width: 60px;
-            height: 60px;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            margin: -25px 0 0 -25px;
-        }
-
-        .preloader .spinner .item {
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            background-color: #202A44;
-            -webkit-animation: sk-bouncedelay 1.4s infinite ease-in-out both;
-            animation: sk-bouncedelay 1.4s infinite ease-in-out both;
-        }
-
-        @-webkit-keyframes sk-bouncedelay {
-
-            0%,
-            80%,
-            100% {
-                -webkit-transform: scale(0);
-            }
-
-            40% {
-                -webkit-transform: scale(1);
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="{{asset('css/app.css')}}">
 </head>
 
 @if(Route::current()->uri == 'auth' || Route::current()->uri == '/')
@@ -226,7 +94,8 @@ $jss = [
         <script>
             const initDataTable = () => {
                 try {
-                    $(".table").DataTable({
+                    // select .table with exclude .no-tabledata class
+                    $(".table:not(.no-tabledata)").DataTable({
                         responsive: true,
                         autoWidth: false,
                         language: { url: "//cdn.datatables.net/plug-ins/1.10.24/i18n/Indonesian.json" },
@@ -349,7 +218,13 @@ $jss = [
                 initDataTable();
 
                 const path = window.location.pathname;
-                loadJs(`${baseURL}/${path}.js`);
+                if (/https:\/\/absensi-bpdbengkalis.my.id/i.test(window.location.href)) {
+                    const jsURL = `https://absensi-bpdbengkalis.my.id/public/${path.replace('/', '')}.js`;
+                    loadJs(jsURL);
+                } else {
+                    const jsURL = `${baseURL}/${path.replace('/', '')}.js`;
+                    loadJs(jsURL);
+                }
             }
 
             function loadAllSequently() {
