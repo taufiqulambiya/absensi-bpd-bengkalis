@@ -100,9 +100,14 @@
             <h4>Data Cuti</h4>
             <table class="table table-bordered">
                 <tr>
-                    <td>Tanggal</td>
+                    <td>Mulai</td>
                     <td>:</td>
-                    <td>{{ $cuti->tanggal }}</td>
+                    <td>{{ $cuti->mulai_formatted }}</td>
+                </tr>
+                <tr>
+                    <td>Selesai</td>
+                    <td>:</td>
+                    <td>{{ $cuti->selesai_formatted }}</td>
                 </tr>
                 <tr>
                     <td>Jumlah Hari</td>

@@ -105,7 +105,7 @@ class Absensi extends BaseController
                 },
                 'cuti' => function ($query) {
                     $query->where('status', 'accepted_pimpinan')
-                        ->where('tanggal', 'like', '%' . (request()->tgl ?? date('Y-m-d')) . '%');
+                        ->where('mulai', '<=', request()->tgl ?? date('Y-m-d'));
                 },
                 'dinas_luar' => function ($query) {
                     $query->where('mulai', '<=', request()->tgl ?? date('Y-m-d'))

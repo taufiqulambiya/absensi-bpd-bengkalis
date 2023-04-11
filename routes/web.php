@@ -35,7 +35,9 @@ use Illuminate\Support\Facades\Storage;
 Route::get('/get-assets', [Assets::class, 'getAssets']);
 
 Route::get('/migrate', function () {
-    Artisan::call('migrate');
+    Artisan::call('migrate', [
+        '--force' => true,
+    ]);
 });
 Route::get('/linkstorage', function () {
     Artisan::call('storage:link');

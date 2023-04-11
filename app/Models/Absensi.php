@@ -100,7 +100,7 @@ class Absensi extends Model
             ->first();
         $data->absensi->each(function ($a) use ($data) {
             $a->status = 'belum absen keluar';
-            
+
             $izin = $data->izin->filter(function ($i) use ($a) {
                 return $i->tgl_mulai <= $a->tanggal && $i->tgl_selesai >= $a->tanggal;
             })->first();
@@ -129,7 +129,7 @@ class Absensi extends Model
             $a->formatted_waktu_keluar = Carbon::parse($a->waktu_keluar)->format('H:i \W\I\B');
             // $a->total_jam = Carbon::parse($a->waktu_keluar)->diffInHours(Carbon::parse($a->waktu_masuk));
         });
-        
+
         return $data;
     }
 
@@ -165,7 +165,8 @@ class Absensi extends Model
                     ->where('status', 'accepted_pimpinan');
             },
             'cuti' => function ($q) use ($date) {
-                $q->where('tanggal', 'like', $date . '%')
+                $q->where('mulai', '<=', $date)
+                    ->where('selesai', '>=', $date)
                     ->where('status', 'accepted_pimpinan');
             },
             'dinas_luar' => function ($q) use ($date) {
@@ -200,7 +201,8 @@ class Absensi extends Model
         return $data;
     }
 
-    static function getByMonthAdmin($year, $month) {
+    static function getByMonthAdmin($year, $month)
+    {
         // year = "2023", month = "04" - format
         $datesInMonth = Carbon::parse($year . '-' . $month)->daysInMonth;
         $dates = [];
@@ -217,7 +219,10 @@ class Absensi extends Model
                 $a = Absensi::with('shift')->where('id_user', $x->id)->where('tanggal', $date)->first();
                 $i = Izin::where('id_user', $x->id)->where('tgl_mulai', '<=', $date)->where('tgl_selesai', '>=', $date)->where('status', 'accepted_pimpinan')->first();
                 $x->izin->push($i);
-                $c = Cuti::where('id_user', $x->id)->where('tanggal', 'like', $date . '%')->where('status', 'accepted_pimpinan')->first();
+                $c = Cuti::where('id_user', $x->id)
+                    // ->where('tanggal', 'like', $date . '%')
+                    ->where('mulai', '<=', $date)->where('selesai', '>=', $date)
+                    ->where('status', 'accepted_pimpinan')->first();
                 $x->cuti->push($c);
                 $d = DinasLuar::where('id_user', $x->id)->where('mulai', '<=', $date)->where('selesai', '>=', $date)->first();
                 $x->dinas_luar->push($d);
@@ -228,7 +233,7 @@ class Absensi extends Model
                 $currentDate = Carbon::now()->format('Y-m-d');
                 $isAfterOrEq = Carbon::parse($date)->isAfter($currentDate) || Carbon::parse($date)->eq($currentDate);
 
-                if($isWeekend) {
+                if ($isWeekend) {
                     $a = (object) [
                         'status' => 'weekend',
                         'td_class' => $isAfterOrEq ? '' : 'bg-secondary',
@@ -296,11 +301,12 @@ class Absensi extends Model
         return $data;
     }
 
-    static function getStatus($data, $date) {
+    static function getStatus($data, $date)
+    {
         if ($data->absensi->count() > 0) {
             $raw = $data->absensi->first();
             $waktu_keluar = Carbon::parse($raw->waktu_keluar);
-            
+
             if ($waktu_keluar->format('H:i') == '00:00') {
                 return 'belum_absen_keluar';
             }
@@ -327,11 +333,12 @@ class Absensi extends Model
         return 'tidak_hadir';
     }
 
-    static function getStatusHtml($data, $date) {
+    static function getStatusHtml($data, $date)
+    {
         if ($data->absensi->count() > 0) {
             $raw = $data->absensi->first();
             $waktu_keluar = Carbon::parse($raw->waktu_keluar);
-            
+
             if ($waktu_keluar->format('H:i') == '00:00') {
                 return '<span class="badge badge-secondary">Belum Absen Keluar</span>';
             }

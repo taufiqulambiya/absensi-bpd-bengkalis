@@ -67,6 +67,12 @@
         <div class="col-12 pb-3">
             <h4>{{$monthIndo[$filter['bulan']]}} {{$filter['tahun']}}</h4>
             <div class="table-responsive">
+                <div wire:loading class="text-center m-3 w-100">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="sr-only">Loading...</span>
+                    </div>
+                    <h4 class="mt-2">Mengambil data...</h4>
+                </div>
                 <table class="table table-bordered table-striped no-tabledata">
                     <thead>
                         <tr>
