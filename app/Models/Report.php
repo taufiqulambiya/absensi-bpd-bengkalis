@@ -134,6 +134,39 @@ class Report extends Model
                     ];
                 }
                 break;
+            case 'dinas-luar':
+                $data['data'] = DinasLuar::with('user')
+                    ->when($pegawai, function ($query, $pegawai) {
+                        return $query->whereIn('id_user', $pegawai);
+                    })
+                    ->orderBy('mulai', 'asc')
+                    ->get()
+                    ->filter(function ($x) use ($tanggal_awal, $tanggal_akhir) {
+                        $start = Carbon::parse($x->mulai);
+                        $end = Carbon::parse($x->selesai);
+                        if ($tanggal_awal && $tanggal_akhir) {
+                            return rangeCheck($start, $end, [$tanggal_awal, $tanggal_akhir]);
+                        }
+                        return true;
+                    })
+                    ->map(function ($x) {
+                        $x->formatted_tgl_mulai = Carbon::parse($x->mulai)->format('d/m/Y');
+                        $x->formatted_tgl_selesai = Carbon::parse($x->selesai)->format('d/m/Y');
+                        // $x->formatted_durasi = Carbon::parse($x->mulai)->diffInDays(Carbon::parse($x->mulai)) + 1 . ' hari';
+                        $total = getDurationExceptWeekend($x->mulai, $x->selesai);
+                        // $x->formatted_durasi = $diff - $weekends + 1 . ' hari';
+                        $x->formatted_durasi = $total . ' hari';
+                        return $x;
+                    });
+                $groupByUser = $data['data']->groupBy('id_user');
+                $data['data'] = [];
+                foreach ($groupByUser as $key => $value) {
+                    $data['data'][$key] = [
+                        'user' => $value[0]->user,
+                        'dinas_luar' => $value,
+                    ];
+                }
+                break;
             default:
                 break;
         }

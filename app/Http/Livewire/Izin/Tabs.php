@@ -83,7 +83,7 @@ class Tabs extends Component
         $switch = [
             'kabid' => $type == 'acc' ? 'accepted_kabid' : 'rejected',
             'admin' => $type == 'acc' ? 'accepted_admin' : 'rejected',
-            'atasan' => $type == 'acc' ? 'accepted_atasan' : 'rejected',
+            'atasan' => $type == 'acc' ? 'accepted_pimpinan' : 'rejected',
         ];
         $switchMessage = [
             'kabid' => $type == 'acc' ? 'Disetujui oleh Kabid' : 'Ditolak oleh Kabid',

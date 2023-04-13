@@ -143,3 +143,21 @@ function formatStatusCutiColor($status)
 function rangeCheck($start, $end, $range) {
     return ($start >= $range[0] && $start <= $range[1]) || ($end >= $range[0] && $end <= $range[1]);
 }
+
+function getDurationExceptWeekend($start, $end) {
+    $start = Carbon::parse($start);
+    $end = Carbon::parse($end);
+
+    $total = 0;
+    $current = $start->copy();
+
+    while ($current->lte($end)) {
+        if ($current->isWeekday()) {
+            $total++;
+        }
+
+        $current->addDay();
+    }
+
+    return $total;
+}

@@ -106,16 +106,8 @@ class Modal extends Component
         $tgl_selesai = $this->form['tgl_selesai'];
         // $total_hari = Carbon::parse($tgl_mulai)->diffInDays($tgl_selesai) + 1;
         // updates: total hari doesn't include saturday and sunday
-        $total_hari = Carbon::parse($tgl_mulai)->diffInDays($tgl_selesai);
-        $weekends = 0;
-        for ($i = 0; $i <= $total_hari; $i++) {
-            $date = Carbon::parse($tgl_mulai)->addDays($i);
-            if ($date->isWeekend()) {
-                $weekends++;
-            }
-        }
-        $total_hari = $total_hari - $weekends + 1;
-        $this->form['total_hari'] = $total_hari;
+        $total = getDurationExceptWeekend($tgl_mulai, $tgl_selesai);
+        $this->form['total_hari'] = $total;
     }
 
     public function render()
@@ -143,16 +135,8 @@ class Modal extends Component
         // updates: total hari doesn't include saturday and sunday
         $tgl_mulai = $data['tgl_mulai'];
         $tgl_selesai = $data['tgl_selesai'];
-        $total_hari = Carbon::parse($tgl_mulai)->diffInDays($tgl_selesai);
-        $weekends = 0;
-        for ($i = 0; $i <= $total_hari; $i++) {
-            $date = Carbon::parse($tgl_mulai)->addDays($i);
-            if ($date->isWeekend()) {
-                $weekends++;
-            }
-        }
-        $total_hari = $total_hari - $weekends + 1;
-        $this->form['total_hari'] = $total_hari;
+        $total = getDurationExceptWeekend($tgl_mulai, $tgl_selesai);
+        $this->form['total_hari'] = $total;
         $this->form['keterangan'] = $data['keterangan'];
         $this->form['id'] = $data['id'];
     }

@@ -142,18 +142,12 @@ class Izin extends Model
                 $item->status_color = formatStatusCutiColor($item->status);
                 $item->formatted_tgl_mulai = date('d/m/Y', strtotime($item->tgl_mulai));
                 $item->formatted_tgl_selesai = date('d/m/Y', strtotime($item->tgl_selesai));
-                // $item->formatted_durasi = Carbon::parse($item->tgl_mulai)->diffInDays(Carbon::parse($item->tgl_selesai)) + 1 . ' hari';
+
+                $total = getDurationExceptWeekend($item->tgl_mulai, $item->tgl_selesai);
                 $start = Carbon::parse($item->tgl_mulai);
                 $end = Carbon::parse($item->tgl_selesai);
-                $total = $start->diffInDays($end);
-                $weekends = 0;
-                for ($i = 0; $i <= $total; $i++) {
-                    $d = $start->addDays($i);
-                    if ($d->isWeekend()) {
-                        $weekends++;
-                    }
-                }
-                $item->formatted_durasi = $total - $weekends . ' hari';
+                // $item->formatted_durasi = $total - $weekends . ' hari';
+                $item->formatted_durasi = $total . ' hari';
 
                 return $item;
             });

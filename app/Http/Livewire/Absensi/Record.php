@@ -71,6 +71,7 @@ class Record extends Component
     public function finishCapture()
     {
         $this->captureState = 'finished';
+        $this->emit('finishCapture', $this->mode);
     }
 
     public function submitRecord()

@@ -38,20 +38,12 @@ class DinasLuar extends Model
             ->get()
             ->each(function ($x) {
                 // $x->durasi = Carbon::parse($x->mulai)->diffInDays(Carbon::parse($x->selesai)) + 1 . ' hari';
+                $total = getDurationExceptWeekend($x->mulai, $x->selesai);
                 $mulai = Carbon::parse($x->mulai);
                 $selesai = Carbon::parse($x->selesai);
                 $x->mulai = $mulai->format('d/m/Y');
                 $x->selesai = $selesai->format('d/m/Y');
-                $diff = $mulai->diffInDays($selesai);
-                $weekends = 0;
-                for($i = 0; $i <= $diff; $i++) {
-                    $day = $mulai->addDay()->dayOfWeek;
-                    if($day == 0 || $day == 6) {
-                        $weekends++;
-                    }
-                }
-                $x->durasi = $diff - $weekends . ' hari kerja';
-
+                $x->durasi = $total . ' hari kerja';
             })
             ->last();
         return $data;
@@ -90,19 +82,12 @@ class DinasLuar extends Model
         }
         $data = $q->get()
             ->each(function ($x) use ($level, $actions, $tab) {
+                $durasi = getDurationExceptWeekend($x->mulai, $x->selesai);
                 $mulai = Carbon::parse($x->mulai);
                 $selesai = Carbon::parse($x->selesai);
                 $x->mulai = $mulai->format('d/m/Y');
                 $x->selesai = $selesai->format('d/m/Y');
-                $diff = $mulai->diffInDays($selesai);
-                $weekends = 0;
-                for($i = 0; $i <= $diff; $i++) {
-                    $day = $mulai->addDays($i);
-                    if ($day->isWeekend()) {
-                        $weekends++;
-                    }
-                }
-                $x->durasi = $diff - $weekends + 1 . ' hari kerja';
+                $x->durasi = $durasi . ' hari kerja';
                 $x->action = $actions[$level . '.' . $tab];
             });
 

@@ -79,22 +79,15 @@ class Cuti extends BaseController
         // $cuti->total = count($tanggal) . ' Hari';
         // $cuti->tanggal = implode(', ', $tanggal);
 
+        $total = getDurationExceptWeekend($cuti->mulai, $cuti->selesai);
         $mulai = Carbon::parse($cuti->mulai);
         $selesai = Carbon::parse($cuti->selesai);
         $mulai_formatted = $mulai->format('d/m/Y');
         $selesai_formatted = $selesai->format('d/m/Y');
         $cuti->mulai_formatted = $mulai_formatted;
         $cuti->selesai_formatted = $selesai_formatted;
-
-        $diff = $mulai->diffInDays($selesai);
-        $weekends = 0;
-        for ($i = 0; $i <= $diff; $i++) {
-            $day = $mulai->addDay()->dayOfWeek;
-            if ($day == Carbon::SATURDAY || $day == Carbon::SUNDAY) {
-                $weekends++;
-            }
-        }
-        $cuti->total = $diff + 1 - $weekends . ' Hari';
+        // $cuti->total = $diff + 1 - $weekends . ' Hari';
+        $cuti->total = $total . ' Hari';
 
         $replaceStatus = [
             'pending' => 'Menunggu Persetujuan',

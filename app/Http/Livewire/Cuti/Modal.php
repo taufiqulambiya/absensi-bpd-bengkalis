@@ -61,7 +61,7 @@ class Modal extends Component
     public function setDate($id, $date)
     {
         $this->form[$id] = $date;
-        $total = $this->getTotal();
+        $total = getDurationExceptWeekend($this->form['mulai'], $this->form['selesai']);
         $jatahCuti = $this->jatahCutiValue;
         if ($total > $jatahCuti) {
             $this->addError('form.total', 'Jatah cuti anda hanya ' . $jatahCuti . ' hari');
@@ -87,21 +87,6 @@ class Modal extends Component
         $this->jatahCutiValue = $this->jatahCuti['tahunan'];
         $this->isEdit = false;
         $this->resetErrorBag();
-    }
-
-    public function getTotal()
-    {
-        $mulai = Carbon::parse($this->form['mulai']);
-        $selesai = Carbon::parse($this->form['selesai']);
-        $total = $mulai->diffInDays($selesai);
-        $weekends = 0;
-        for ($i = 0; $i <= $total; $i++) {
-            $date = Carbon::parse($mulai)->addDays($i);
-            if ($date->isWeekend()) {
-                $weekends++;
-            }
-        }
-        return $total - $weekends + 1;
     }
 
 

@@ -153,20 +153,11 @@ class Cuti extends Model
             ->map(function ($item) {
                 // $item->tanggal = explode(',', $item->tanggal);
                 // $item->total_formatted = count($item->tanggal) . ' hari';
+                $total = getDurationExceptWeekend($item->mulai, $item->selesai);
                 $item->mulai_formatted = Carbon::parse($item->mulai)->format('d/m/Y');
                 $item->selesai_formatted = Carbon::parse($item->selesai)->format('d/m/Y');
-                $mulai = Carbon::parse($item->mulai);
-                $selesai = Carbon::parse($item->selesai);
-                $diff = $mulai->diffInDays($selesai);
-                $weekends = 0;
-                for ($i = 0; $i <= $diff; $i++) {
-                    $date = $mulai->copy()->addDays($i);
-                    if ($date->isWeekend()) {
-                        $weekends++;
-                    }
-                }
-                $item->total_formatted = $diff - $weekends . ' hari kerja';
-
+                // $item->total_formatted = $diff - $weekends . ' hari kerja';
+                $item->total_formatted = $total . ' hari kerja';
 
                 $item->status_text = formatStatusCuti($item->status);
                 $item->status_color = formatStatusCutiColor($item->status);

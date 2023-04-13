@@ -4,7 +4,7 @@
             font-size: 1rem;
         }
     </style>
-    <div class="card-body" id="record-in">
+    <div class="card-body" id="record-{{$mode}}">
         @if (!$showRecord)
         <div class="text-center p-3 no-data">
             <img src="/img/not_found.png" alt="No Data" class="img-fluid w-50">
@@ -100,28 +100,28 @@
                         </div>
                     </div>
                     @endif
-                    <video autoplay class="img-fluid" wire:ignore></video>
-                    <img src="#" alt="#" class="img-fluid d-none" wire:ignore>
+                    <video autoplay class="img-fluid mb-3" wire:ignore></video>
+                    <img src="#" alt="#" class="img-fluid mb-3 d-none" wire:ignore>
                     <div class="actions d-flex justify-content-center">
-                        @if ($captureState == 'ready')
-                        <button class="btn btn-primary btn-sm btn-start" wire:click="$emit('startCapture', 'in')">
+                        {{-- @if ($captureState == 'ready') --}}
+                        <button class="btn btn-primary btn-sm btn-start" id="btn-start-capture-{{$mode}}" wire:click="$emit('startCapture', '{{$mode}}')" wire:ignore.self>
                             <i class="fa fa-camera mr-2" aria-hidden="true"></i> Mulai</button>
                         </button>
-                        @elseif ($captureState == 'started')
+                        {{-- @elseif ($captureState == 'started') --}}
                         {{-- capture --}}
-                        <button class="btn btn-primary btn-sm btn-capture" wire:click="$emit('capture', 'in')">
+                        <button class="btn btn-primary btn-sm btn-capture d-none" id="btn-capture-{{$mode}}" wire:click="$emit('capture', '{{$mode}}')">
                             <i class="fa fa-camera mr-2" aria-hidden="true"></i> Ambil Gambar</button>
                         </button>
-                        @elseif ($captureState == 'captured')
+                        {{-- @elseif ($captureState == 'captured') --}}
                         {{-- refresh --}}
-                        <button class="btn btn-warning btn-sm btn-retake" wire:click="$emit('startCapture', 'in')">
+                        <button class="btn btn-warning btn-sm btn-retake d-none" id="btn-recapture-{{$mode}}" wire:click="$emit('startCapture', '{{$mode}}')">
                             <i class="fa fa-refresh mr-2" aria-hidden="true"></i> Ulangi</button>
                         </button>
                         {{-- check --}}
-                        <button class="btn btn-success btn-sm btn-finish" wire:click="finishCapture">
+                        <button class="btn btn-success btn-sm btn-finish d-none" id="btn-finish-capture-{{$mode}}" wire:click="finishCapture" wire:loading.attr="disabled" wire:target="finishCapture">
                             <i class="fa fa-check mr-2" aria-hidden="true"></i> Selesai</button>
                         </button>
-                        @endif
+                        {{-- @endif --}}
                     </div>
                 </li>
                 @endif

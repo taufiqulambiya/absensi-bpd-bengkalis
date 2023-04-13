@@ -92,12 +92,17 @@ class Modal extends Component
         // generate absensi for range of date
         $absensis = [];
         $periodCarbon = CarbonPeriod::create($this->form['mulai'], $this->form['selesai']);
-        $jamKerja = JamKerja::getAktif();
+        // $jamKerja = JamKerja::getAktif();
         foreach ($periodCarbon as $date) {
             $isWeekend = $date->isWeekend();
             if ($isWeekend) {
                 continue;
             }
+            $dayIndex = $date->dayOfWeek;
+            $indoDays = ['minggu', 'senin', 'selasa', 'rabu', 'kamis', 'jumat', 'sabtu'];
+            $day = $indoDays[$dayIndex];
+            $jamKerja = JamKerja::where('days', 'like', '%' . $day . '%')->first();
+
             $absensis[] = [
                 'id_jam' => $jamKerja->id,
                 'id_user' => $this->form['id_user'],
@@ -111,6 +116,7 @@ class Modal extends Component
                 'updated_at' => now(),
             ];
         }
+        // dd($absensis);
 
         $payload['record_id'] = $uniqueId;
 

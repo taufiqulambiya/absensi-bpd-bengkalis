@@ -226,17 +226,15 @@
       const tglAwal = $('#tanggal_awal').val();
       const tglAkhir = $('#tanggal_akhir').val();
 
-      if (tglAwal) {
-        this.data.tanggal_awal = tglAwal;
-      }
-      if (tglAkhir) {
-        this.data.tanggal_akhir = tglAkhir;
-      }
-
-      const params = this.data;
+      const params = {
+        ...this.data,
+        tanggal_awal: tglAwal,
+        tanggal_akhir: tglAkhir,
+      };
       params.jenis = this.jenis;
       
       const queryString = window.Qs.stringify(params);
+      console.log(queryString);
 
       window.open(`{{ route('report.index') }}?${queryString}`, '_blank');
     }
