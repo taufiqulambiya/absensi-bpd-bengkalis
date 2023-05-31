@@ -22,7 +22,7 @@
                 @csrf
 
                 <div class="row">
-                    <div class="col-md-12 col-sm-12  ">
+                    <div class="col-md-12 col-sm-12">
                         <div class="x_panel">
                             <div class="x_title">
                                 <h2>Konten @yield('title')</h2>
@@ -37,6 +37,19 @@
                                         <hr>
                                     </div>
                                     <div class="col-12">
+                                        <div class="row p-3 mb-3">
+                                            <div class="col-md-4">
+                                                <div class="form-group">
+                                                    <label for="">Filter berdasarkan bidang</label>
+                                                    <select name="filter-bidang" id="filter-bidang" class="form-control">
+                                                        <option value="">Semua</option>
+                                                        @foreach ($bidang as $b)
+                                                        <option value="{{$b['id']}}">{{ $b['name'] }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
                                         <div class="table-responsive">
                                             <livewire:users.table />
                                         </div>

@@ -2,6 +2,7 @@
 
 namespace App\Http\Livewire\Users;
 
+use App\Models\MasterBidang;
 use App\Models\User;
 use Livewire\Component;
 
@@ -9,7 +10,8 @@ class Table extends Component
 {
     public $data = [];
     public $level = '';
-    protected $listeners = ['refreshTable' => 'mount', 'resetPassword' => 'resetPassword', 'delete' => 'delete'];
+    protected $listeners = ['refreshTable' => 'mount', 'filterBidang', 'resetPassword' => 'resetPassword', 'delete' => 'delete'];
+
     public function render()
     {
         return view('livewire.users.table');
@@ -18,7 +20,7 @@ class Table extends Component
     public function mount()
     {
         $currentUser = User::find(session('user')->id);
-        if($currentUser->level == 'admin') {
+        if ($currentUser->level == 'admin') {
             $this->data = User::all();
         } else {
             $bidang = $currentUser->bidang;
@@ -27,12 +29,15 @@ class Table extends Component
         $this->level = session('user')->level;
     }
 
-    public function edit($id) {
+
+    public function edit($id)
+    {
         $item = User::find($id);
         $this->emit('fillEdit', $item);
     }
-    
-    public function delete($id) {
+
+    public function delete($id)
+    {
         $currentUser = User::find(session('user')->id);
         $item = User::find($id);
         if ($currentUser->id == $item->id) {
@@ -41,12 +46,12 @@ class Table extends Component
         }
 
         $allAdmin = User::where('level', 'admin')->get();
-        if($item->level == 'admin' && count($allAdmin) == 1) {
+        if ($item->level == 'admin' && count($allAdmin) == 1) {
             $this->emit('error', 'Tidak bisa menghapus admin terakhir');
             return;
         }
         $allAtasan = User::where('level', 'atasan')->get();
-        if($item->level == 'atasan' && count($allAtasan) == 1) {
+        if ($item->level == 'atasan' && count($allAtasan) == 1) {
             $this->emit('error', 'Tidak bisa menghapus atasan terakhir');
             return;
         }
@@ -62,23 +67,35 @@ class Table extends Component
         $this->emit('refreshTable');
     }
 
-    public function resetPassword($id) {
+    public function resetPassword($id)
+    {
         $user = User::find($id);
         $newPassword = $this->getRandomPassword();
         $user->password = bcrypt($newPassword);
         $user->save();
 
-        $msgHtml = '<p>Password berhasil direset. Password baru adalah <b>'.$newPassword.'</b></p>';
+        $msgHtml = '<p>Password berhasil direset. Password baru adalah <b>' . $newPassword . '</b></p>';
         $this->emit('successHtml', $msgHtml);
         $this->emit('refreshTable');
     }
 
-    private function getRandomPassword() {
+    private function getRandomPassword()
+    {
         $pattern = '1234567890abcdefghijklmnopqrstuvwxyz';
         $key = '';
-        for($i=0;$i<8;$i++) {
-            $key .= $pattern[rand(0,35)];
+        for ($i = 0; $i < 8; $i++) {
+            $key .= $pattern[rand(0, 35)];
         }
         return $key;
+    }
+
+    public function filterBidang($id)
+    {
+        if (empty($id)) {
+            $this->mount();
+            return;
+        }
+        $bidang = MasterBidang::find($id);
+        $this->data = User::where('bidang', $bidang->id)->get();
     }
 }

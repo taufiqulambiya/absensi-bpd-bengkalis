@@ -47,10 +47,11 @@
                             <option value="">Pilih</option>
                             <option value="Kabid">Kabid</option>
                             <option value="Kasubbid">Kasubbid</option>
-                            <option value="Subbag">Subbag</option>
+                            <option value="Staff Bidang">Staff Bidang</option>
                             <option value="Kasubbag">Kasubbag</option>
-                            <option value="Kasi">Kasi</option>
+                            <option value="Staff Subbag">Staff Subbag</option>
                             <option value="Sekretaris">Sekretaris</option>
+                            <option value="Kasi">Kasi</option>
                             <option value="Staff">Staff</option>
                             <option value="Lainnya">Lainnya</option>
                         </select>

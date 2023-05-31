@@ -9,6 +9,15 @@ class Table extends Component
 {
     public $data = [];
     public $listeners = ['refreshTable' => 'mount', 'delete' => 'delete'];
+
+    private function transform($data) {
+        return $data->map(function($item) {
+            $item->formatted_created_at = $item->created_at->format('d/m/Y H:i');
+            $item->formatted_updated_at = $item->updated_at->format('d/m/Y H:i');
+            return $item;
+        });
+    }
+
     public function render()
     {
         return view('livewire.bidang.table');
@@ -16,13 +25,15 @@ class Table extends Component
 
     public function mount()
     {
-        $this->data = MasterBidang::all();
+        // $this->data = MasterBidang::all();
+        $this->data = $this->transform(MasterBidang::all());
     }
 
     public function edit($id)
     {
         $item = MasterBidang::find($id);
         $this->emit('fillEdit', $item);
+        $this->data = $this->transform(MasterBidang::all());
     }
     public function delete($id)
     {

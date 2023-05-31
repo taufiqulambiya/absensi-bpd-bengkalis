@@ -9,13 +9,22 @@ class Table extends Component
 {
     public $data = [];
     protected $listeners = ['refreshTable' => 'mount','delete'];
+
+    private function transform($data) {
+        return $data->map(function($item) {
+            $item->formatted_created_at = $item->created_at->format('d/m/Y H:i');
+            return $item;
+        });
+    }
+
     public function render()
     {
         return view('livewire.jam-kerja.table');
     }
 
     public function mount() {
-        $this->data = JamKerja::all();
+        // $this->data = JamKerja::all();
+        $this->data = $this->transform(JamKerja::all());
     }
     public function toggleStatus($id) {
         $item = JamKerja::where('id', $id)->first();
@@ -43,7 +52,7 @@ class Table extends Component
         $implode = implode(', ', $merged);
         $item->allDays = $implode;
         $this->emit('edit', $item);
-        // $this->emit('renderSelect');
+        $this->data = $this->transform(JamKerja::all());
     }
 
     public function delete($id) {

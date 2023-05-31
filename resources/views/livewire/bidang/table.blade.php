@@ -17,8 +17,8 @@
             <td>{{ $item->nama }}</td>
             {{-- <td>{{ $item->kabids->nama ?? '-' }}</td> --}}
             <td>{{ $item->users->count() }}</td>
-            <td>{{ $item->created_at }}</td>
-            <td>{{ $item->updated_at }}</td>
+            <td>{{ $item->formatted_created_at }}</td>
+            <td>{{ $item->formatted_updated_at }}</td>
             <td>
                 <button type="button" class="btn btn-info btn-edit" data-toggle="modal" data-target="#modal-form" title="Perbarui" wire:click="edit({{ $item->id }})"><i
                         class="fa fa-pencil" aria-hidden="true"></i></button>

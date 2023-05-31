@@ -63,7 +63,7 @@
     <div class="container">
         <div class="header">
             <h4>
-                Detail Absensi {{ $user->nama }} - {{ $user->nip }} - {{ $absensi->tanggal }}
+                Detail Absensi {{ $user->nama }} - {{ $user->nip }} - {{ $absensi->formatted_tanggal }}
             </h4>
             <p>
                 Badan Pendapatan Daerah Kota Bengkalis

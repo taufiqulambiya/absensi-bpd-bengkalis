@@ -51,10 +51,13 @@ Route::get('/download/{file}', [Utils::class, 'download'])->name('download');
 
 Route::get('/preload', Preload::class)->name('preload');
 Route::post('/preload', [Preload::class, 'store'])->name('preload');
-Route::get('/storage/uploads/{file}', function($file) {
-    $type = Storage::mimeType('/public/uploads/'.$file);
-    $file = Storage::get('/public/uploads/'.$file);
-    return response($file)->header('Content-Type', $type);
+Route::get('/storage/uploads/', function() {
+    // $type = Storage::mimeType('/public/uploads/'.$file);
+    // $file = Storage::get('/public/uploads/'.$file);
+    // return response($file)->header('Content-Type', $type);
+    // return Storage::download('public/'.$file);
+    $path = $_GET['path'];
+    return response()->file(Storage::path('public/'.$path));
 });
 
 Route::get('/hash_generator', function($pw = '12345') {

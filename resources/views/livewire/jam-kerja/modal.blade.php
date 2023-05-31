@@ -44,8 +44,8 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
                 <button type="submit" class="btn btn-primary" wire:click="submit" wire:loading.attr="disabled">
-                    <span wire:loading wire:target="submit" class="spinner-border spinner-border-sm" role="status"
-                        aria-hidden="true"></span>
+                    {{-- <span wire:loading wire:target="submit" class="spinner-border spinner-border-sm" role="status"
+                        aria-hidden="true"></span> --}}
                     Simpan
                 </button>
             </div>

@@ -1,4 +1,5 @@
 <div class="login_wrapper">
+    <img src="{{ asset('img/logo.png') }}" alt="Logo Bapenda" class="d-block mx-auto w-50 mb-3">
     <h4 class="text-center">Sistem Informasi Absensi Pegawai</h4>
     <div class="card">
         <div class="card-body">

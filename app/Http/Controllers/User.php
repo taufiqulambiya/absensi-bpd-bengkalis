@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\MasterBidang;
 use App\Models\User as ModelsUser;
 use Error;
 use Exception;
@@ -10,6 +11,15 @@ use Illuminate\Support\Facades\Storage;
 
 class User extends BaseController
 {
+    private function transformBidang($data) {
+        return $data->map(function($item) {
+            return [
+                'name' => $item->nama,
+                'id' => $item->id
+            ];
+        });
+    }
+
     public function index(Request $request)
     {
         $user = $request->session()->get('user');
@@ -26,6 +36,7 @@ class User extends BaseController
             return view('panel.kabid.users.users', $data);
         }
         $data['data'] = ModelsUser::with('bidangs')->get();
+        $data['bidang'] = $this->transformBidang(MasterBidang::all());
         return view('panel.admin.users.users', $data);
     }
 

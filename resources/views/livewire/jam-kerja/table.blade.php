@@ -30,7 +30,7 @@
 
             </td>
             <td>
-                {{$item->created_at}}
+                {{$item->formatted_created_at}}
             </td>
             <td>
                 <button class="btn btn-info" data-toggle="modal" data-target="#modal-form" title="Ubah data" wire:click="edit({{$item->id}})">

@@ -17,6 +17,11 @@
         </tr>
     </thead>
     <tbody>
+        @if ($data->isEmpty())
+        <tr>
+            <td colspan="11" class="text-center">Tidak ada data</td>
+        </tr>
+        @endif
         @foreach ($data as $item)
         <tr>
             <th scope="row">{{ $loop->iteration }}</th>
@@ -35,9 +40,10 @@
                     wire:click="$emit('fillEdit', {{ $item }})" title="Edit Pengguna">
                     <span class="fas fa-pencil"></span>
                 </button>
-                <button class="btn btn-warning" title="Reset Password" wire:click="$emit('confirmResetPassword', {{ $item->id }})"><i
-                        class="fas fa-key"></i></button>
-                <button class="btn btn-danger btn-delete" title="Hapus Pengguna" wire:click="$emit('confirmDelete', {{$item->id}})">
+                <button class="btn btn-warning" title="Reset Password"
+                    wire:click="$emit('confirmResetPassword', {{ $item->id }})"><i class="fas fa-key"></i></button>
+                <button class="btn btn-danger btn-delete" title="Hapus Pengguna"
+                    wire:click="$emit('confirmDelete', {{$item->id}})">
                     <span class="fas fa-times"></span>
                 </button>
             </td>

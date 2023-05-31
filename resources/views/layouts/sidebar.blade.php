@@ -1,6 +1,6 @@
 @php
 $user = Request::session()->get('user');
-// $user = DB::table('users')->where('id', $sess_user->id)->first();
+$user = DB::table('users')->where('id', $user->id)->first();
 @endphp
 
 
@@ -48,7 +48,7 @@ if ($user->level == 'atasan') {
         <!-- menu profile quick info -->
         <div class="profile clearfix">
             <div class="profile_pic">
-                <img src="{{ empty($user->gambar) ? 'https://via.placeholder.com/100?text='.$user->nama : Storage::url('public/uploads/'.$user->gambar) }}"
+                <img src="{{ empty($user->gambar) ? 'https://via.placeholder.com/100?text='.$user->nama : Storage::url('public/user_images/'.$user->gambar) }}"
                     alt="{{ $user->nama }}" class="img-circle profile_img" style="aspect-ratio: 1/1">
             </div>
             <div class="profile_info">
